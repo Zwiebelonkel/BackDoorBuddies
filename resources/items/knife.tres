@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://cqiqiqsvrpj8n"]
+
+[ext_resource type="PackedScene" uid="uid://c0k52lcbcot15" path="res://scenes/items/knife_model.tscn" id="1_ftqtd"]
+[ext_resource type="Script" uid="uid://dv3vf8bsc4qul" path="res://resources/items/ItemData.gd" id="1_o16d6"]
+[ext_resource type="PackedScene" uid="uid://c7dq2es36fjqh" path="res://scenes/items/held/KnifeHeld.tscn" id="1_rvh1q"]
+
+[resource]
+script = ExtResource("1_o16d6")
+item_id = &"knife"
+display_name = "Messer"
+description = ""
+world_model = ExtResource("1_ftqtd")
+model_scale = Vector3(0.1, 0.1, 0.1)
+model_rotation_degrees = Vector3(0, 0, 0)
+model_offset = Vector3(0, 0.025, 0)
+held_model = ExtResource("1_rvh1q")
+held_scale = Vector3(0.1, 0.1, 0.1)
+held_rotation_degrees = Vector3(-11.8, -2.6, 0.3)
+held_offset = Vector3(0.267, -0.18, 0.217)
+value = 0
+weight = 1.0
+stackable = false
+max_stack = 1
+interaction_text = "Aufheben"
+metadata/_custom_type_script = "uid://dv3vf8bsc4qul"

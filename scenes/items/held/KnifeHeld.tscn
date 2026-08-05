@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7dq2es36fjqh"]
+
+[ext_resource type="PackedScene" uid="uid://coc6b78e8hjdw" path="res://models/knife/knife.glb" id="1_tikr1"]
+[ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_w43kh"]
+
+[node name="KnifeHeld" type="Node3D"]
+script = ExtResource("1_w43kh")
+
+[node name="knife" parent="." instance=ExtResource("1_tikr1")]
