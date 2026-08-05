@@ -1,9 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://c5grpufdms5vm"]
+[gd_scene load_steps=14 format=3 uid="uid://c5grpufdms5vm"]
 
 [ext_resource type="Script" uid="uid://d3n6jy8d8ofqa" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="Shader" uid="uid://2saae5bl3ovb" path="res://shaders/sky.gdshader" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://6rung1eddhoj" path="res://scenes/items/PickupItem.tscn" id="3_tbgi4"]
 [ext_resource type="Resource" uid="uid://cqiqiqsvrpj8n" path="res://resources/items/knife.tres" id="4_jyhfs"]
+[ext_resource type="PackedScene" path="res://scenes/options_menu.tscn" id="5_options"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0wfyh"]
 albedo_color = Color(0.230315, 0.230315, 0.230315, 1)
@@ -53,12 +54,6 @@ data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0
 [node name="Main" type="Node3D"]
 script = ExtResource("1_o5qli")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="Host" type="Button" parent="CanvasLayer"]
-offset_right = 8.0
-offset_bottom = 8.0
-text = "HOST"
 
 [node name="floor" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_0wfyh")
@@ -97,4 +92,4 @@ item_data = ExtResource("4_jyhfs")
 
 [node name="Players" type="Node3D" parent="."]
 
-[connection signal="pressed" from="CanvasLayer/Host" to="." method="_on_host_pressed"]
+[node name="OptionsMenu" parent="." instance=ExtResource("5_options")]
