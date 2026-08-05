@@ -87,6 +87,7 @@ signal crouched(is_crouching: bool)
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
 @onready var item_holder: Marker3D = $Head/Camera3D/ItemHolder
 @onready var interaction_label: Label = $InteractionUI/Label
+@onready var world_item_holder: Marker3D = $Head/Camera3D/WorldItemHolder
 
 # ─────────────────────────────────────────────
 # PRIVATE STATE
@@ -114,6 +115,7 @@ var _idle_sway_time := 0.0
 
 # Multiplayer sync
 var _sync_timer: float        = 0.0
+var world_held_item_instance: Node3D = null
 
 const STEP_INTERVAL_WALK   := 0.55
 const STEP_INTERVAL_SPRINT := 0.42
@@ -132,13 +134,26 @@ func _ready() -> void:
 		interaction_label.visible = false
 		camera.make_current()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+		# Eigenes First-Person-Item sichtbar
+		item_holder.visible = true
+
+		# Eigenes World-Item ausblenden,
+		# damit du nicht beide Messer gleichzeitig siehst
+		world_item_holder.visible = false
+
 	else:
 		camera.current = false
 		interaction_label.visible = false
 
+		# Fremdes First-Person-Item ausblenden
+		item_holder.visible = false
+
+		# Fremdes World-Item anzeigen
+		world_item_holder.visible = true
+
 	if crouch_collision:
 		crouch_collision.disabled = true
-
 # ─────────────────────────────────────────────
 # INPUT  (nur Authority)
 # ─────────────────────────────────────────────
@@ -493,6 +508,7 @@ func select_inventory_item(index: int) -> void:
 
 	if index < 0 or index >= inventory.size():
 		unequip_current_item()
+		_sync_equipped_item.rpc("")
 		return
 
 	selected_inventory_index = index
@@ -500,6 +516,53 @@ func select_inventory_item(index: int) -> void:
 	var selected_item := inventory[index]
 	_equip_item(selected_item)
 
+	_sync_equipped_item.rpc(selected_item.resource_path)
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_equipped_item(item_resource_path: String) -> void:
+	_clear_world_held_item()
+
+	if item_resource_path.is_empty():
+		return
+
+	var loaded_resource := load(item_resource_path)
+
+	if not loaded_resource is ItemData:
+		push_error("World ItemData konnte nicht geladen werden: " + item_resource_path)
+		return
+
+	var data := loaded_resource as ItemData
+	_equip_world_item(data)
+	
+func _equip_world_item(data: ItemData) -> void:
+	_clear_world_held_item()
+
+	if data == null:
+		return
+
+	if data.held_model == null:
+		return
+
+	var instance := data.held_model.instantiate()
+
+	if not instance is Node3D:
+		instance.queue_free()
+		return
+
+	world_held_item_instance = instance as Node3D
+
+	world_held_item_instance.position = data.held_offset
+	world_held_item_instance.rotation_degrees = data.held_rotation_degrees
+	world_held_item_instance.scale = data.held_scale
+
+	world_item_holder.add_child(world_held_item_instance)
+	
+func _clear_world_held_item() -> void:
+	if world_held_item_instance == null:
+		return
+
+	world_held_item_instance.queue_free()
+	world_held_item_instance = null
 
 func _equip_item(data: ItemData) -> void:
 	_clear_held_item()
@@ -537,6 +600,9 @@ func _equip_item(data: ItemData) -> void:
 func unequip_current_item() -> void:
 	selected_inventory_index = -1
 	_clear_held_item()
+
+	if is_multiplayer_authority():
+		_sync_equipped_item.rpc("")
 
 
 func _clear_held_item() -> void:
@@ -593,6 +659,17 @@ func _use_held_item() -> void:
 
 	if held_item_instance.has_method("use_primary"):
 		held_item_instance.use_primary()
+
+	_play_world_item_use.rpc()
+	
+	
+@rpc("authority", "call_remote", "unreliable")
+func _play_world_item_use() -> void:
+	if world_held_item_instance == null:
+		return
+
+	if world_held_item_instance.has_method("use_primary"):
+		world_held_item_instance.use_primary()
 
 func _update_hand_sway(delta: float) -> void:
 	if item_holder == null:

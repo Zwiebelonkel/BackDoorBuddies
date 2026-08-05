@@ -1,6 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://c30xd8tlqhkv4"]
+[gd_scene load_steps=11 format=3 uid="uid://c30xd8tlqhkv4"]
 
 [ext_resource type="Script" uid="uid://ch8vih0wn4rne" path="res://scripts/PlayerController.gd" id="1_ci81t"]
+[ext_resource type="Shader" uid="uid://bd71swjrbnjv5" path="res://shaders/buckshot.gdshader" id="2_awcob"]
+[ext_resource type="Shader" uid="uid://cm12ley4yopse" path="res://shaders/Lens.gdshader" id="2_bb7sg"]
+[ext_resource type="Texture2D" uid="uid://qm5t2fg87qi0" path="res://resources/scratches2.png" id="3_t6qk1"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5lwik"]
 radius = 0.4
@@ -17,7 +20,37 @@ properties/0/replication_mode = 1
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_ci81t"]
 radius = 0.4
-height = 1.8
+height = 1.46
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iqnxw"]
+shader = ExtResource("2_bb7sg")
+shader_parameter/dirt_texture = ExtResource("3_t6qk1")
+shader_parameter/dirt_strength = 0.359
+shader_parameter/scratch_strength = 0.0
+shader_parameter/vignette_strength = 0.65
+shader_parameter/distortion_strength = 0.05
+shader_parameter/blur_strength = 0.375
+shader_parameter/scratch_scroll_speed = -1.0
+shader_parameter/flicker_strength = 0.0
+shader_parameter/dirt_color = Color(0, 0, 0, 1)
+shader_parameter/scratch_color = Color(0.85, 0.82, 0.72, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hkpaj"]
+shader = ExtResource("2_awcob")
+shader_parameter/exposure = 1.0
+shader_parameter/contrast = 1.1
+shader_parameter/saturation = 1.12
+shader_parameter/enable_pixelate = true
+shader_parameter/pixel_factor = 3.0
+shader_parameter/enable_posterize = true
+shader_parameter/color_levels = 16.0
+shader_parameter/dither_strength = 0.35
+shader_parameter/chrom_aberration = 0.054
+shader_parameter/vignette_strength = 2.0
+shader_parameter/grain_strength = 0.0
+shader_parameter/tint_color = Vector3(0.95, 1.03, 0.9)
+shader_parameter/tint_strength = 0.15
+shader_parameter/viewport_size_override = Vector2(0, 0)
 
 [node name="PlayerController" type="CharacterBody3D"]
 script = ExtResource("1_ci81t")
@@ -49,6 +82,16 @@ collide_with_areas = true
 [node name="ItemHolder" type="Marker3D" parent="Head/Camera3D"]
 transform = Transform3D(-0.215809, 0.976436, 0, -0.976436, -0.215809, 0, 0, 0, 1, 0.525871, 0, -0.726766)
 
+[node name="WorldItemHolder" type="Marker3D" parent="Head/Camera3D"]
+transform = Transform3D(-0.215809, 0.976436, 0, -0.976436, -0.215809, 0, 0, 0, 1, 0.525871, 0, -0.726766)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Head/Camera3D"]
+light_energy = 3.556
+light_volumetric_fog_energy = 1.485
+shadow_enabled = true
+spot_range = 8.28598
+spot_angle = 36.2418
+
 [node name="StandingRaycast" type="RayCast3D" parent="."]
 target_position = Vector3(0, 1.2, 0)
 
@@ -56,7 +99,7 @@ target_position = Vector3(0, 1.2, 0)
 replication_config = SubResource("SceneReplicationConfig_awcob")
 
 [node name="MultiMeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.892293, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.867849, 0)
 mesh = SubResource("CapsuleMesh_ci81t")
 
 [node name="InteractionUI" type="CanvasLayer" parent="."]
@@ -74,3 +117,25 @@ offset_bottom = 238.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Aufheben"
+
+[node name="Effects" type="CanvasLayer" parent="."]
+
+[node name="TextureRect2" type="ColorRect" parent="Effects"]
+material = SubResource("ShaderMaterial_iqnxw")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Effects2" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="ColorRect" parent="Effects2"]
+material = SubResource("ShaderMaterial_hkpaj")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

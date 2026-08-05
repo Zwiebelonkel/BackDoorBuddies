@@ -35,8 +35,10 @@ func set_open(is_open: bool) -> void:
 	get_tree().paused = is_open
 
 	if is_open:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		fps_spin_box.grab_focus()
 	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		_save_options()
 
 

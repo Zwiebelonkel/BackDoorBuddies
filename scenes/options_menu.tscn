@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://optionsmenu0001"]
+[gd_scene load_steps=2 format=3 uid="uid://d2ei5j2nrftl3"]
 
-[ext_resource type="Script" path="res://scripts/options_menu.gd" id="1_options"]
+[ext_resource type="Script" uid="uid://j7nlpnpujquw" path="res://scripts/options_menu.gd" id="1_options"]
 
 [node name="OptionsMenu" type="CanvasLayer"]
 process_mode = 3
@@ -29,59 +29,72 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
 text = "Options"
 horizontal_alignment = 1
 
 [node name="FpsRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="FpsLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/FpsRow"]
 custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
 text = "Max FPS"
 
 [node name="FpsSpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/FpsRow"]
+layout_mode = 2
 min_value = 30.0
 max_value = 240.0
-step = 1.0
 value = 60.0
 
 [node name="FullscreenRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="FullscreenLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/FullscreenRow"]
 custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
 text = "Fullscreen"
 
 [node name="FullscreenCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/FullscreenRow"]
+layout_mode = 2
 text = "Enabled"
 
 [node name="VolumeRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="VolumeLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
 custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
 text = "Master Volume"
 
 [node name="VolumeSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
 custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
 max_value = 1.0
 step = 0.01
 value = 1.0
 
 [node name="VolumeValueLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
 custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
 text = "100%"
 
 [node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
 text = "Close"
 
 [connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/FpsRow/FpsSpinBox" to="." method="_on_fps_spin_box_value_changed"]
