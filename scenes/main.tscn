@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://c5grpufdms5vm"]
+[gd_scene load_steps=18 format=3 uid="uid://c5grpufdms5vm"]
 
 [ext_resource type="Script" uid="uid://d3n6jy8d8ofqa" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="Shader" uid="uid://2saae5bl3ovb" path="res://shaders/sky.gdshader" id="2_0wfyh"]
@@ -8,6 +8,7 @@
 [ext_resource type="Resource" uid="uid://cqwymrg5gg3l1" path="res://resources/items/weed.tres" id="5_tipki"]
 [ext_resource type="Resource" uid="uid://cbwatspyb2m5r" path="res://resources/items/cocaine.tres" id="6_85g3d"]
 [ext_resource type="Resource" uid="uid://ovc8e3f4kvdo" path="res://resources/items/mdma.tres" id="7_choun"]
+[ext_resource type="PackedScene" uid="uid://byeosjjl5c1lv" path="res://scenes/props/Van.tscn" id="9_85g3d"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0wfyh"]
 albedo_color = Color(0.230315, 0.230315, 0.230315, 1)
@@ -169,3 +170,6 @@ item_data = ExtResource("7_choun")
 [node name="Players" type="Node3D" parent="."]
 
 [node name="OptionsMenu" parent="." instance=ExtResource("5_options")]
+
+[node name="Van" parent="." instance=ExtResource("9_85g3d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.66507, -0.122275, 3.50694)

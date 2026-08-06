@@ -4,7 +4,7 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5lwik"]
 radius = 0.4
-height = 1.8
+height = 1.46306
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ci81t"]
 radius = 0.4
@@ -29,7 +29,7 @@ tilt_max_degrees = 1.875
 crouch_head_y = 0.28
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.861763, 0)
 shape = SubResource("CapsuleShape3D_5lwik")
 
 [node name="CrouchCollision" type="CollisionShape3D" parent="."]
