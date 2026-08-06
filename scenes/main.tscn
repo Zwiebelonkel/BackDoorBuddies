@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://c5grpufdms5vm"]
+[gd_scene load_steps=22 format=3 uid="uid://c5grpufdms5vm"]
 
 [ext_resource type="Script" uid="uid://d3n6jy8d8ofqa" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="Shader" uid="uid://2saae5bl3ovb" path="res://shaders/sky.gdshader" id="2_0wfyh"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://byeosjjl5c1lv" path="res://scenes/props/Van.tscn" id="9_85g3d"]
 [ext_resource type="Resource" uid="uid://dp6uqgeul62c5" path="res://resources/items/weedBag.tres" id="9_ya4ey"]
 [ext_resource type="Resource" uid="uid://bavwx5akytqhh" path="res://resources/items/cokeBrick.tres" id="10_eb6dy"]
+[ext_resource type="PackedScene" uid="uid://qh6cm82tt6dl" path="res://scenes/props/IndustrialMap.tscn" id="13_trceg"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0wfyh"]
 albedo_color = Color(0.230315, 0.230315, 0.230315, 1)
@@ -67,6 +68,7 @@ data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0
 script = ExtResource("1_o5qli")
 
 [node name="floor" type="MeshInstance3D" parent="."]
+visible = false
 mesh = SubResource("BoxMesh_0wfyh")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="floor"]
@@ -200,3 +202,6 @@ item_data = ExtResource("10_eb6dy")
 
 [node name="Van" parent="." instance=ExtResource("9_85g3d")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.66507, -0.122275, 3.50694)
+
+[node name="IndustrialMap" parent="." instance=ExtResource("13_trceg")]
+transform = Transform3D(0.525, 0, 0, 0, 0.525, 0, 0, 0, 0.525, 0, -0.425718, -10.1748)
