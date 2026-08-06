@@ -225,6 +225,7 @@ horizontal_alignment = 1
 [node name="InteractionUI" type="CanvasLayer" parent="."]
 
 [node name="Label" type="Label" parent="InteractionUI"]
+visible = false
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
