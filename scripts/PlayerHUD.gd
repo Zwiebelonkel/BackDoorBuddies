@@ -38,14 +38,19 @@ func _on_inventory_changed(
 		var icon := slot.get_node(
 			"VBoxContainer/Icon"
 		) as TextureRect
+		var item_name := slot.get_node(
+			"VBoxContainer/ItemName"
+		) as Label
 
 		if index < items.size() and items[index] != null:
 			icon.texture = items[index].icon
 			icon.visible = items[index].icon != null
+			item_name.text = items[index].display_name
 			slot.tooltip_text = items[index].display_name
 		else:
 			icon.texture = null
 			icon.visible = false
+			item_name.text = ""
 			slot.tooltip_text = ""
 
 		_update_slot_style(slot, index == selected_index)
@@ -66,7 +71,12 @@ func clear_inventory_display() -> void:
 		var icon := slot.get_node(
 			"VBoxContainer/Icon"
 		) as TextureRect
+		var item_name := slot.get_node(
+			"VBoxContainer/ItemName"
+		) as Label
 
 		icon.texture = null
 		icon.visible = false
+		item_name.text = ""
+		slot.tooltip_text = ""
 		slot.modulate = Color(0.55, 0.62, 0.57, 1.0)

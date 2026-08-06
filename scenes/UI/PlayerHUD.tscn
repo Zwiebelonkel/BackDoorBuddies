@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dekujcoi2xbfv"]
+[gd_scene load_steps=12 format=3 uid="uid://dekujcoi2xbfv"]
 
 [ext_resource type="Script" uid="uid://co41cyy75txyx" path="res://scripts/PlayerHUD.gd" id="1_lc2f8"]
 [ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="2_0fkfg"]
@@ -40,6 +40,11 @@ shadow_size = 9
 font_color = Color(0.55, 0.85, 0.62, 1)
 outline_size = 3
 outline_color = Color(0, 0, 0, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_item_name"]
+font_color = Color(0.8, 0.95, 0.82, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.9)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_lt46w"]
 shader = ExtResource("3_ucih8")
@@ -131,11 +136,19 @@ theme_override_constants/separation = 0
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/InventoryBar/Slot1/VBoxContainer"]
-custom_minimum_size = Vector2(52, 48)
+custom_minimum_size = Vector2(52, 32)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="ItemName" type="Label" parent="Root/InventoryBar/Slot1/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 11
+label_settings = SubResource("LabelSettings_item_name")
+horizontal_alignment = 1
+text_overrun_behavior = 3
 
 [node name="SlotNumber" type="Label" parent="Root/InventoryBar/Slot1/VBoxContainer"]
 layout_mode = 2
@@ -158,11 +171,19 @@ theme_override_constants/separation = 0
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/InventoryBar/Slot2/VBoxContainer"]
-custom_minimum_size = Vector2(52, 48)
+custom_minimum_size = Vector2(52, 32)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="ItemName" type="Label" parent="Root/InventoryBar/Slot2/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 11
+label_settings = SubResource("LabelSettings_item_name")
+horizontal_alignment = 1
+text_overrun_behavior = 3
 
 [node name="SlotNumber" type="Label" parent="Root/InventoryBar/Slot2/VBoxContainer"]
 layout_mode = 2
@@ -184,11 +205,19 @@ theme_override_constants/separation = 0
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/InventoryBar/Slot3/VBoxContainer"]
-custom_minimum_size = Vector2(52, 48)
+custom_minimum_size = Vector2(52, 32)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="ItemName" type="Label" parent="Root/InventoryBar/Slot3/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 11
+label_settings = SubResource("LabelSettings_item_name")
+horizontal_alignment = 1
+text_overrun_behavior = 3
 
 [node name="SlotNumber" type="Label" parent="Root/InventoryBar/Slot3/VBoxContainer"]
 layout_mode = 2
@@ -210,11 +239,19 @@ theme_override_constants/separation = 0
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/InventoryBar/Slot4/VBoxContainer"]
-custom_minimum_size = Vector2(52, 48)
+custom_minimum_size = Vector2(52, 32)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="ItemName" type="Label" parent="Root/InventoryBar/Slot4/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 11
+label_settings = SubResource("LabelSettings_item_name")
+horizontal_alignment = 1
+text_overrun_behavior = 3
 
 [node name="SlotNumber" type="Label" parent="Root/InventoryBar/Slot4/VBoxContainer"]
 layout_mode = 2
