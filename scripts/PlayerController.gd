@@ -87,7 +87,7 @@ signal inventory_changed(items: Array[ItemData], selected_index: int)
 @onready var uncroch_raycast: RayCast3D           = $StandingRaycast
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
 @onready var item_holder: Marker3D = $Head/Camera3D/ItemHolder
-@onready var interaction_label: Label = $InteractionUI/Label
+var interaction_label: Label = null
 @onready var world_item_holder: Marker3D = $Head/Camera3D/WorldItemHolder
 
 # ─────────────────────────────────────────────
@@ -172,6 +172,8 @@ func _create_local_hud() -> void:
 
 	get_tree().current_scene.add_child(player_hud)
 	player_hud.bind_player(self)
+	interaction_label = player_hud.interaction_label
+	interaction_label.visible = false
 
 	_emit_inventory_changed()
 
@@ -576,8 +578,11 @@ func _server_drop_item(slot_index: int) -> void:
 	else:
 		_confirm_drop.rpc_id(owner_peer_id, slot_index)
 
-@rpc("authority", "call_remote", "reliable")
+@rpc("any_peer", "call_remote", "reliable")
 func _confirm_drop(slot_index: int) -> void:
+	if multiplayer.get_remote_sender_id() != 1:
+		return
+
 	if not is_multiplayer_authority():
 		return
 
@@ -632,9 +637,13 @@ func _remove_dropped_item_local(slot_index: int) -> void:
 
 	if inventory.is_empty():
 		selected_inventory_index = -1
+		_sync_equipped_item.rpc("")
 	else:
 		selected_inventory_index = mini(slot_index, inventory.size() - 1)
 		_equip_item(inventory[selected_inventory_index])
+		_sync_equipped_item.rpc(
+			inventory[selected_inventory_index].resource_path
+		)
 
 	_emit_inventory_changed()
 
@@ -645,8 +654,13 @@ func _remove_dropped_item_local(slot_index: int) -> void:
 		MAX_INVENTORY_SIZE
 	)
 
-@rpc("authority", "call_remote", "reliable")
+@rpc("any_peer", "call_remote", "reliable")
 func _receive_item(item_resource_path: String) -> void:
+	# Das serverseitige Player-Node gehört dem Client. Deshalb darf der Server
+	# diese Bestätigung senden, obwohl er nicht die Multiplayer-Authority ist.
+	if multiplayer.get_remote_sender_id() != 1:
+		return
+
 	if not is_multiplayer_authority():
 		return
 
@@ -703,6 +717,7 @@ func select_inventory_item(index: int) -> void:
 
 	var selected_item := inventory[index]
 	_equip_item(selected_item)
+	_sync_equipped_item.rpc(selected_item.resource_path)
 
 	_emit_inventory_changed()
 
@@ -790,6 +805,7 @@ func _equip_item(data: ItemData) -> void:
 func unequip_current_item() -> void:
 	selected_inventory_index = -1
 	_clear_held_item()
+	_sync_equipped_item.rpc("")
 	_emit_inventory_changed()
 
 
@@ -800,6 +816,9 @@ func _clear_held_item() -> void:
 	held_item_instance.queue_free()
 	held_item_instance = null
 func _update_interaction_text() -> void:
+	if not is_multiplayer_authority():
+		return
+
 	if interaction_label == null or interaction_ray == null:
 		return
 
@@ -835,6 +854,7 @@ func clear_inventory() -> void:
 
 	selected_inventory_index = -1
 	_clear_held_item()
+	_sync_equipped_item.rpc("")
 	_emit_inventory_changed()
 
 	print("Inventar wurde geleert.")

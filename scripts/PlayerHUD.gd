@@ -7,10 +7,12 @@ extends CanvasLayer
 	$Root/InventoryBar/Slot3,
 	$Root/InventoryBar/Slot4
 ]
+@onready var interaction_label: Label = $InteractionUI/Label
 
 
 func _ready() -> void:
 	clear_inventory_display()
+	interaction_label.visible = false
 
 
 func bind_player(player: FPSController) -> void:
