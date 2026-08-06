@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwgd0heyjl8a8"]
+
+[ext_resource type="PackedScene" uid="uid://byvsgpfty2ukf" path="res://models/weed/weed.glb" id="1_eorlx"]
+
+[node name="WeedModel" type="Node3D"]
+
+[node name="weed" parent="." instance=ExtResource("1_eorlx")]

@@ -74,6 +74,7 @@ signal jumped
 signal landed
 signal footstep(speed_ratio: float)
 signal crouched(is_crouching: bool)
+signal inventory_changed(items: Array[ItemData], selected_index: int)
 
 # ─────────────────────────────────────────────
 # NODES
@@ -107,6 +108,7 @@ var _target_col_height: float = 1.8
 var _current_tilt: float      = 0.0
 var inventory: Array[ItemData] = []
 var selected_inventory_index: int = -1
+var server_inventory_count: int = 0
 var held_item_instance: Node3D = null
 var _mouse_sway_input := Vector2.ZERO
 var _item_holder_start_position := Vector3.ZERO
@@ -120,6 +122,13 @@ var world_held_item_instance: Node3D = null
 const STEP_INTERVAL_WALK   := 0.55
 const STEP_INTERVAL_SPRINT := 0.42
 
+const MAX_INVENTORY_SIZE := 4
+var player_hud: PlayerHUD = null
+
+const PLAYER_HUD_SCENE := preload(
+	"res://scenes/UI/PlayerHUD.tscn"
+)
+
 # ─────────────────────────────────────────────
 # READY
 # ─────────────────────────────────────────────
@@ -131,32 +140,40 @@ func _ready() -> void:
 	_item_holder_start_rotation = item_holder.rotation
 
 	if is_multiplayer_authority():
-		interaction_label.visible = false
 		camera.make_current()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
-		# Eigenes First-Person-Item sichtbar
 		item_holder.visible = true
-
-		# Eigenes World-Item ausblenden,
-		# damit du nicht beide Messer gleichzeitig siehst
 		world_item_holder.visible = false
 
+		_create_local_hud()
 	else:
 		camera.current = false
-		interaction_label.visible = false
 
-		# Fremdes First-Person-Item ausblenden
 		item_holder.visible = false
-
-		# Fremdes World-Item anzeigen
 		world_item_holder.visible = true
 
 	if crouch_collision:
 		crouch_collision.disabled = true
+
 # ─────────────────────────────────────────────
 # INPUT  (nur Authority)
 # ─────────────────────────────────────────────
+
+func _create_local_hud() -> void:
+	if player_hud != null:
+		return
+
+	player_hud = PLAYER_HUD_SCENE.instantiate() as PlayerHUD
+
+	if player_hud == null:
+		push_error("PlayerHUD konnte nicht erstellt werden.")
+		return
+
+	get_tree().current_scene.add_child(player_hud)
+	player_hud.bind_player(self)
+
+	_emit_inventory_changed()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_multiplayer_authority():
@@ -190,6 +207,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event.is_action_pressed("inventory_slot_3"):
 		select_inventory_item(2)
+		
+	if event.is_action_pressed("inventory_slot_4"):
+		select_inventory_item(3)
 
 func _rotate_camera(delta_2d: Vector2) -> void:
 	rotate_y(-delta_2d.x)
@@ -459,6 +479,16 @@ func server_receive_item(data: ItemData) -> bool:
 		push_error("ItemData muss als .tres-Datei gespeichert sein.")
 		return false
 
+	if server_inventory_count >= MAX_INVENTORY_SIZE:
+		print(
+			"Inventar von Spieler ",
+			get_multiplayer_authority(),
+			" ist voll."
+		)
+		return false
+
+	server_inventory_count += 1
+
 	var player_peer_id := get_multiplayer_authority()
 
 	if player_peer_id == multiplayer.get_unique_id():
@@ -467,7 +497,6 @@ func server_receive_item(data: ItemData) -> bool:
 		_receive_item.rpc_id(player_peer_id, data.resource_path)
 
 	return true
-
 
 @rpc("authority", "call_remote", "reliable")
 func _receive_item(item_resource_path: String) -> void:
@@ -478,6 +507,10 @@ func _receive_item(item_resource_path: String) -> void:
 
 
 func _receive_item_local(item_resource_path: String) -> void:
+	if inventory.size() >= MAX_INVENTORY_SIZE:
+		push_warning("Lokales Inventar ist bereits voll.")
+		return
+
 	var loaded_resource := load(item_resource_path)
 
 	if not loaded_resource is ItemData:
@@ -493,22 +526,30 @@ func _receive_item_local(item_resource_path: String) -> void:
 	print(
 		"Aufgenommen: ",
 		data.display_name,
-		" | ID: ",
-		data.item_id,
-		" | Inventargröße: ",
-		inventory.size()
+		" | Inventar: ",
+		inventory.size(),
+		"/",
+		MAX_INVENTORY_SIZE
 	)
 
 	if selected_inventory_index == -1:
 		select_inventory_item(0)
+	else:
+		_emit_inventory_changed()
+	
+func _emit_inventory_changed() -> void:
+	inventory_changed.emit(inventory, selected_inventory_index)
 	
 func select_inventory_item(index: int) -> void:
 	if not is_multiplayer_authority():
 		return
 
-	if index < 0 or index >= inventory.size():
+	if index < 0 or index >= MAX_INVENTORY_SIZE:
+		return
+
+	# Leerer Slot: aktuelles Item abwählen.
+	if index >= inventory.size():
 		unequip_current_item()
-		_sync_equipped_item.rpc("")
 		return
 
 	selected_inventory_index = index
@@ -516,7 +557,9 @@ func select_inventory_item(index: int) -> void:
 	var selected_item := inventory[index]
 	_equip_item(selected_item)
 
-	_sync_equipped_item.rpc(selected_item.resource_path)
+	_emit_inventory_changed()
+
+	# Später ggf. World-Item-Synchronisierung aufrufen.
 
 @rpc("authority", "call_remote", "reliable")
 func _sync_equipped_item(item_resource_path: String) -> void:
@@ -600,9 +643,7 @@ func _equip_item(data: ItemData) -> void:
 func unequip_current_item() -> void:
 	selected_inventory_index = -1
 	_clear_held_item()
-
-	if is_multiplayer_authority():
-		_sync_equipped_item.rpc("")
+	_emit_inventory_changed()
 
 
 func _clear_held_item() -> void:
@@ -641,14 +682,21 @@ func _update_interaction_text() -> void:
 
 func clear_inventory() -> void:
 	inventory.clear()
+	server_inventory_count = 0
 	selected_inventory_index = -1
 	_clear_held_item()
+	_emit_inventory_changed()
 
 	print("Inventar wurde geleert.")
 	
 func _exit_tree() -> void:
 	_clear_held_item()
 	inventory.clear()
+
+	if is_instance_valid(player_hud):
+		player_hud.queue_free()
+
+	player_hud = null
 	
 func _use_held_item() -> void:
 	if not is_multiplayer_authority():

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://ovc8e3f4kvdo"]
+
+[ext_resource type="PackedScene" uid="uid://b6b2dal4dbhpa" path="res://scenes/items/held/MdmaHeld.tscn" id="1_22joj"]
+[ext_resource type="Script" uid="uid://dv3vf8bsc4qul" path="res://resources/items/ItemData.gd" id="2_e7lbr"]
+[ext_resource type="PackedScene" uid="uid://y4fpycnxagw6" path="res://scenes/items/mdma_model.tscn" id="3_e7lbr"]
+
+[resource]
+script = ExtResource("2_e7lbr")
+item_id = &"mdma"
+display_name = "MDMA"
+description = ""
+world_model = ExtResource("3_e7lbr")
+model_scale = Vector3(0.1, 0.1, 0.1)
+model_rotation_degrees = Vector3(0, 0, 0)
+model_offset = Vector3(0, 0.025, 0)
+held_model = ExtResource("1_22joj")
+held_scale = Vector3(0.1, 0.1, 0.1)
+held_rotation_degrees = Vector3(-12.5, 88.6, -12.2)
+held_offset = Vector3(0.232, 0.051, 0.275)
+value = 0
+weight = 1.0
+stackable = false
+max_stack = 1
+interaction_text = "Aufheben"
+metadata/_custom_type_script = "uid://dv3vf8bsc4qul"

@@ -1,0 +1,264 @@
+[gd_scene load_steps=11 format=3 uid="uid://dekujcoi2xbfv"]
+
+[ext_resource type="Script" uid="uid://co41cyy75txyx" path="res://scripts/PlayerHUD.gd" id="1_lc2f8"]
+[ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="2_0fkfg"]
+[ext_resource type="Shader" uid="uid://cm12ley4yopse" path="res://shaders/Lens.gdshader" id="3_ucih8"]
+[ext_resource type="Texture2D" uid="uid://qm5t2fg87qi0" path="res://resources/scratches2.png" id="4_105ry"]
+[ext_resource type="Shader" uid="uid://bd71swjrbnjv5" path="res://shaders/buckshot.gdshader" id="5_51gfv"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.01, 0.015, 0.012, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1, 0.22, 0.14, 0.8)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.035, 0.045, 0.04, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.35, 0.22, 0.85)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 4
+
+[sub_resource type="LabelSettings" id="LabelSettings_number"]
+font_size = 14
+font_color = Color(0.55, 0.85, 0.62, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.8)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lt46w"]
+shader = ExtResource("3_ucih8")
+shader_parameter/dirt_texture = ExtResource("4_105ry")
+shader_parameter/dirt_strength = 0.359
+shader_parameter/scratch_strength = 0.0
+shader_parameter/vignette_strength = 0.65
+shader_parameter/distortion_strength = 0.0
+shader_parameter/blur_strength = 0.375
+shader_parameter/scratch_scroll_speed = -1.0
+shader_parameter/flicker_strength = 0.0
+shader_parameter/dirt_color = Color(0, 0, 0, 1)
+shader_parameter/scratch_color = Color(0.85, 0.82, 0.72, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xnklj"]
+shader = ExtResource("5_51gfv")
+shader_parameter/exposure = 1.0
+shader_parameter/contrast = 1.1
+shader_parameter/saturation = 1.12
+shader_parameter/enable_pixelate = true
+shader_parameter/pixel_factor = 3.0
+shader_parameter/enable_posterize = true
+shader_parameter/color_levels = 16.0
+shader_parameter/dither_strength = 0.35
+shader_parameter/chrom_aberration = 0.054
+shader_parameter/vignette_strength = 2.0
+shader_parameter/grain_strength = 0.0
+shader_parameter/tint_color = Vector3(0.95, 1.03, 0.9)
+shader_parameter/tint_strength = 0.15
+shader_parameter/viewport_size_override = Vector2(0, 0)
+
+[node name="PlayerHUD" type="CanvasLayer"]
+layer = 128
+script = ExtResource("1_lc2f8")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="InventoryBarBackground" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -186.0
+offset_top = -112.0
+offset_right = 186.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bar")
+
+[node name="InventoryBar" type="HBoxContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -174.0
+offset_top = -100.0
+offset_right = 174.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Slot1" type="PanelContainer" parent="Root/InventoryBar"]
+custom_minimum_size = Vector2(80, 70)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/InventoryBar/Slot1"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/InventoryBar/Slot1/VBoxContainer"]
+custom_minimum_size = Vector2(52, 48)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SlotNumber" type="Label" parent="Root/InventoryBar/Slot1/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+text = "1"
+label_settings = SubResource("LabelSettings_number")
+horizontal_alignment = 1
+
+[node name="Slot2" type="PanelContainer" parent="Root/InventoryBar"]
+custom_minimum_size = Vector2(80, 70)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/InventoryBar/Slot2"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/InventoryBar/Slot2/VBoxContainer"]
+custom_minimum_size = Vector2(52, 48)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SlotNumber" type="Label" parent="Root/InventoryBar/Slot2/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+text = "2"
+label_settings = SubResource("LabelSettings_number")
+horizontal_alignment = 1
+
+[node name="Slot3" type="PanelContainer" parent="Root/InventoryBar"]
+custom_minimum_size = Vector2(80, 70)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/InventoryBar/Slot3"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/InventoryBar/Slot3/VBoxContainer"]
+custom_minimum_size = Vector2(52, 48)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SlotNumber" type="Label" parent="Root/InventoryBar/Slot3/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+text = "3"
+label_settings = SubResource("LabelSettings_number")
+horizontal_alignment = 1
+
+[node name="Slot4" type="PanelContainer" parent="Root/InventoryBar"]
+custom_minimum_size = Vector2(80, 70)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/InventoryBar/Slot4"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/InventoryBar/Slot4/VBoxContainer"]
+custom_minimum_size = Vector2(52, 48)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SlotNumber" type="Label" parent="Root/InventoryBar/Slot4/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+text = "4"
+label_settings = SubResource("LabelSettings_number")
+horizontal_alignment = 1
+
+[node name="InteractionUI" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="InteractionUI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -38.0
+offset_top = 179.52
+offset_right = 38.0
+offset_bottom = 202.52
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 34
+text = "Aufheben"
+
+[node name="Effects" type="CanvasLayer" parent="."]
+
+[node name="TextureRect2" type="ColorRect" parent="Effects"]
+material = SubResource("ShaderMaterial_lt46w")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Effects2" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="ColorRect" parent="Effects2"]
+material = SubResource("ShaderMaterial_xnklj")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

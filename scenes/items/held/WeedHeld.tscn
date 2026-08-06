@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://fsdjovmj2tkk"]
+
+[ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_irwsp"]
+[ext_resource type="PackedScene" uid="uid://byvsgpfty2ukf" path="res://models/weed/weed.glb" id="2_irwsp"]
+
+[node name="WeedHeld" type="Node3D"]
+script = ExtResource("1_irwsp")
+
+[node name="weed" parent="." instance=ExtResource("2_irwsp")]

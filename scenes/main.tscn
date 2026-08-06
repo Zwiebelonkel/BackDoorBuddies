@@ -1,11 +1,13 @@
-[gd_scene load_steps=15 format=3 uid="uid://c5grpufdms5vm"]
+[gd_scene load_steps=17 format=3 uid="uid://c5grpufdms5vm"]
 
 [ext_resource type="Script" uid="uid://d3n6jy8d8ofqa" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="Shader" uid="uid://2saae5bl3ovb" path="res://shaders/sky.gdshader" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://6rung1eddhoj" path="res://scenes/items/PickupItem.tscn" id="3_tbgi4"]
 [ext_resource type="Resource" uid="uid://cqiqiqsvrpj8n" path="res://resources/items/knife.tres" id="4_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://d2ei5j2nrftl3" path="res://scenes/options_menu.tscn" id="5_options"]
-[ext_resource type="PackedScene" uid="uid://qh6cm82tt6dl" path="res://scenes/props/IndustrialMap.tscn" id="6_tefeu"]
+[ext_resource type="Resource" uid="uid://cqwymrg5gg3l1" path="res://resources/items/weed.tres" id="5_tipki"]
+[ext_resource type="Resource" uid="uid://cbwatspyb2m5r" path="res://resources/items/cocaine.tres" id="6_85g3d"]
+[ext_resource type="Resource" uid="uid://ovc8e3f4kvdo" path="res://resources/items/mdma.tres" id="7_choun"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0wfyh"]
 albedo_color = Color(0.230315, 0.230315, 0.230315, 1)
@@ -19,7 +21,7 @@ data = PackedVector3Array(-10, 0.0075, 10, 10, 0.0075, 10, -10, -0.0075, 10, 10,
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sugp2"]
 shader = ExtResource("2_0wfyh")
-shader_parameter/time_of_day = 0.272
+shader_parameter/time_of_day = 1.0
 shader_parameter/day_zenith = Color(0.18, 0.48, 0.9, 1)
 shader_parameter/day_horizon = Color(0.72, 0.9, 1, 1)
 shader_parameter/sunset_zenith = Color(0.25, 0.12, 0.28, 1)
@@ -146,16 +148,24 @@ shape = SubResource("ConcavePolygonShape3D_jyhfs")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.48337, 0.0105814, -0.875352, -0.620075, -0.709979, 0.333823, -0.617949, 0.704144, 0.349744, 0, 1.99455, 2.7704)
-light_color = Color(0.960784, 0.419608, 0.286275, 1)
 shadow_enabled = true
 
-[node name="PickupItem" parent="." instance=ExtResource("3_tbgi4")]
+[node name="Knife" parent="." instance=ExtResource("3_tbgi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
 item_data = ExtResource("4_jyhfs")
+
+[node name="Weed" parent="." instance=ExtResource("3_tbgi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.16277, 0, 0)
+item_data = ExtResource("5_tipki")
+
+[node name="Coke" parent="." instance=ExtResource("3_tbgi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.052914, 0, 0)
+item_data = ExtResource("6_85g3d")
+
+[node name="MDMA" parent="." instance=ExtResource("3_tbgi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -1.18298)
+item_data = ExtResource("7_choun")
 
 [node name="Players" type="Node3D" parent="."]
 
 [node name="OptionsMenu" parent="." instance=ExtResource("5_options")]
-
-[node name="IndustrialMap" parent="." instance=ExtResource("6_tefeu")]
-transform = Transform3D(0.455, 0, 0, 0, 0.455, 0, 0, 0, 0.455, 0.126194, -0.82659, -0.172353)

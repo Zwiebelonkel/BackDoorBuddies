@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://cbwatspyb2m5r"]
+
+[ext_resource type="PackedScene" uid="uid://brmjv7of0ecak" path="res://scenes/items/held/CocaineHeld.tscn" id="1_ler8d"]
+[ext_resource type="Script" uid="uid://dv3vf8bsc4qul" path="res://resources/items/ItemData.gd" id="2_wle8k"]
+[ext_resource type="PackedScene" uid="uid://chohkct1cr081" path="res://scenes/items/cocaine_model.tscn" id="3_wle8k"]
+
+[resource]
+script = ExtResource("2_wle8k")
+item_id = &"cocaine"
+display_name = "Koks"
+description = ""
+world_model = ExtResource("3_wle8k")
+model_scale = Vector3(0.1, 0.1, 0.1)
+model_rotation_degrees = Vector3(0, 0, 0)
+model_offset = Vector3(0, 0.025, 0)
+held_model = ExtResource("1_ler8d")
+held_scale = Vector3(0.1, 0.1, 0.1)
+held_rotation_degrees = Vector3(-12.5, 88.6, -12.2)
+held_offset = Vector3(0.232, 0.051, 0.275)
+value = 0
+weight = 1.0
+stackable = false
+max_stack = 1
+interaction_text = "Aufheben"
+metadata/_custom_type_script = "uid://dv3vf8bsc4qul"

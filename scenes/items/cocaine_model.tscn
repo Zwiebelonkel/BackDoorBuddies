@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://chohkct1cr081"]
+
+[ext_resource type="PackedScene" uid="uid://cc15lacmiox8m" path="res://models/cocaine/cocaine.glb" id="1_osmea"]
+
+[node name="CocaineModel" type="Node3D"]
+
+[node name="cocaine" parent="." instance=ExtResource("1_osmea")]

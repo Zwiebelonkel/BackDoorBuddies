@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://d2ei5j2nrftl3"]
+[gd_scene load_steps=3 format=3 uid="uid://d2ei5j2nrftl3"]
 
 [ext_resource type="Script" uid="uid://j7nlpnpujquw" path="res://scripts/options_menu.gd" id="1_options"]
+[ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="2_ijpji"]
 
 [node name="OptionsMenu" type="CanvasLayer"]
 process_mode = 3
@@ -41,6 +42,7 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
 text = "Options"
 horizontal_alignment = 1
 
@@ -51,6 +53,7 @@ theme_override_constants/separation = 12
 [node name="FpsLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/FpsRow"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
 text = "Max FPS"
 
 [node name="FpsSpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/FpsRow"]
@@ -66,6 +69,7 @@ theme_override_constants/separation = 12
 [node name="FullscreenLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/FullscreenRow"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
 text = "Fullscreen"
 
 [node name="FullscreenCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/FullscreenRow"]
@@ -79,6 +83,7 @@ theme_override_constants/separation = 12
 [node name="VolumeLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
 text = "Master Volume"
 
 [node name="VolumeSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
@@ -91,10 +96,12 @@ value = 1.0
 [node name="VolumeValueLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
 text = "100%"
 
 [node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
 text = "Close"
 
 [connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/FpsRow/FpsSpinBox" to="." method="_on_fps_spin_box_value_changed"]

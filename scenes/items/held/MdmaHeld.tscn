@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://b6b2dal4dbhpa"]
+
+[ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_jm26l"]
+[ext_resource type="PackedScene" uid="uid://c2iqbtteaw3l1" path="res://models/mdma/mdma.glb" id="2_jm26l"]
+
+[node name="MdmaHeld" type="Node3D"]
+script = ExtResource("1_jm26l")
+
+[node name="mdma" parent="." instance=ExtResource("2_jm26l")]

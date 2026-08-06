@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://y4fpycnxagw6"]
+
+[ext_resource type="PackedScene" uid="uid://c2iqbtteaw3l1" path="res://models/mdma/mdma.glb" id="2_mlwjg"]
+
+[node name="MdmaModel" type="Node3D"]
+
+[node name="mdma" parent="." instance=ExtResource("2_mlwjg")]
