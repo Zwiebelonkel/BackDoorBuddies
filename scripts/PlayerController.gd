@@ -108,7 +108,7 @@ var _target_col_height: float = 1.8
 var _current_tilt: float      = 0.0
 var inventory: Array[ItemData] = []
 var selected_inventory_index: int = -1
-var server_inventory_count: int = 0
+var server_inventory_paths: Array[String] = []
 var held_item_instance: Node3D = null
 var _mouse_sway_input := Vector2.ZERO
 var _item_holder_start_position := Vector3.ZERO
@@ -210,6 +210,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 	if event.is_action_pressed("inventory_slot_4"):
 		select_inventory_item(3)
+
+	if event.is_action_pressed("drop_item"):
+		_request_drop_selected_item()
 
 func _rotate_camera(delta_2d: Vector2) -> void:
 	rotate_y(-delta_2d.x)
@@ -479,15 +482,15 @@ func server_receive_item(data: ItemData) -> bool:
 		push_error("ItemData muss als .tres-Datei gespeichert sein.")
 		return false
 
-	if server_inventory_count >= MAX_INVENTORY_SIZE:
+	if server_inventory_paths.size() >= MAX_INVENTORY_SIZE:
 		print(
-			"Inventar von Spieler ",
+			"Inventar von Peer ",
 			get_multiplayer_authority(),
 			" ist voll."
 		)
 		return false
 
-	server_inventory_count += 1
+	server_inventory_paths.append(data.resource_path)
 
 	var player_peer_id := get_multiplayer_authority()
 
@@ -497,6 +500,118 @@ func server_receive_item(data: ItemData) -> bool:
 		_receive_item.rpc_id(player_peer_id, data.resource_path)
 
 	return true
+
+
+func _request_drop_selected_item() -> void:
+	if not is_multiplayer_authority():
+		return
+
+	if selected_inventory_index < 0:
+		return
+
+	if selected_inventory_index >= inventory.size():
+		return
+
+	if multiplayer.is_server():
+		_server_drop_item(selected_inventory_index)
+	else:
+		_request_drop_item_server.rpc_id(1, selected_inventory_index)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_drop_item_server(slot_index: int) -> void:
+	if not multiplayer.is_server():
+		return
+
+	var sender_peer_id := multiplayer.get_remote_sender_id()
+
+	if sender_peer_id != get_multiplayer_authority():
+		push_warning(
+			"Peer %s wollte aus fremdem Inventar droppen."
+			% sender_peer_id
+		)
+		return
+
+	_server_drop_item(slot_index)
+
+
+func _server_drop_item(slot_index: int) -> void:
+	if not multiplayer.is_server():
+		return
+
+	if slot_index < 0:
+		return
+
+	if slot_index >= server_inventory_paths.size():
+		push_warning(
+			"Ungültiger Drop-Slot %s für Peer %s."
+			% [slot_index, get_multiplayer_authority()]
+		)
+		return
+
+	var item_path := server_inventory_paths[slot_index]
+
+	if item_path.is_empty():
+		return
+
+	var forward := -global_transform.basis.z.normalized()
+	var drop_global_position := (
+		global_position
+		+ Vector3.UP * 1.0
+		+ forward * 1.25
+	)
+	var drop_global_rotation := Vector3(0.0, global_rotation.y, 0.0)
+	var main := get_tree().current_scene
+
+	if main == null or not main.has_method("server_spawn_dropped_item"):
+		push_error("Main besitzt keine server_spawn_dropped_item()-Methode.")
+		return
+
+	main.server_spawn_dropped_item(
+		item_path,
+		drop_global_position,
+		drop_global_rotation
+	)
+
+	server_inventory_paths.remove_at(slot_index)
+
+	var owner_peer_id := get_multiplayer_authority()
+
+	if owner_peer_id == multiplayer.get_unique_id():
+		_remove_dropped_item_local(slot_index)
+	else:
+		_confirm_drop.rpc_id(owner_peer_id, slot_index)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _confirm_drop(slot_index: int) -> void:
+	if not is_multiplayer_authority():
+		return
+
+	_remove_dropped_item_local(slot_index)
+
+
+func _remove_dropped_item_local(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= inventory.size():
+		return
+
+	inventory.remove_at(slot_index)
+	_clear_held_item()
+
+	if inventory.is_empty():
+		selected_inventory_index = -1
+	else:
+		selected_inventory_index = mini(slot_index, inventory.size() - 1)
+		_equip_item(inventory[selected_inventory_index])
+
+	_emit_inventory_changed()
+
+	print(
+		"Item fallengelassen | Inventar: ",
+		inventory.size(),
+		"/",
+		MAX_INVENTORY_SIZE
+	)
 
 @rpc("authority", "call_remote", "reliable")
 func _receive_item(item_resource_path: String) -> void:
@@ -682,7 +797,10 @@ func _update_interaction_text() -> void:
 
 func clear_inventory() -> void:
 	inventory.clear()
-	server_inventory_count = 0
+
+	if multiplayer.is_server():
+		server_inventory_paths.clear()
+
 	selected_inventory_index = -1
 	_clear_held_item()
 	_emit_inventory_changed()

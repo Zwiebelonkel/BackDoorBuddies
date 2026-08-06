@@ -1,18 +1,78 @@
 extends Node3D
 
 const PLAYER_CONTROLLER = preload("res://scenes/PlayerController.tscn")
+const PICKUP_ITEM_SCENE: PackedScene = preload(
+	"res://scenes/items/PickupItem.tscn"
+)
 
 @onready var players_container: Node3D = $Players
+@onready var items_container: Node3D = $Items
+@onready var item_spawner: MultiplayerSpawner = $ItemSpawner
 @onready var spawn_point: Marker3D = $SpawnPoint
 
 var players: Array[CharacterBody3D] = []
 
 
 func _ready() -> void:
+	item_spawner.spawn_function = _spawn_dropped_item
+
 	Networking.host_created.connect(on_host_created)
 
 	if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
 		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+
+
+func _spawn_dropped_item(data: Variant) -> Node:
+	if not data is Dictionary:
+		push_error("Ungültige Drop-Daten erhalten.")
+		return null
+
+	var item_path := str(data.get("item_path", ""))
+	var spawn_position := data.get("position", Vector3.ZERO) as Vector3
+	var spawn_rotation := data.get("rotation", Vector3.ZERO) as Vector3
+
+	if item_path.is_empty():
+		push_error("Dem gedroppten Item fehlt der ItemData-Pfad.")
+		return null
+
+	var loaded_data := load(item_path)
+
+	if not loaded_data is ItemData:
+		push_error("Ungültige ItemData beim Drop: " + item_path)
+		return null
+
+	var pickup := PICKUP_ITEM_SCENE.instantiate() as PickupItem
+
+	if pickup == null:
+		push_error("PickupItem konnte nicht erstellt werden.")
+		return null
+
+	pickup.item_data = loaded_data as ItemData
+	pickup.position = spawn_position
+	pickup.rotation = spawn_rotation
+	pickup.use_initial_pickup_delay = true
+
+	return pickup
+
+
+func server_spawn_dropped_item(
+	item_path: String,
+	spawn_position: Vector3,
+	spawn_rotation: Vector3
+) -> void:
+	if not multiplayer.is_server():
+		return
+
+	if item_path.is_empty():
+		return
+
+	var spawn_data := {
+		"item_path": item_path,
+		"position": spawn_position,
+		"rotation": spawn_rotation
+	}
+
+	item_spawner.spawn(spawn_data)
 
 func on_host_created() -> void:
 	# Host-Player erzeugen.

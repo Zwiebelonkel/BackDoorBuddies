@@ -12,6 +12,7 @@ extends Area3D
 @export_group("Pickup")
 @export var pickup_distance: float = 3.5
 @export var can_be_picked_up: bool = true
+@export var initial_pickup_delay: float = 0.35
 
 @export_group("Animation")
 @export var rotate_model: bool = false
@@ -27,6 +28,7 @@ var _model_instance: Node3D
 var _was_picked_up := false
 var _start_model_position := Vector3.ZERO
 var _floating_time := 0.0
+var use_initial_pickup_delay := false
 
 
 func _ready() -> void:
@@ -34,6 +36,17 @@ func _ready() -> void:
 
 	if model_container:
 		_start_model_position = model_container.position
+
+	if use_initial_pickup_delay and initial_pickup_delay > 0.0:
+		can_be_picked_up = false
+		_unlock_pickup_after_delay()
+
+
+func _unlock_pickup_after_delay() -> void:
+	await get_tree().create_timer(initial_pickup_delay).timeout
+
+	if is_inside_tree() and not _was_picked_up:
+		can_be_picked_up = true
 
 
 func _process(delta: float) -> void:
