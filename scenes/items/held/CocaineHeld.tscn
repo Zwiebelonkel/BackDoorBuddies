@@ -1,9 +1,25 @@
-[gd_scene load_steps=3 format=3 uid="uid://brmjv7of0ecak"]
+[gd_scene load_steps=6 format=3 uid="uid://brmjv7of0ecak"]
 
 [ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_jenmd"]
 [ext_resource type="PackedScene" uid="uid://cc15lacmiox8m" path="res://models/cocaine/cocaine.glb" id="2_jenmd"]
+[ext_resource type="Shader" uid="uid://sk210fehdisr" path="res://shaders/noDepth.gdshader" id="3_0uhyy"]
+[ext_resource type="Texture2D" uid="uid://bleo6twbj0tv6" path="res://models/cocaine/cocaine_cocaine.png" id="4_w48pf"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bgdep"]
+render_priority = 0
+shader = ExtResource("3_0uhyy")
+shader_parameter/albedo_texture = ExtResource("4_w48pf")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/roughness = 0.305
+shader_parameter/metallic = 0.0
+shader_parameter/specular = 0.5
 
 [node name="CocaineHeld" type="Node3D"]
 script = ExtResource("1_jenmd")
 
 [node name="cocaine" parent="." instance=ExtResource("2_jenmd")]
+
+[node name="Cube" parent="cocaine" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_bgdep")
+
+[editable path="cocaine"]

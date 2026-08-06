@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://byeosjjl5c1lv"]
+[gd_scene load_steps=5 format=3 uid="uid://byeosjjl5c1lv"]
 
 [ext_resource type="PackedScene" uid="uid://c5dk5vmdthen6" path="res://models/van/van.glb" id="1_2b7gi"]
 
@@ -7,6 +7,9 @@ size = Vector3(4.75238, 0.112366, 1.6225)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_jaefu"]
 size = Vector3(4.75238, 0.112366, 1.3967)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e5jmm"]
+size = Vector3(1.59471, 1.85303, 1.3967)
 
 [node name="Van" type="Node3D"]
 
@@ -18,12 +21,22 @@ size = Vector3(4.75238, 0.112366, 1.3967)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0104065, 0.509698, 0.052887)
 shape = SubResource("BoxShape3D_2b7gi")
 
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0104065, 2.85659, 0.052887)
+shape = SubResource("BoxShape3D_2b7gi")
+
 [node name="StaticBody3D2" type="StaticBody3D" parent="."]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0104065, 1.16147, 0.72198)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0104065, 1.16147, 0.932861)
 shape = SubResource("BoxShape3D_jaefu")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D2"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0104065, 1.16147, -0.700793)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0104065, 1.16147, -0.832733)
 shape = SubResource("BoxShape3D_jaefu")
+
+[node name="StaticBody3D3" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D3"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 1.56219, 1.16147, 0.0359195)
+shape = SubResource("BoxShape3D_e5jmm")

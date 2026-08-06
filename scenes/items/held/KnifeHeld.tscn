@@ -1,9 +1,26 @@
-[gd_scene load_steps=3 format=3 uid="uid://c7dq2es36fjqh"]
+[gd_scene load_steps=5 format=3 uid="uid://c7dq2es36fjqh"]
 
 [ext_resource type="PackedScene" uid="uid://coc6b78e8hjdw" path="res://models/knife/knife.glb" id="1_tikr1"]
 [ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_w43kh"]
+[ext_resource type="Shader" uid="uid://sk210fehdisr" path="res://shaders/noDepth.gdshader" id="3_cmm3i"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bsch7"]
+render_priority = 0
+shader = ExtResource("3_cmm3i")
+shader_parameter/albedo_color = Color(0, 0, 0, 1)
+shader_parameter/roughness = 0.825
+shader_parameter/metallic = 0.0
+shader_parameter/specular = 0.5
 
 [node name="KnifeHeld" type="Node3D"]
 script = ExtResource("1_w43kh")
 
 [node name="knife" parent="." instance=ExtResource("1_tikr1")]
+
+[node name="Cylinder" parent="knife" index="1"]
+surface_material_override/0 = SubResource("ShaderMaterial_bsch7")
+
+[node name="Plane" parent="knife" index="2"]
+surface_material_override/0 = SubResource("ShaderMaterial_bsch7")
+
+[editable path="knife"]

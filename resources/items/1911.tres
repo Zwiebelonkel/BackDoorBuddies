@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://prodsbxkvh58"]
+
+[ext_resource type="PackedScene" uid="uid://ctcji0jo6ihnp" path="res://scenes/items/held/1911Held.tscn" id="1_6atw3"]
+[ext_resource type="Script" uid="uid://dv3vf8bsc4qul" path="res://resources/items/ItemData.gd" id="2_lgs5q"]
+[ext_resource type="PackedScene" uid="uid://bhgmgk2oj4qf8" path="res://scenes/items/1911_model.tscn" id="3_lgs5q"]
+
+[resource]
+script = ExtResource("2_lgs5q")
+item_id = &"1911"
+display_name = "1911"
+description = ""
+world_model = ExtResource("3_lgs5q")
+model_scale = Vector3(0.1, 0.1, 0.1)
+model_rotation_degrees = Vector3(0, 0, 0)
+model_offset = Vector3(0, 0.025, 0)
+held_model = ExtResource("1_6atw3")
+held_scale = Vector3(0.15, 0.15, 0.15)
+held_rotation_degrees = Vector3(0, 0, 14)
+held_offset = Vector3(0.237, 0.052, 0)
+value = 0
+weight = 1.0
+stackable = false
+max_stack = 1
+interaction_text = "Aufheben"
+metadata/_custom_type_script = "uid://dv3vf8bsc4qul"

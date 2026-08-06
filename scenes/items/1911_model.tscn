@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bhgmgk2oj4qf8"]
+
+[ext_resource type="PackedScene" uid="uid://bstgujjg2fx11" path="res://models/1911/1911.glb" id="1_oimpv"]
+
+[node name="1911Model" type="Node3D"]
+
+[node name="1911" parent="." instance=ExtResource("1_oimpv")]
+transform = Transform3D(1.01236e-06, -23.16, 3.49706e-06, -23.16, -1.01236e-06, 0, 1.52861e-13, -3.49706e-06, -23.16, 1.04993, 0, 0.659158)

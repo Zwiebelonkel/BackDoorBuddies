@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://c5grpufdms5vm"]
+[gd_scene load_steps=21 format=3 uid="uid://c5grpufdms5vm"]
 
 [ext_resource type="Script" uid="uid://d3n6jy8d8ofqa" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="Shader" uid="uid://2saae5bl3ovb" path="res://shaders/sky.gdshader" id="2_0wfyh"]
@@ -7,8 +7,11 @@
 [ext_resource type="PackedScene" uid="uid://d2ei5j2nrftl3" path="res://scenes/options_menu.tscn" id="5_options"]
 [ext_resource type="Resource" uid="uid://cqwymrg5gg3l1" path="res://resources/items/weed.tres" id="5_tipki"]
 [ext_resource type="Resource" uid="uid://cbwatspyb2m5r" path="res://resources/items/cocaine.tres" id="6_85g3d"]
+[ext_resource type="Resource" uid="uid://prodsbxkvh58" path="res://resources/items/1911.tres" id="6_choun"]
 [ext_resource type="Resource" uid="uid://ovc8e3f4kvdo" path="res://resources/items/mdma.tres" id="7_choun"]
 [ext_resource type="PackedScene" uid="uid://byeosjjl5c1lv" path="res://scenes/props/Van.tscn" id="9_85g3d"]
+[ext_resource type="Resource" uid="uid://dp6uqgeul62c5" path="res://resources/items/weedBag.tres" id="9_ya4ey"]
+[ext_resource type="Resource" uid="uid://bavwx5akytqhh" path="res://resources/items/cokeBrick.tres" id="10_eb6dy"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0wfyh"]
 albedo_color = Color(0.230315, 0.230315, 0.230315, 1)
@@ -94,6 +97,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.43914, 0.051331, -3.66526)
 mesh = SubResource("BoxMesh_sugp2")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D2"]
+collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D2/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_jyhfs")
@@ -164,6 +168,10 @@ item_data = ExtResource("4_jyhfs")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.16277, 0, 0)
 item_data = ExtResource("5_tipki")
 
+[node name="1911" parent="." instance=ExtResource("3_tbgi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.16277, 0, 2.56613)
+item_data = ExtResource("6_choun")
+
 [node name="Coke" parent="." instance=ExtResource("3_tbgi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.052914, 0, 0)
 item_data = ExtResource("6_85g3d")
@@ -171,6 +179,14 @@ item_data = ExtResource("6_85g3d")
 [node name="MDMA" parent="." instance=ExtResource("3_tbgi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -1.18298)
 item_data = ExtResource("7_choun")
+
+[node name="WeedBag" parent="." instance=ExtResource("3_tbgi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.81587, 0, -2.22694)
+item_data = ExtResource("9_ya4ey")
+
+[node name="Cokebrick" parent="." instance=ExtResource("3_tbgi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.137992, 1.19209e-07, -3.04479)
+item_data = ExtResource("10_eb6dy")
 
 [node name="Players" type="Node3D" parent="."]
 

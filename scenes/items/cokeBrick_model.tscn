@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cyck5sovqxuan"]
+
+[ext_resource type="PackedScene" uid="uid://ceb237512epss" path="res://models/cokeBrick/cokeBrick.glb" id="1_57243"]
+
+[node name="CokeBrickModel" type="Node3D"]
+
+[node name="cokeBrick" parent="." instance=ExtResource("1_57243")]
+transform = Transform3D(3.05, 0, 0, 0, 3.05, 0, 0, 0, 3.05, 0, 0.975733, 0)

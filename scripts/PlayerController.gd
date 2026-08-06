@@ -539,14 +539,7 @@ func _server_drop_item(slot_index: int) -> void:
 	if not multiplayer.is_server():
 		return
 
-	if slot_index < 0:
-		return
-
-	if slot_index >= server_inventory_paths.size():
-		push_warning(
-			"Ungültiger Drop-Slot %s für Peer %s."
-			% [slot_index, get_multiplayer_authority()]
-		)
+	if slot_index < 0 or slot_index >= server_inventory_paths.size():
 		return
 
 	var item_path := server_inventory_paths[slot_index]
@@ -554,13 +547,14 @@ func _server_drop_item(slot_index: int) -> void:
 	if item_path.is_empty():
 		return
 
-	var forward := -global_transform.basis.z.normalized()
-	var drop_global_position := (
-		global_position
-		+ Vector3.UP * 1.0
-		+ forward * 1.25
+	var drop_global_position := _find_drop_position()
+
+	var drop_global_rotation := Vector3(
+		0.0,
+		global_rotation.y,
+		0.0
 	)
-	var drop_global_rotation := Vector3(0.0, global_rotation.y, 0.0)
+
 	var main := get_tree().current_scene
 
 	if main == null or not main.has_method("server_spawn_dropped_item"):
@@ -582,7 +576,6 @@ func _server_drop_item(slot_index: int) -> void:
 	else:
 		_confirm_drop.rpc_id(owner_peer_id, slot_index)
 
-
 @rpc("authority", "call_remote", "reliable")
 func _confirm_drop(slot_index: int) -> void:
 	if not is_multiplayer_authority():
@@ -590,6 +583,45 @@ func _confirm_drop(slot_index: int) -> void:
 
 	_remove_dropped_item_local(slot_index)
 
+func _find_drop_position() -> Vector3:
+	var forward := -global_transform.basis.z.normalized()
+
+	# Gewünschte Stelle etwas vor dem Spieler.
+	var target_position := (
+		global_position
+		+ forward * 0.5
+	)
+
+	# Oberhalb beginnen und mehrere Meter nach unten suchen.
+	var ray_start := target_position + Vector3.UP * 2.0
+	var ray_end := target_position + Vector3.DOWN * 5.0
+
+	var query := PhysicsRayQueryParameters3D.create(
+		ray_start,
+		ray_end
+	)
+
+	# Den eigenen Spieler beim RayCast ignorieren.
+	query.exclude = [get_rid()]
+
+	# Hier ggf. nur den Boden-Layer eintragen.
+	query.collision_mask = 1
+
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+
+	var space_state := get_world_3d().direct_space_state
+	var result := space_state.intersect_ray(query)
+
+	if not result.is_empty():
+		var floor_position: Vector3 = result["position"]
+
+		# Ein kleines Stück über dem Boden, damit das Modell
+		# nicht im Boden steckt.
+		return floor_position + Vector3.UP * 0.05
+
+	# Fallback, falls kein Boden gefunden wurde.
+	return target_position + Vector3.UP * 0.1
 
 func _remove_dropped_item_local(slot_index: int) -> void:
 	if slot_index < 0 or slot_index >= inventory.size():

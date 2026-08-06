@@ -20,6 +20,7 @@ radius = 0.4
 height = 1.46
 
 [node name="PlayerController" type="CharacterBody3D"]
+collision_layer = 4
 script = ExtResource("1_ci81t")
 walk_speed = 3.0
 sprint_speed = 5.0
@@ -53,6 +54,7 @@ transform = Transform3D(-0.215809, 0.976436, 0, -0.976436, -0.215809, 0, 0, 0, 1
 transform = Transform3D(-0.215809, 0.976436, 0, -0.976436, -0.215809, 0, 0, 0, 1, 0.525871, 0, -0.726766)
 
 [node name="SpotLight3D" type="SpotLight3D" parent="Head/Camera3D"]
+visible = false
 light_energy = 3.556
 light_volumetric_fog_energy = 1.485
 shadow_enabled = true

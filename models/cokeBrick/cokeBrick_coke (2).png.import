@@ -1,0 +1,38 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://njqi5v7mwt6g"
+path.s3tc="res://.godot/imported/cokeBrick_coke (2).png-c79a2e763007e83e3d464047b0b61328.s3tc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "d40e2d213fbc8d510214152608a7d4f9"
+}
+
+[deps]
+
+source_file="res://models/cokeBrick/cokeBrick_coke (2).png"
+dest_files=["res://.godot/imported/cokeBrick_coke (2).png-c79a2e763007e83e3d464047b0b61328.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0

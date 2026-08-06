@@ -1,9 +1,25 @@
-[gd_scene load_steps=3 format=3 uid="uid://fsdjovmj2tkk"]
+[gd_scene load_steps=6 format=3 uid="uid://fsdjovmj2tkk"]
 
 [ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_irwsp"]
 [ext_resource type="PackedScene" uid="uid://byvsgpfty2ukf" path="res://models/weed/weed.glb" id="2_irwsp"]
+[ext_resource type="Shader" uid="uid://sk210fehdisr" path="res://shaders/noDepth.gdshader" id="3_b4opq"]
+[ext_resource type="Texture2D" uid="uid://c00lnmlgw5cjp" path="res://models/weed/weed_weed.png" id="4_p3nlx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hy0bq"]
+render_priority = 0
+shader = ExtResource("3_b4opq")
+shader_parameter/albedo_texture = ExtResource("4_p3nlx")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/roughness = 0.231
+shader_parameter/metallic = 0.0
+shader_parameter/specular = 0.5
 
 [node name="WeedHeld" type="Node3D"]
 script = ExtResource("1_irwsp")
 
 [node name="weed" parent="." instance=ExtResource("2_irwsp")]
+
+[node name="Cube" parent="weed" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_hy0bq")
+
+[editable path="weed"]

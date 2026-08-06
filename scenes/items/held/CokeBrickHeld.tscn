@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3 uid="uid://ci1t58qqcg3ex"]
+
+[ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_8u23o"]
+[ext_resource type="PackedScene" uid="uid://ceb237512epss" path="res://models/cokeBrick/cokeBrick.glb" id="2_4ed2m"]
+[ext_resource type="Shader" uid="uid://sk210fehdisr" path="res://shaders/noDepth.gdshader" id="3_7gjhs"]
+[ext_resource type="Texture2D" uid="uid://njqi5v7mwt6g" path="res://models/cokeBrick/cokeBrick_coke (2).png" id="4_8u23o"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gjarn"]
+render_priority = 0
+shader = ExtResource("3_7gjhs")
+shader_parameter/albedo_texture = ExtResource("4_8u23o")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/roughness = 0.488
+shader_parameter/metallic = 0.0
+shader_parameter/specular = 0.43
+
+[node name="CokeBrickHeld" type="Node3D"]
+script = ExtResource("1_8u23o")
+
+[node name="cokeBrick" parent="." instance=ExtResource("2_4ed2m")]
+transform = Transform3D(3.33, 0, 0, 0, 3.33, 0, 0, 0, 3.33, -0.0419683, 1.00795, 0.00470591)
+
+[node name="Cube" parent="cokeBrick" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_gjarn")
+
+[editable path="cokeBrick"]

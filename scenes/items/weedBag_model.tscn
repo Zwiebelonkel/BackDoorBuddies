@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dsjjyw8488j6n"]
+
+[ext_resource type="PackedScene" uid="uid://bpfd2s8lllara" path="res://models/weedBag/weedbag.glb" id="1_fjtwo"]
+
+[node name="WeedBagModel" type="Node3D"]
+
+[node name="weedbag" parent="." instance=ExtResource("1_fjtwo")]
+transform = Transform3D(3.115, 0, 0, 0, 3.115, 0, 0, 0, 3.115, -0.00856209, 1.26524, 0.00503957)

@@ -1,9 +1,25 @@
-[gd_scene load_steps=3 format=3 uid="uid://b6b2dal4dbhpa"]
+[gd_scene load_steps=6 format=3 uid="uid://b6b2dal4dbhpa"]
 
 [ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_jm26l"]
 [ext_resource type="PackedScene" uid="uid://c2iqbtteaw3l1" path="res://models/mdma/mdma.glb" id="2_jm26l"]
+[ext_resource type="Shader" uid="uid://sk210fehdisr" path="res://shaders/noDepth.gdshader" id="3_3n4fx"]
+[ext_resource type="Texture2D" uid="uid://c13fuysuhtwcq" path="res://models/mdma/mdma_mdma.png" id="4_8n7lq"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d0nkq"]
+render_priority = 0
+shader = ExtResource("3_3n4fx")
+shader_parameter/albedo_texture = ExtResource("4_8n7lq")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/roughness = 0.219
+shader_parameter/metallic = 0.0
+shader_parameter/specular = 0.5
 
 [node name="MdmaHeld" type="Node3D"]
 script = ExtResource("1_jm26l")
 
 [node name="mdma" parent="." instance=ExtResource("2_jm26l")]
+
+[node name="Cube" parent="mdma" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_d0nkq")
+
+[editable path="mdma"]
