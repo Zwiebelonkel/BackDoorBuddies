@@ -51,6 +51,12 @@ sky_material = SubResource("ShaderMaterial_sugp2")
 [sub_resource type="Environment" id="Environment_sugp2"]
 background_mode = 2
 sky = SubResource("Sky_0wfyh")
+glow_enabled = true
+glow_intensity = 2.88
+glow_strength = 0.39
+glow_bloom = 1.0
+volumetric_fog_density = 0.1587
+volumetric_fog_albedo = Color(0.512003, 0.557162, 0.624128, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_sugp2"]
 
