@@ -1,7 +1,6 @@
-[gd_scene load_steps=22 format=3 uid="uid://c5grpufdms5vm"]
+[gd_scene load_steps=21 format=3 uid="uid://c5grpufdms5vm"]
 
 [ext_resource type="Script" uid="uid://d3n6jy8d8ofqa" path="res://scripts/main.gd" id="1_o5qli"]
-[ext_resource type="Shader" uid="uid://2saae5bl3ovb" path="res://shaders/sky.gdshader" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://6rung1eddhoj" path="res://scenes/items/PickupItem.tscn" id="3_tbgi4"]
 [ext_resource type="Resource" uid="uid://cqiqiqsvrpj8n" path="res://resources/items/knife.tres" id="4_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://d2ei5j2nrftl3" path="res://scenes/options_menu.tscn" id="5_options"]
@@ -24,34 +23,8 @@ size = Vector3(20, 0.015, 20)
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_sugp2"]
 data = PackedVector3Array(-10, 0.0075, 10, 10, 0.0075, 10, -10, -0.0075, 10, 10, 0.0075, 10, 10, -0.0075, 10, -10, -0.0075, 10, 10, 0.0075, -10, -10, 0.0075, -10, 10, -0.0075, -10, -10, 0.0075, -10, -10, -0.0075, -10, 10, -0.0075, -10, 10, 0.0075, 10, 10, 0.0075, -10, 10, -0.0075, 10, 10, 0.0075, -10, 10, -0.0075, -10, 10, -0.0075, 10, -10, 0.0075, -10, -10, 0.0075, 10, -10, -0.0075, -10, -10, 0.0075, 10, -10, -0.0075, 10, -10, -0.0075, -10, 10, 0.0075, 10, -10, 0.0075, 10, 10, 0.0075, -10, -10, 0.0075, 10, -10, 0.0075, -10, 10, 0.0075, -10, -10, -0.0075, 10, 10, -0.0075, 10, -10, -0.0075, -10, 10, -0.0075, 10, 10, -0.0075, -10, -10, -0.0075, -10)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_sugp2"]
-shader = ExtResource("2_0wfyh")
-shader_parameter/time_of_day = 1.0
-shader_parameter/day_zenith = Color(0.18, 0.48, 0.9, 1)
-shader_parameter/day_horizon = Color(0.72, 0.9, 1, 1)
-shader_parameter/sunset_zenith = Color(0.25, 0.12, 0.28, 1)
-shader_parameter/sunset_horizon = Color(1, 0.45, 0.1, 1)
-shader_parameter/sunset_glow = Color(1, 0.7, 0.2, 1)
-shader_parameter/sun_azimuth_deg = 360.0
-shader_parameter/sun_path_tilt_deg = 0.0
-shader_parameter/night_zenith = Color(0.01, 0.02, 0.08, 1)
-shader_parameter/night_horizon = Color(0.04, 0.06, 0.18, 1)
-shader_parameter/sun_size = 0.001
-shader_parameter/sun_glow_power = 4.5
-shader_parameter/moon_size = 0.018
-shader_parameter/moon_color = Color(0.92, 0.9, 0.82, 1)
-shader_parameter/cloud_speed = 0.015
-shader_parameter/cloud_scale = 1.93
-shader_parameter/cloud_density = 0.562
-shader_parameter/horizon_fog_strength = 1.0
-shader_parameter/horizon_fog_color = Color(0.08, 0.1, 0.2, 1)
-
-[sub_resource type="Sky" id="Sky_0wfyh"]
-sky_material = SubResource("ShaderMaterial_sugp2")
-
 [sub_resource type="Environment" id="Environment_sugp2"]
 background_mode = 2
-sky = SubResource("Sky_0wfyh")
 glow_enabled = true
 glow_intensity = 2.88
 glow_strength = 0.39
@@ -63,6 +36,12 @@ volumetric_fog_albedo = Color(0.512003, 0.557162, 0.624128, 1)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_jyhfs"]
 data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_trceg"]
+size = Vector3(20, 0.2, 20)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eb6dy"]
+albedo_color = Color(0.219501, 0.219501, 0.219501, 1)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_o5qli")
@@ -205,3 +184,78 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.66507, -0.122275, 3.50694)
 
 [node name="IndustrialMap" parent="." instance=ExtResource("13_trceg")]
 transform = Transform3D(0.525, 0, 0, 0, 0.525, 0, 0, 0, 0.525, 0, -0.425718, -10.1748)
+visible = false
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.153196, 0)
+mesh = SubResource("BoxMesh_trceg")
+surface_material_override/0 = SubResource("StandardMaterial3D_eb6dy")
+
+[node name="MeshInstance3D16" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8586, 0)
+mesh = SubResource("BoxMesh_trceg")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -0.153196, 8.23089)
+mesh = SubResource("BoxMesh_trceg")
+
+[node name="MeshInstance3D12" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, -7.49498, -0.153196, -0.0708103)
+mesh = SubResource("BoxMesh_trceg")
+
+[node name="MeshInstance3D13" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 6.04247, -0.153196, -7.44091)
+mesh = SubResource("BoxMesh_trceg")
+
+[node name="MeshInstance3D14" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 6.042, -0.153, 14.443)
+mesh = SubResource("BoxMesh_trceg")
+
+[node name="MeshInstance3D15" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 6.042, 11.752, 9.682)
+mesh = SubResource("BoxMesh_trceg")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0544815, -0.153196, -8.71305)
+mesh = SubResource("BoxMesh_trceg")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.880792, 0, -0.473504, 0, 1, 0, 0.473504, 0, 0.880792, 0, 2.35448, 5.85189)
+current = true
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4.77422, 0)
+visible = false
+light_energy = 0.816
+shadow_enabled = true
+shadow_blur = 2.839
+spot_range = 4096.0
+spot_attenuation = 0.35
+spot_angle = 84.14
+
+[node name="SpotLight3D2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 2.21744, 1.66294)
+light_energy = 9.644
+light_specular = 0.0
+shadow_enabled = true
+shadow_opacity = 0.2
+shadow_blur = 0.0
+omni_range = 4096.0
+
+[node name="SpotLight3D3" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 5.85909, 0.951201, 3.52579)
+light_color = Color(0.105882, 0.72549, 0.188235, 1)
+light_energy = 16.0
+light_specular = 0.0
+shadow_opacity = 0.2
+shadow_blur = 0.0
+omni_range = 1.021
+
+[node name="SpotLight3D4" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 4.3207, 0.951201, 3.52579)
+light_color = Color(0.105882, 0.72549, 0.188235, 1)
+light_energy = 16.0
+light_specular = 0.0
+shadow_opacity = 0.2
+shadow_blur = 0.0
+omni_range = 1.021

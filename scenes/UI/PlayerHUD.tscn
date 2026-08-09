@@ -36,15 +36,15 @@ corner_radius_bottom_left = 3
 shadow_color = Color(0, 0, 0, 0.5)
 shadow_size = 9
 
-[sub_resource type="LabelSettings" id="LabelSettings_number"]
-font_color = Color(0.55, 0.85, 0.62, 1)
-outline_size = 3
-outline_color = Color(0, 0, 0, 0.8)
-
 [sub_resource type="LabelSettings" id="LabelSettings_item_name"]
 font_color = Color(0.8, 0.95, 0.82, 1)
 outline_size = 3
 outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_number"]
+font_color = Color(0.55, 0.85, 0.62, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.8)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_lt46w"]
 shader = ExtResource("3_ucih8")
