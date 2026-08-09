@@ -1,261 +1,72 @@
-[gd_scene load_steps=21 format=3 uid="uid://c5grpufdms5vm"]
+[gd_scene load_steps=11 format=3 uid="uid://c5grpufdms5vm"]
 
-[ext_resource type="Script" uid="uid://d3n6jy8d8ofqa" path="res://scripts/main.gd" id="1_o5qli"]
-[ext_resource type="PackedScene" uid="uid://6rung1eddhoj" path="res://scenes/items/PickupItem.tscn" id="3_tbgi4"]
-[ext_resource type="Resource" uid="uid://cqiqiqsvrpj8n" path="res://resources/items/knife.tres" id="4_jyhfs"]
-[ext_resource type="PackedScene" uid="uid://d2ei5j2nrftl3" path="res://scenes/options_menu.tscn" id="5_options"]
-[ext_resource type="Resource" uid="uid://cqwymrg5gg3l1" path="res://resources/items/weed.tres" id="5_tipki"]
-[ext_resource type="Resource" uid="uid://cbwatspyb2m5r" path="res://resources/items/cocaine.tres" id="6_85g3d"]
-[ext_resource type="Resource" uid="uid://prodsbxkvh58" path="res://resources/items/1911.tres" id="6_choun"]
-[ext_resource type="Resource" uid="uid://ovc8e3f4kvdo" path="res://resources/items/mdma.tres" id="7_choun"]
-[ext_resource type="PackedScene" uid="uid://byeosjjl5c1lv" path="res://scenes/props/Van.tscn" id="9_85g3d"]
-[ext_resource type="Resource" uid="uid://dp6uqgeul62c5" path="res://resources/items/weedBag.tres" id="9_ya4ey"]
-[ext_resource type="Resource" uid="uid://bavwx5akytqhh" path="res://resources/items/cokeBrick.tres" id="10_eb6dy"]
-[ext_resource type="PackedScene" uid="uid://qh6cm82tt6dl" path="res://scenes/props/IndustrialMap.tscn" id="13_trceg"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/options_menu.tscn" id="2_options"]
+[ext_resource type="Script" path="res://procedural/scripts/procedural_level_generator.gd" id="3_generator"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/start_room.tscn" id="4_start"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/hallway_straight.tscn" id="5_straight"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/hallway_corner.tscn" id="6_corner"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/kitchen.tscn" id="7_kitchen"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/bathroom.tscn" id="8_bathroom"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/bedroom.tscn" id="9_bedroom"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0wfyh"]
-albedo_color = Color(0.230315, 0.230315, 0.230315, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_0wfyh"]
-material = SubResource("StandardMaterial3D_0wfyh")
-size = Vector3(20, 0.015, 20)
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_sugp2"]
-data = PackedVector3Array(-10, 0.0075, 10, 10, 0.0075, 10, -10, -0.0075, 10, 10, 0.0075, 10, 10, -0.0075, 10, -10, -0.0075, 10, 10, 0.0075, -10, -10, 0.0075, -10, 10, -0.0075, -10, -10, 0.0075, -10, -10, -0.0075, -10, 10, -0.0075, -10, 10, 0.0075, 10, 10, 0.0075, -10, 10, -0.0075, 10, 10, 0.0075, -10, 10, -0.0075, -10, 10, -0.0075, 10, -10, 0.0075, -10, -10, 0.0075, 10, -10, -0.0075, -10, -10, 0.0075, 10, -10, -0.0075, 10, -10, -0.0075, -10, 10, 0.0075, 10, -10, 0.0075, 10, 10, 0.0075, -10, -10, 0.0075, 10, -10, 0.0075, -10, 10, 0.0075, -10, -10, -0.0075, 10, 10, -0.0075, 10, -10, -0.0075, -10, 10, -0.0075, 10, 10, -0.0075, -10, -10, -0.0075, -10)
-
-[sub_resource type="Environment" id="Environment_sugp2"]
-background_mode = 2
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.025, 0.03, 0.04, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.38, 0.43, 0.52, 1)
+ambient_light_energy = 0.55
+tonemap_mode = 2
 glow_enabled = true
-glow_intensity = 2.88
-glow_strength = 0.39
-glow_bloom = 1.0
-volumetric_fog_density = 0.1587
-volumetric_fog_albedo = Color(0.512003, 0.557162, 0.624128, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_sugp2"]
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_jyhfs"]
-data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
-
-[sub_resource type="BoxMesh" id="BoxMesh_trceg"]
-size = Vector3(20, 0.2, 20)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eb6dy"]
-albedo_color = Color(0.219501, 0.219501, 0.219501, 1)
+glow_intensity = 1.15
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.015
 
 [node name="Main" type="Node3D"]
-script = ExtResource("1_o5qli")
+script = ExtResource("1_main")
 
-[node name="floor" type="MeshInstance3D" parent="."]
-visible = false
-mesh = SubResource("BoxMesh_0wfyh")
+[node name="Environment" type="Node3D" parent="."]
 
-[node name="StaticBody3D" type="StaticBody3D" parent="floor"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_main")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="floor/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_sugp2")
-
-[node name="SpawnPoint" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.494925, 0)
-
-[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://c30xd8tlqhkv4")
-spawn_path = NodePath("../Players")
-
-[node name="Items" type="Node3D" parent="."]
-
-[node name="ItemSpawner" type="MultiplayerSpawner" parent="."]
-spawn_path = NodePath("../Items")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_sugp2")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.17908, 0.051331, 0.366526)
-mesh = SubResource("BoxMesh_sugp2")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_jyhfs")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.43914, 0.051331, -3.66526)
-mesh = SubResource("BoxMesh_sugp2")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D2"]
-collision_mask = 0
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D2/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_jyhfs")
-
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.43914, 0.051331, 1.33474)
-mesh = SubResource("BoxMesh_sugp2")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D3"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D3/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_jyhfs")
-
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.560863, 0.051331, 5.33474)
-mesh = SubResource("BoxMesh_sugp2")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D4"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D4/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_jyhfs")
-
-[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, -5)
-mesh = SubResource("BoxMesh_sugp2")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D5"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D5/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_jyhfs")
-
-[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -8)
-mesh = SubResource("BoxMesh_sugp2")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D6"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D6/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_jyhfs")
-
-[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -8)
-mesh = SubResource("BoxMesh_sugp2")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D7"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D7/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_jyhfs")
-
-[node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.933197, -8)
-mesh = SubResource("BoxMesh_sugp2")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D8"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D8/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_jyhfs")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.48337, 0.0105814, -0.875352, -0.620075, -0.709979, 0.333823, -0.617949, 0.704144, 0.349744, 0, 1.99455, 2.7704)
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+rotation_degrees = Vector3(-55, -35, 0)
+light_energy = 0.7
 shadow_enabled = true
 
-[node name="Knife" parent="." instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
-item_data = ExtResource("4_jyhfs")
+[node name="SpawnPoint" type="Marker3D" parent="."]
+position = Vector3(0, 0.05, 0)
 
-[node name="Weed" parent="." instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.16277, 0, 0)
-item_data = ExtResource("5_tipki")
+[node name="ProceduralLevelGenerator" type="Node3D" parent="."]
+script = ExtResource("3_generator")
+start_room_scene = ExtResource("4_start")
+room_scenes = Array[PackedScene]([ExtResource("5_straight"), ExtResource("6_corner"), ExtResource("7_kitchen"), ExtResource("8_bathroom"), ExtResource("9_bedroom")])
+maximum_rooms = 15
+generation_seed = 12345
+bounds_shrink = 0.03
 
-[node name="1911" parent="." instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.16277, 0, 2.56613)
-item_data = ExtResource("6_choun")
+[node name="GeneratedRooms" type="Node3D" parent="ProceduralLevelGenerator"]
 
-[node name="Coke" parent="." instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.052914, 0, 0)
-item_data = ExtResource("6_85g3d")
+[node name="SpawnedItems" type="Node3D" parent="ProceduralLevelGenerator"]
 
-[node name="MDMA" parent="." instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -1.18298)
-item_data = ExtResource("7_choun")
-
-[node name="WeedBag" parent="." instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.81587, 0, -2.22694)
-item_data = ExtResource("9_ya4ey")
-
-[node name="Cokebrick" parent="." instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.137992, 1.19209e-07, -3.04479)
-item_data = ExtResource("10_eb6dy")
+[node name="ItemSpawner" type="MultiplayerSpawner" parent="ProceduralLevelGenerator"]
+_spawnable_scenes = PackedStringArray("res://procedural/items/weed_pickup.tscn", "res://procedural/items/weed_bag_pickup.tscn", "res://procedural/items/mdma_pickup.tscn", "res://procedural/items/cocaine_pickup.tscn", "res://procedural/items/coke_brick_pickup.tscn", "res://procedural/items/knife_pickup.tscn", "res://procedural/items/pistol_pickup.tscn")
+spawn_path = NodePath("../SpawnedItems")
 
 [node name="Players" type="Node3D" parent="."]
 
-[node name="OptionsMenu" parent="." instance=ExtResource("5_options")]
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://scenes/PlayerController.tscn")
+spawn_path = NodePath("../Players")
 
-[node name="Van" parent="." instance=ExtResource("9_85g3d")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.66507, -0.122275, 3.50694)
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
 
-[node name="IndustrialMap" parent="." instance=ExtResource("13_trceg")]
-transform = Transform3D(0.525, 0, 0, 0, 0.525, 0, 0, 0, 0.525, 0, -0.425718, -10.1748)
-visible = false
-
-[node name="MeshInstance3D9" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.153196, 0)
-mesh = SubResource("BoxMesh_trceg")
-surface_material_override/0 = SubResource("StandardMaterial3D_eb6dy")
-
-[node name="MeshInstance3D16" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8586, 0)
-mesh = SubResource("BoxMesh_trceg")
-
-[node name="MeshInstance3D10" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -0.153196, 8.23089)
-mesh = SubResource("BoxMesh_trceg")
-
-[node name="MeshInstance3D12" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, -7.49498, -0.153196, -0.0708103)
-mesh = SubResource("BoxMesh_trceg")
-
-[node name="MeshInstance3D13" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 6.04247, -0.153196, -7.44091)
-mesh = SubResource("BoxMesh_trceg")
-
-[node name="MeshInstance3D14" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 6.042, -0.153, 14.443)
-mesh = SubResource("BoxMesh_trceg")
-
-[node name="MeshInstance3D15" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 6.042, 11.752, 9.682)
-mesh = SubResource("BoxMesh_trceg")
-
-[node name="MeshInstance3D11" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0544815, -0.153196, -8.71305)
-mesh = SubResource("BoxMesh_trceg")
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.880792, 0, -0.473504, 0, 1, 0, 0.473504, 0, 0.880792, 0, 2.35448, 5.85189)
+[node name="FallbackCamera" type="Camera3D" parent="."]
+position = Vector3(0, 7, 9)
+rotation_degrees = Vector3(-32, 0, 0)
 current = true
 
-[node name="SpotLight3D" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4.77422, 0)
-visible = false
-light_energy = 0.816
-shadow_enabled = true
-shadow_blur = 2.839
-spot_range = 4096.0
-spot_attenuation = 0.35
-spot_angle = 84.14
+[node name="OptionsMenu" parent="." instance=ExtResource("2_options")]
 
-[node name="SpotLight3D2" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 2.21744, 1.66294)
-light_energy = 9.644
-light_specular = 0.0
-shadow_enabled = true
-shadow_opacity = 0.2
-shadow_blur = 0.0
-omni_range = 4096.0
-
-[node name="SpotLight3D3" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 5.85909, 0.951201, 3.52579)
-light_color = Color(0.105882, 0.72549, 0.188235, 1)
-light_energy = 16.0
-light_specular = 0.0
-shadow_opacity = 0.2
-shadow_blur = 0.0
-omni_range = 1.021
-
-[node name="SpotLight3D4" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 4.3207, 0.951201, 3.52579)
-light_color = Color(0.105882, 0.72549, 0.188235, 1)
-light_energy = 16.0
-light_specular = 0.0
-shadow_opacity = 0.2
-shadow_blur = 0.0
-omni_range = 1.021
+[connection signal="spawned" from="PlayerSpawner" to="." method="_on_multiplayer_spawner_spawned"]

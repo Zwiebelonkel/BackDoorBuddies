@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="ItemSpawnTable" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://procedural/scripts/item_spawn_table.gd" id="1_table"]
+[ext_resource type="Script" path="res://procedural/scripts/item_spawn_entry.gd" id="2_entry"]
+[ext_resource type="PackedScene" path="res://procedural/items/weed_pickup.tscn" id="3_weed"]
+[ext_resource type="PackedScene" path="res://procedural/items/weed_bag_pickup.tscn" id="4_bag"]
+[ext_resource type="PackedScene" path="res://procedural/items/mdma_pickup.tscn" id="5_mdma"]
+[ext_resource type="PackedScene" path="res://procedural/items/cocaine_pickup.tscn" id="6_cocaine"]
+[ext_resource type="PackedScene" path="res://procedural/items/knife_pickup.tscn" id="7_knife"]
+
+[sub_resource type="Resource" id="Weed"]
+script = ExtResource("2_entry")
+item_id = &"weed"
+item_scene = ExtResource("3_weed")
+weight = 45.0
+vertical_offset = 0.025
+
+[sub_resource type="Resource" id="WeedBag"]
+script = ExtResource("2_entry")
+item_id = &"weedbag"
+item_scene = ExtResource("4_bag")
+weight = 20.0
+vertical_offset = 0.025
+
+[sub_resource type="Resource" id="Mdma"]
+script = ExtResource("2_entry")
+item_id = &"mdma"
+item_scene = ExtResource("5_mdma")
+weight = 15.0
+vertical_offset = 0.025
+
+[sub_resource type="Resource" id="Cocaine"]
+script = ExtResource("2_entry")
+item_id = &"cocaine"
+item_scene = ExtResource("6_cocaine")
+weight = 12.0
+vertical_offset = 0.025
+
+[sub_resource type="Resource" id="Knife"]
+script = ExtResource("2_entry")
+item_id = &"knife"
+item_scene = ExtResource("7_knife")
+weight = 8.0
+vertical_offset = 0.035
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[ExtResource("2_entry")]([SubResource("Weed"), SubResource("WeedBag"), SubResource("Mdma"), SubResource("Cocaine"), SubResource("Knife")])

@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemSpawnTable" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://procedural/scripts/item_spawn_table.gd" id="1_table"]
+[ext_resource type="Script" path="res://procedural/scripts/item_spawn_entry.gd" id="2_entry"]
+[ext_resource type="PackedScene" path="res://procedural/items/pistol_pickup.tscn" id="3_pistol"]
+[ext_resource type="PackedScene" path="res://procedural/items/knife_pickup.tscn" id="4_knife"]
+[ext_resource type="PackedScene" path="res://procedural/items/coke_brick_pickup.tscn" id="5_brick"]
+
+[sub_resource type="Resource" id="Pistol"]
+script = ExtResource("2_entry")
+item_id = &"1911"
+item_scene = ExtResource("3_pistol")
+weight = 20.0
+vertical_offset = 0.04
+
+[sub_resource type="Resource" id="Knife"]
+script = ExtResource("2_entry")
+item_id = &"knife"
+item_scene = ExtResource("4_knife")
+weight = 50.0
+vertical_offset = 0.035
+
+[sub_resource type="Resource" id="CokeBrick"]
+script = ExtResource("2_entry")
+item_id = &"cokebrick"
+item_scene = ExtResource("5_brick")
+weight = 30.0
+vertical_offset = 0.04
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[ExtResource("2_entry")]([SubResource("Pistol"), SubResource("Knife"), SubResource("CokeBrick")])

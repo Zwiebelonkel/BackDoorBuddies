@@ -6,8 +6,9 @@ const PICKUP_ITEM_SCENE: PackedScene = preload(
 )
 
 @onready var players_container: Node3D = $Players
-@onready var items_container: Node3D = $Items
-@onready var item_spawner: MultiplayerSpawner = $ItemSpawner
+@onready var level_generator: ProceduralLevelGenerator = $ProceduralLevelGenerator
+@onready var items_container: Node3D = $ProceduralLevelGenerator/SpawnedItems
+@onready var item_spawner: MultiplayerSpawner = $ProceduralLevelGenerator/ItemSpawner
 @onready var spawn_point: Marker3D = $SpawnPoint
 
 var players: Array[CharacterBody3D] = []
@@ -83,12 +84,19 @@ func server_spawn_dropped_item(
 	item_spawner.spawn(spawn_data)
 
 func on_host_created() -> void:
+	level_generator.start_network_generation()
+
 	# Host-Player erzeugen.
 	spawn_player(multiplayer.get_unique_id())
 
 	# Alle später beitretenden Spieler erzeugen.
-	if not multiplayer.peer_connected.is_connected(spawn_player):
-		multiplayer.peer_connected.connect(spawn_player)
+	if not multiplayer.peer_connected.is_connected(_on_peer_connected):
+		multiplayer.peer_connected.connect(_on_peer_connected)
+
+
+func _on_peer_connected(peer_id: int) -> void:
+	spawn_player(peer_id)
+	level_generator.sync_level_to_peer(peer_id)
 
 
 func spawn_player(peer_id: int) -> void:

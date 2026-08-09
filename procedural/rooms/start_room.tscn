@@ -1,0 +1,93 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://procedural/scripts/procedural_room.gd" id="1_room"]
+[ext_resource type="Script" path="res://procedural/scripts/room_shell.gd" id="2_shell"]
+[ext_resource type="Script" path="res://procedural/scripts/room_socket.gd" id="3_socket"]
+[ext_resource type="Script" path="res://procedural/scripts/item_spawn_point.gd" id="4_spawn"]
+[ext_resource type="PackedScene" path="res://procedural/caps/wall_cap.tscn" id="5_cap"]
+[ext_resource type="Resource" path="res://procedural/item_tables/common_floor_items.tres" id="6_items"]
+
+[sub_resource type="BoxShape3D" id="RoomBoundsShape"]
+size = Vector3(5.94, 2.94, 4.94)
+
+[node name="StartRoom" type="Node3D"]
+script = ExtResource("1_room")
+room_id = &"start_room"
+room_type = &"start"
+minimum_items = 1
+maximum_items = 2
+
+[node name="Geometry" type="Node3D" parent="."]
+script = ExtResource("2_shell")
+room_size = Vector2(6, 5)
+door_sides = Array[StringName]([&"north", &"south", &"east", &"west"])
+floor_color = Color(0.12, 0.13, 0.15, 1)
+wall_color = Color(0.36, 0.38, 0.42, 1)
+
+[node name="Floor" type="Node3D" parent="Geometry"]
+[node name="Walls" type="Node3D" parent="Geometry"]
+[node name="Ceiling" type="Node3D" parent="Geometry"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="RoomBounds" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBounds"]
+position = Vector3(0, 1.5, 0)
+shape = SubResource("RoomBoundsShape")
+
+[node name="DoorSockets" type="Node3D" parent="."]
+
+[node name="SocketNorth" type="Marker3D" parent="DoorSockets"]
+position = Vector3(0, 0, -2.5)
+rotation = Vector3(0, 3.1415927, 0)
+script = ExtResource("3_socket")
+socket_type = &"corridor"
+compatible_types = Array[StringName]([&"corridor"])
+cap_scene = ExtResource("5_cap")
+
+[node name="SocketSouth" type="Marker3D" parent="DoorSockets"]
+position = Vector3(0, 0, 2.5)
+script = ExtResource("3_socket")
+socket_type = &"corridor"
+compatible_types = Array[StringName]([&"corridor"])
+cap_scene = ExtResource("5_cap")
+
+[node name="SocketEast" type="Marker3D" parent="DoorSockets"]
+position = Vector3(3, 0, 0)
+rotation = Vector3(0, 1.5707963, 0)
+script = ExtResource("3_socket")
+socket_type = &"corridor"
+compatible_types = Array[StringName]([&"corridor"])
+cap_scene = ExtResource("5_cap")
+
+[node name="SocketWest" type="Marker3D" parent="DoorSockets"]
+position = Vector3(-3, 0, 0)
+rotation = Vector3(0, -1.5707963, 0)
+script = ExtResource("3_socket")
+socket_type = &"corridor"
+compatible_types = Array[StringName]([&"corridor"])
+cap_scene = ExtResource("5_cap")
+
+[node name="ItemSpawnPoints" type="Node3D" parent="."]
+
+[node name="Floor01" type="Marker3D" parent="ItemSpawnPoints"]
+position = Vector3(-1.5, 0.08, 1)
+script = ExtResource("4_spawn")
+spawn_table = ExtResource("6_items")
+
+[node name="Floor02" type="Marker3D" parent="ItemSpawnPoints"]
+position = Vector3(1.5, 0.08, -1)
+script = ExtResource("4_spawn")
+spawn_table = ExtResource("6_items")
+
+[node name="Floor03" type="Marker3D" parent="ItemSpawnPoints"]
+position = Vector3(0, 0.08, 0)
+script = ExtResource("4_spawn")
+spawn_table = ExtResource("6_items")
