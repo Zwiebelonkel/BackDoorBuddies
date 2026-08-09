@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://procedural/scripts/exit_door.gd" id="1_door"]
+
+[sub_resource type="StandardMaterial3D" id="DoorMaterial"]
+albedo_color = Color(0.08, 0.24, 0.14, 1)
+roughness = 0.72
+emission_enabled = true
+emission = Color(0.02, 0.12, 0.055, 1)
+emission_energy_multiplier = 1.4
+
+[sub_resource type="BoxMesh" id="DoorMesh"]
+material = SubResource("DoorMaterial")
+size = Vector3(1.1, 2.1, 0.08)
+
+[sub_resource type="BoxShape3D" id="DoorShape"]
+size = Vector3(1.1, 2.1, 0.08)
+
+[node name="ExitDoor" type="StaticBody3D"]
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1_door")
+
+[node name="DoorMesh" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.05, -0.04)
+mesh = SubResource("DoorMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 1.05, -0.04)
+shape = SubResource("DoorShape")
+
+[node name="ExitLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 2.35, -0.35)
+light_color = Color(0.22, 1, 0.48, 1)
+light_energy = 1.6
+omni_range = 2.5

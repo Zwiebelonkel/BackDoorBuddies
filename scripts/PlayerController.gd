@@ -13,6 +13,20 @@ extends CharacterBody3D
 @export var friction: float           = 10.0
 @export var air_friction: float       = 2.0
 
+@export_group("Inventory Weight")
+@export_range(0.0, 0.2, 0.001)
+var speed_penalty_per_kilogram: float = 0.035
+
+@export_range(0.1, 1.0, 0.01)
+var minimum_weight_speed_multiplier: float = 0.45
+
+@export_group("Stamina")
+@export_range(1.0, 500.0, 1.0) var maximum_stamina: float = 100.0
+@export_range(0.0, 100.0, 0.5) var stamina_drain_per_second: float = 25.0
+@export_range(0.0, 100.0, 0.5) var stamina_recovery_per_second: float = 18.0
+@export_range(0.0, 5.0, 0.05) var stamina_recovery_delay: float = 1.0
+@export_range(0.0, 100.0, 1.0) var stamina_restart_threshold: float = 20.0
+
 @export_group("Jumping")
 @export var jump_velocity: float      = 5.5
 @export var gravity_scale: float      = 2.2
@@ -23,6 +37,13 @@ extends CharacterBody3D
 @export var mouse_sensitivity: float  = 0.002
 @export var controller_sensitivity: float = 2.5
 @export var max_pitch_degrees: float  = 88.0
+
+@export_group("Look Sway")
+@export var look_sway_enabled: bool = true
+@export_range(0.0, 1.5, 0.05) var look_sway_max_degrees: float = 0.6
+@export_range(0.0, 1.0, 0.05) var look_sway_amount: float = 0.3
+@export_range(0.0, 1.0, 0.05) var look_sway_roll_amount: float = 0.15
+@export_range(1.0, 30.0, 0.5) var look_sway_smoothing: float = 9.0
 
 @export_group("Head Bob")
 @export var bob_enabled: bool         = true
@@ -75,6 +96,7 @@ signal landed
 signal footstep(speed_ratio: float)
 signal crouched(is_crouching: bool)
 signal inventory_changed(items: Array[ItemData], selected_index: int)
+signal stamina_changed(current_stamina: float, maximum_stamina: float)
 
 # ─────────────────────────────────────────────
 # NODES
@@ -109,11 +131,21 @@ var _current_tilt: float      = 0.0
 var inventory: Array[ItemData] = []
 var selected_inventory_index: int = -1
 var server_inventory_paths: Array[String] = []
+var equipped_item_resource_path: String = ""
 var held_item_instance: Node3D = null
 var _mouse_sway_input := Vector2.ZERO
 var _item_holder_start_position := Vector3.ZERO
 var _item_holder_start_rotation := Vector3.ZERO
 var _idle_sway_time := 0.0
+var current_stamina: float = 0.0
+var _sprint_active := false
+var _sprint_exhausted := false
+var _stamina_recovery_delay_remaining := 0.0
+var _base_mouse_sensitivity: float
+var _base_controller_sensitivity: float
+var _look_sway_impulse := Vector2.ZERO
+var _current_look_sway := Vector2.ZERO
+var _current_look_sway_roll := 0.0
 
 # Multiplayer sync
 var _sync_timer: float        = 0.0
@@ -135,11 +167,16 @@ const PLAYER_HUD_SCENE := preload(
 
 func _ready() -> void:
 	set_multiplayer_authority(name.to_int())
+	current_stamina = maximum_stamina
+	_base_mouse_sensitivity = mouse_sensitivity
+	_base_controller_sensitivity = controller_sensitivity
 
 	_item_holder_start_position = item_holder.position
 	_item_holder_start_rotation = item_holder.rotation
 
 	if is_multiplayer_authority():
+		add_to_group("local_player_controller")
+		_load_look_sensitivity()
 		camera.make_current()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -184,9 +221,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		_mouse_sway_input += event.relative
 		_rotate_camera(event.relative * mouse_sensitivity)
 
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		_rotate_camera(event.relative * mouse_sensitivity)
-
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = \
 			Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED \
@@ -217,9 +251,27 @@ func _unhandled_input(event: InputEvent) -> void:
 		_request_drop_selected_item()
 
 func _rotate_camera(delta_2d: Vector2) -> void:
+	_look_sway_impulse += delta_2d
 	rotate_y(-delta_2d.x)
 	_pitch = clampf(_pitch - delta_2d.y, -deg_to_rad(max_pitch_degrees), deg_to_rad(max_pitch_degrees))
 	head.rotation.x = _pitch
+
+
+func _load_look_sensitivity() -> void:
+	var config := ConfigFile.new()
+	config.load("user://options.cfg")
+	var sensitivity := float(
+		config.get_value("controls", "look_sensitivity", 1.0)
+	)
+	apply_look_sensitivity(sensitivity)
+
+
+func apply_look_sensitivity(sensitivity: float) -> void:
+	var clamped_sensitivity := clampf(sensitivity, 0.25, 3.0)
+	mouse_sensitivity = _base_mouse_sensitivity * clamped_sensitivity
+	controller_sensitivity = (
+		_base_controller_sensitivity * clamped_sensitivity
+	)
 
 # ─────────────────────────────────────────────
 # PHYSICS PROCESS
@@ -230,23 +282,21 @@ func _physics_process(delta: float) -> void:
 		# Fremde Spieler: Interpolation zum zuletzt empfangenen State
 		# (läuft weiter, move_and_slide sorgt für korrekte Kollision)
 		return
-		
+
+	_update_controller_look(delta)
 	_update_hand_sway(delta)
 	_update_interaction_text()
 	_handle_crouch(delta)
 	_apply_gravity(delta)
 	_handle_jump()
+	_update_stamina(delta)
 	_handle_movement(delta)
 	_update_tilt(delta)
+	_update_look_sway(delta)
 	_update_head_bob(delta)
 	_update_footsteps()
 	_handle_landing()
 	move_and_slide()
-
-	# Gamepad-Look
-	var look_input := Input.get_vector("look_left", "look_right", "look_up", "look_down")
-	if look_input.length() > 0.1:
-		_rotate_camera(look_input * controller_sensitivity * delta)
 
 	# State an alle anderen Peers broadcasten
 	_sync_timer += delta
@@ -307,8 +357,14 @@ func _handle_jump() -> void:
 # ─────────────────────────────────────────────
 
 func _handle_movement(delta: float) -> void:
-	var is_sprinting := Input.is_action_pressed("sprint") and not _is_crouching
-	var target_speed := sprint_speed if is_sprinting else (crouch_speed if _is_crouching else walk_speed)
+	var base_speed := walk_speed
+
+	if _is_crouching:
+		base_speed = crouch_speed
+	elif _sprint_active:
+		base_speed = sprint_speed
+
+	var target_speed := base_speed * get_weight_speed_multiplier()
 
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
@@ -323,18 +379,125 @@ func _handle_movement(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0.0, fric * delta)
 		velocity.z = move_toward(velocity.z, 0.0, fric * delta)
 
+
+func _update_stamina(delta: float) -> void:
+	var previous_stamina := current_stamina
+	var movement_input := Input.get_vector(
+		"move_left",
+		"move_right",
+		"move_forward",
+		"move_backward"
+	)
+	var wants_to_sprint := (
+		Input.is_action_pressed("sprint")
+		and movement_input.length() > 0.1
+		and not _is_crouching
+		and is_on_floor()
+	)
+
+	if (
+		_sprint_exhausted
+		and current_stamina >= minf(stamina_restart_threshold, maximum_stamina)
+	):
+		_sprint_exhausted = false
+
+	_sprint_active = (
+		wants_to_sprint
+		and not _sprint_exhausted
+		and current_stamina > 0.0
+	)
+
+	if _sprint_active:
+		current_stamina = maxf(
+			current_stamina - stamina_drain_per_second * delta,
+			0.0
+		)
+		_stamina_recovery_delay_remaining = stamina_recovery_delay
+
+		if current_stamina <= 0.0:
+			_sprint_active = false
+			_sprint_exhausted = true
+	else:
+		_stamina_recovery_delay_remaining = maxf(
+			_stamina_recovery_delay_remaining - delta,
+			0.0
+		)
+
+		if _stamina_recovery_delay_remaining <= 0.0:
+			current_stamina = minf(
+				current_stamina + stamina_recovery_per_second * delta,
+				maximum_stamina
+			)
+
+	if not is_equal_approx(previous_stamina, current_stamina):
+		stamina_changed.emit(current_stamina, maximum_stamina)
+
 # ─────────────────────────────────────────────
 # CAMERA TILT
 # ─────────────────────────────────────────────
 
 func _update_tilt(delta: float) -> void:
 	if not tilt_enabled:
+		_current_tilt = 0.0
 		camera.rotation.z = 0.0
 		return
 	var strafe := Input.get_axis("move_left", "move_right")
 	var target_tilt := deg_to_rad(-tilt_max_degrees) * strafe
 	_current_tilt = move_toward(_current_tilt, target_tilt, deg_to_rad(tilt_max_degrees) * tilt_speed * delta)
 	camera.rotation.z = _current_tilt
+
+
+func _update_controller_look(delta: float) -> void:
+	var look_input := Input.get_vector(
+		"look_left",
+		"look_right",
+		"look_up",
+		"look_down"
+	)
+
+	if look_input.length() > 0.1:
+		_rotate_camera(look_input * controller_sensitivity * delta)
+
+
+func _update_look_sway(delta: float) -> void:
+	var target_sway := Vector2.ZERO
+	var target_roll := 0.0
+
+	if look_sway_enabled:
+		var max_sway := deg_to_rad(look_sway_max_degrees)
+		target_sway = Vector2(
+			clampf(
+				_look_sway_impulse.y * look_sway_amount,
+				-max_sway,
+				max_sway
+			),
+			clampf(
+				_look_sway_impulse.x * look_sway_amount,
+				-max_sway,
+				max_sway
+			)
+		)
+		target_roll = clampf(
+			-_look_sway_impulse.x * look_sway_roll_amount,
+			-max_sway,
+			max_sway
+		)
+
+	var smoothing_weight := 1.0 - exp(-look_sway_smoothing * delta)
+	_current_look_sway = _current_look_sway.lerp(
+		target_sway,
+		smoothing_weight
+	)
+	_current_look_sway_roll = lerpf(
+		_current_look_sway_roll,
+		target_roll,
+		smoothing_weight
+	)
+
+	camera.rotation.x = _current_look_sway.x
+	camera.rotation.y = _current_look_sway.y
+	camera.rotation.z = _current_tilt + _current_look_sway_roll
+	_look_sway_impulse = Vector2.ZERO
 
 # ─────────────────────────────────────────────
 # HEAD BOB
@@ -345,7 +508,7 @@ func _update_head_bob(delta: float) -> void:
 		camera.position = Vector3.ZERO
 		return
 	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
-	var sprinting := Input.is_action_pressed("sprint")
+	var sprinting := _sprint_active
 	if is_on_floor() and horizontal_speed > 0.5:
 		var freq := bob_frequency_sprint if sprinting else bob_frequency_walk
 		_bob_time += delta * freq * TAU
@@ -367,7 +530,7 @@ func _update_footsteps() -> void:
 	var h_speed := Vector2(velocity.x, velocity.z).length()
 	if h_speed < 0.5:
 		return
-	var sprinting := Input.is_action_pressed("sprint")
+	var sprinting := _sprint_active
 	var interval := STEP_INTERVAL_SPRINT if sprinting else STEP_INTERVAL_WALK
 	_step_distance += h_speed * get_physics_process_delta_time()
 	if _step_distance >= interval:
@@ -430,13 +593,48 @@ func is_moving() -> bool:
 	return Vector2(velocity.x, velocity.z).length() > 0.1
 
 func is_sprinting() -> bool:
-	return Input.is_action_pressed("sprint") and is_moving() and not _is_crouching
+	return _sprint_active and is_moving()
 
 func is_crouching() -> bool:
 	return _is_crouching
 
 func horizontal_speed() -> float:
 	return Vector2(velocity.x, velocity.z).length()
+
+
+func get_total_inventory_weight() -> float:
+	var total_weight := 0.0
+
+	for item in inventory:
+		if item != null:
+			total_weight += maxf(item.weight, 0.0)
+
+	return total_weight
+
+
+func get_weight_speed_multiplier() -> float:
+	return clampf(
+		1.0 - get_total_inventory_weight() * speed_penalty_per_kilogram,
+		minimum_weight_speed_multiplier,
+		1.0
+	)
+
+
+func is_holding_large_item() -> bool:
+	var equipped_data := _load_item_data(equipped_item_resource_path)
+	return equipped_data != null and equipped_data.is_large_item
+
+
+func _load_item_data(item_resource_path: String) -> ItemData:
+	if item_resource_path.is_empty():
+		return null
+
+	var loaded_resource := load(item_resource_path)
+
+	if loaded_resource is ItemData:
+		return loaded_resource as ItemData
+
+	return null
 
 func _try_interact() -> void:
 	if not is_multiplayer_authority():
@@ -466,11 +664,17 @@ func _try_interact() -> void:
 		collider.get_class()
 	)
 
-	if collider.has_method("request_pickup"):
+	if collider.has_method("request_interaction"):
+		collider.request_interaction(self)
+	elif collider.has_method("request_pickup"):
+		if is_holding_large_item():
+			print("Mit einem Großitem in der Hand kann nichts aufgenommen werden.")
+			return
+
 		print("Pickup wird angefragt")
 		collider.request_pickup()
 	else:
-		print("Getroffenes Objekt besitzt kein request_pickup()")
+		print("Getroffenes Objekt besitzt keine Interaktionsmethode")
 
 
 func server_receive_item(data: ItemData) -> bool:
@@ -484,6 +688,12 @@ func server_receive_item(data: ItemData) -> bool:
 		push_error("ItemData muss als .tres-Datei gespeichert sein.")
 		return false
 
+	if is_holding_large_item():
+		print(
+			"Aufnahme abgelehnt: Spieler hält bereits ein Großitem."
+		)
+		return false
+
 	if server_inventory_paths.size() >= MAX_INVENTORY_SIZE:
 		print(
 			"Inventar von Peer ",
@@ -493,6 +703,9 @@ func server_receive_item(data: ItemData) -> bool:
 		return false
 
 	server_inventory_paths.append(data.resource_path)
+
+	if server_inventory_paths.size() == 1 or data.is_large_item:
+		equipped_item_resource_path = data.resource_path
 
 	var player_peer_id := get_multiplayer_authority()
 
@@ -571,6 +784,15 @@ func _server_drop_item(slot_index: int) -> void:
 
 	server_inventory_paths.remove_at(slot_index)
 
+	if server_inventory_paths.is_empty():
+		equipped_item_resource_path = ""
+	else:
+		var replacement_index := mini(
+			slot_index,
+			server_inventory_paths.size() - 1
+		)
+		equipped_item_resource_path = server_inventory_paths[replacement_index]
+
 	var owner_peer_id := get_multiplayer_authority()
 
 	if owner_peer_id == multiplayer.get_unique_id():
@@ -637,13 +859,14 @@ func _remove_dropped_item_local(slot_index: int) -> void:
 
 	if inventory.is_empty():
 		selected_inventory_index = -1
+		equipped_item_resource_path = ""
 		_sync_equipped_item.rpc("")
 	else:
 		selected_inventory_index = mini(slot_index, inventory.size() - 1)
-		_equip_item(inventory[selected_inventory_index])
-		_sync_equipped_item.rpc(
-			inventory[selected_inventory_index].resource_path
-		)
+		var replacement_item := inventory[selected_inventory_index]
+		equipped_item_resource_path = replacement_item.resource_path
+		_equip_item(replacement_item)
+		_sync_equipped_item.rpc(equipped_item_resource_path)
 
 	_emit_inventory_changed()
 
@@ -693,7 +916,9 @@ func _receive_item_local(item_resource_path: String) -> void:
 		MAX_INVENTORY_SIZE
 	)
 
-	if selected_inventory_index == -1:
+	if data.is_large_item:
+		select_inventory_item(inventory.size() - 1)
+	elif selected_inventory_index == -1:
 		select_inventory_item(0)
 	else:
 		_emit_inventory_changed()
@@ -708,6 +933,22 @@ func select_inventory_item(index: int) -> void:
 	if index < 0 or index >= MAX_INVENTORY_SIZE:
 		return
 
+	if is_holding_large_item():
+		var requested_item := (
+			inventory[index]
+			if index < inventory.size()
+			else null
+		)
+
+		if (
+			requested_item == null
+			or requested_item.resource_path != equipped_item_resource_path
+		):
+			print(
+				"Slotwechsel blockiert: Großitem muss zuerst abgelegt werden."
+			)
+			return
+
 	# Leerer Slot: aktuelles Item abwählen.
 	if index >= inventory.size():
 		unequip_current_item()
@@ -716,8 +957,9 @@ func select_inventory_item(index: int) -> void:
 	selected_inventory_index = index
 
 	var selected_item := inventory[index]
+	equipped_item_resource_path = selected_item.resource_path
 	_equip_item(selected_item)
-	_sync_equipped_item.rpc(selected_item.resource_path)
+	_sync_equipped_item.rpc(equipped_item_resource_path)
 
 	_emit_inventory_changed()
 
@@ -725,6 +967,25 @@ func select_inventory_item(index: int) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _sync_equipped_item(item_resource_path: String) -> void:
+	if (
+		multiplayer.is_server()
+		and is_holding_large_item()
+		and item_resource_path != equipped_item_resource_path
+	):
+		print(
+			"Ausrüstungswechsel abgelehnt: Großitem muss zuerst abgelegt werden."
+		)
+		return
+
+	if (
+		multiplayer.is_server()
+		and not item_resource_path.is_empty()
+		and item_resource_path not in server_inventory_paths
+	):
+		push_warning("Ausgerüstetes Item ist nicht im Server-Inventar.")
+		return
+
+	equipped_item_resource_path = item_resource_path
 	_clear_world_held_item()
 
 	if item_resource_path.is_empty():
@@ -803,7 +1064,12 @@ func _equip_item(data: ItemData) -> void:
 	item_holder.add_child(held_item_instance)
 
 func unequip_current_item() -> void:
+	if is_holding_large_item():
+		print("Großitem kann nur durch Ablegen abgewählt werden.")
+		return
+
 	selected_inventory_index = -1
+	equipped_item_resource_path = ""
 	_clear_held_item()
 	_sync_equipped_item.rpc("")
 	_emit_inventory_changed()
@@ -834,11 +1100,19 @@ func _update_interaction_text() -> void:
 		interaction_label.visible = false
 		return
 
-	if collider is PickupItem:
+	if collider.has_method("get_interaction_text"):
+		interaction_label.text = "[E] " + str(collider.get_interaction_text())
+		interaction_label.visible = true
+	elif collider is PickupItem:
 		var pickup := collider as PickupItem
 
 		if pickup.item_data == null:
 			interaction_label.visible = false
+			return
+
+		if is_holding_large_item():
+			interaction_label.text = "[E] Hände voll (Großitem)"
+			interaction_label.visible = true
 			return
 
 		interaction_label.text = "[E] " + pickup.item_data.interaction_text
@@ -853,6 +1127,7 @@ func clear_inventory() -> void:
 		server_inventory_paths.clear()
 
 	selected_inventory_index = -1
+	equipped_item_resource_path = ""
 	_clear_held_item()
 	_sync_equipped_item.rpc("")
 	_emit_inventory_changed()

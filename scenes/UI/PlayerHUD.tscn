@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dekujcoi2xbfv"]
+[gd_scene load_steps=14 format=3 uid="uid://dekujcoi2xbfv"]
 
 [ext_resource type="Script" uid="uid://co41cyy75txyx" path="res://scripts/PlayerHUD.gd" id="1_lc2f8"]
 [ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="2_0fkfg"]
@@ -22,6 +22,35 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
+[sub_resource type="LabelSettings" id="LabelSettings_item_name"]
+font_color = Color(0.8, 0.95, 0.82, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_number"]
+font_color = Color(0.55, 0.85, 0.62, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_background"]
+bg_color = Color(0.025, 0.035, 0.03, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.3, 0.18, 0.9)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_fill"]
+bg_color = Color(0.16, 0.78, 0.31, 0.95)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
 bg_color = Color(0.035, 0.045, 0.04, 0.92)
 border_width_left = 2
@@ -35,16 +64,6 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 shadow_color = Color(0, 0, 0, 0.5)
 shadow_size = 9
-
-[sub_resource type="LabelSettings" id="LabelSettings_item_name"]
-font_color = Color(0.8, 0.95, 0.82, 1)
-outline_size = 3
-outline_color = Color(0, 0, 0, 0.9)
-
-[sub_resource type="LabelSettings" id="LabelSettings_number"]
-font_color = Color(0.55, 0.85, 0.62, 1)
-outline_size = 3
-outline_color = Color(0, 0, 0, 0.8)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_lt46w"]
 shader = ExtResource("3_ucih8")
@@ -105,6 +124,48 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_bar")
+
+[node name="StatusPanel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+offset_right = 230.0
+offset_bottom = 122.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bar")
+
+[node name="StatusContent" type="VBoxContainer" parent="Root/StatusPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="WeightLabel" type="Label" parent="Root/StatusPanel/StatusContent"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 16
+text = "GEWICHT  0.00 KG"
+label_settings = SubResource("LabelSettings_item_name")
+
+[node name="InventoryValueLabel" type="Label" parent="Root/StatusPanel/StatusContent"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 16
+text = "WERT  $0"
+label_settings = SubResource("LabelSettings_item_name")
+
+[node name="StaminaLabel" type="Label" parent="Root/StatusPanel/StatusContent"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 14
+text = "STAMINA  100 / 100"
+label_settings = SubResource("LabelSettings_number")
+
+[node name="StaminaBar" type="ProgressBar" parent="Root/StatusPanel/StatusContent"]
+custom_minimum_size = Vector2(210, 16)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_stamina_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_stamina_fill")
+value = 100.0
+show_percentage = false
 
 [node name="InventoryBar" type="HBoxContainer" parent="Root"]
 layout_mode = 1

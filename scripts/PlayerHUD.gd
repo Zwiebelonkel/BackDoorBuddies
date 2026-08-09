@@ -8,6 +8,10 @@ extends CanvasLayer
 	$Root/InventoryBar/Slot4
 ]
 @onready var interaction_label: Label = $InteractionUI/Label
+@onready var weight_label: Label = $Root/StatusPanel/StatusContent/WeightLabel
+@onready var inventory_value_label: Label = $Root/StatusPanel/StatusContent/InventoryValueLabel
+@onready var stamina_label: Label = $Root/StatusPanel/StatusContent/StaminaLabel
+@onready var stamina_bar: ProgressBar = $Root/StatusPanel/StatusContent/StaminaBar
 
 
 func _ready() -> void:
@@ -22,10 +26,14 @@ func bind_player(player: FPSController) -> void:
 	if not player.inventory_changed.is_connected(_on_inventory_changed):
 		player.inventory_changed.connect(_on_inventory_changed)
 
+	if not player.stamina_changed.is_connected(_on_stamina_changed):
+		player.stamina_changed.connect(_on_stamina_changed)
+
 	_on_inventory_changed(
 		player.inventory,
 		player.selected_inventory_index
 	)
+	_on_stamina_changed(player.current_stamina, player.maximum_stamina)
 
 
 func _on_inventory_changed(
@@ -54,6 +62,38 @@ func _on_inventory_changed(
 			slot.tooltip_text = ""
 
 		_update_slot_style(slot, index == selected_index)
+
+	_update_weight_display(items)
+	_update_inventory_value_display(items)
+
+
+func _update_weight_display(items: Array[ItemData]) -> void:
+	var total_weight := 0.0
+
+	for item in items:
+		if item != null:
+			total_weight += maxf(item.weight, 0.0)
+
+	weight_label.text = "GEWICHT  %.2f KG" % total_weight
+
+
+func _update_inventory_value_display(items: Array[ItemData]) -> void:
+	var total_value := 0
+
+	for item in items:
+		if item != null:
+			total_value += maxi(item.value, 0)
+
+	inventory_value_label.text = "WERT  $%d" % total_value
+
+
+func _on_stamina_changed(current: float, maximum: float) -> void:
+	stamina_bar.max_value = maxf(maximum, 1.0)
+	stamina_bar.value = clampf(current, 0.0, stamina_bar.max_value)
+	stamina_label.text = "STAMINA  %d / %d" % [
+		roundi(current),
+		roundi(maximum)
+	]
 
 
 func _update_slot_style(

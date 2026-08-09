@@ -9,7 +9,7 @@ const PICKUP_ITEM_SCENE: PackedScene = preload(
 @onready var level_generator: ProceduralLevelGenerator = $ProceduralLevelGenerator
 @onready var items_container: Node3D = $ProceduralLevelGenerator/SpawnedItems
 @onready var item_spawner: MultiplayerSpawner = $ProceduralLevelGenerator/ItemSpawner
-@onready var spawn_point: Marker3D = $SpawnPoint
+@onready var spawn_point: Marker3D = $Hall/HallSpawnPoint
 
 var players: Array[CharacterBody3D] = []
 

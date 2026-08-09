@@ -115,13 +115,13 @@ func _build_wall(
 	var wall_position := Vector3.ZERO
 
 	if side == &"north":
-		wall_position.z = -room_size.y * 0.5
+		wall_position.z = -room_size.y * 0.5 + WALL_THICKNESS * 0.5
 	elif side == &"south":
-		wall_position.z = room_size.y * 0.5
+		wall_position.z = room_size.y * 0.5 - WALL_THICKNESS * 0.5
 	elif side == &"east":
-		wall_position.x = room_size.x * 0.5
+		wall_position.x = room_size.x * 0.5 - WALL_THICKNESS * 0.5
 	else:
-		wall_position.x = -room_size.x * 0.5
+		wall_position.x = -room_size.x * 0.5 + WALL_THICKNESS * 0.5
 
 	if side not in door_sides:
 		_add_wall_piece(side, "Full", wall_length, WALL_HEIGHT, 0.0, WALL_HEIGHT * 0.5, horizontal, wall_position, walls_root, static_body, material)

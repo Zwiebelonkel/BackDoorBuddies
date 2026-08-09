@@ -1,0 +1,117 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="PackedScene" path="res://procedural/doors/exit_door.tscn" id="1_door"]
+[ext_resource type="PackedScene" uid="uid://byeosjjl5c1lv" path="res://scenes/props/van/Van.tscn" id="2_van"]
+
+[sub_resource type="StandardMaterial3D" id="HallMaterial"]
+albedo_color = Color(0.18, 0.19, 0.21, 1)
+roughness = 0.92
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+material = SubResource("HallMaterial")
+size = Vector3(20, 0.1, 16)
+
+[sub_resource type="BoxMesh" id="CeilingMesh"]
+material = SubResource("HallMaterial")
+size = Vector3(20, 0.1, 16)
+
+[sub_resource type="BoxMesh" id="NorthSouthWallMesh"]
+material = SubResource("HallMaterial")
+size = Vector3(20, 5, 0.2)
+
+[sub_resource type="BoxMesh" id="EastWestWallMesh"]
+material = SubResource("HallMaterial")
+size = Vector3(0.2, 5, 16)
+
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(20, 0.1, 16)
+
+[sub_resource type="BoxShape3D" id="CeilingShape"]
+size = Vector3(20, 0.1, 16)
+
+[sub_resource type="BoxShape3D" id="NorthSouthWallShape"]
+size = Vector3(20, 5, 0.2)
+
+[sub_resource type="BoxShape3D" id="EastWestWallShape"]
+size = Vector3(0.2, 5, 16)
+
+[node name="Hall" type="Node3D"]
+
+[node name="Geometry" type="Node3D" parent="."]
+
+[node name="Floor" type="MeshInstance3D" parent="Geometry"]
+position = Vector3(0, -0.05, 0)
+mesh = SubResource("FloorMesh")
+
+[node name="Ceiling" type="MeshInstance3D" parent="Geometry"]
+position = Vector3(0, 5.05, 0)
+mesh = SubResource("CeilingMesh")
+
+[node name="NorthWall" type="MeshInstance3D" parent="Geometry"]
+position = Vector3(0, 2.5, -7.9)
+mesh = SubResource("NorthSouthWallMesh")
+
+[node name="SouthWall" type="MeshInstance3D" parent="Geometry"]
+position = Vector3(0, 2.5, 7.9)
+mesh = SubResource("NorthSouthWallMesh")
+
+[node name="EastWall" type="MeshInstance3D" parent="Geometry"]
+position = Vector3(9.9, 2.5, 0)
+mesh = SubResource("EastWestWallMesh")
+
+[node name="WestWall" type="MeshInstance3D" parent="Geometry"]
+position = Vector3(-9.9, 2.5, 0)
+mesh = SubResource("EastWestWallMesh")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="FloorCollision" type="CollisionShape3D" parent="StaticBody3D"]
+position = Vector3(0, -0.05, 0)
+shape = SubResource("FloorShape")
+
+[node name="CeilingCollision" type="CollisionShape3D" parent="StaticBody3D"]
+position = Vector3(0, 5.05, 0)
+shape = SubResource("CeilingShape")
+
+[node name="NorthWallCollision" type="CollisionShape3D" parent="StaticBody3D"]
+position = Vector3(0, 2.5, -7.9)
+shape = SubResource("NorthSouthWallShape")
+
+[node name="SouthWallCollision" type="CollisionShape3D" parent="StaticBody3D"]
+position = Vector3(0, 2.5, 7.9)
+shape = SubResource("NorthSouthWallShape")
+
+[node name="EastWallCollision" type="CollisionShape3D" parent="StaticBody3D"]
+position = Vector3(9.9, 2.5, 0)
+shape = SubResource("EastWestWallShape")
+
+[node name="WestWallCollision" type="CollisionShape3D" parent="StaticBody3D"]
+position = Vector3(-9.9, 2.5, 0)
+shape = SubResource("EastWestWallShape")
+
+[node name="HallSpawnPoint" type="Marker3D" parent="." groups=["hall_spawn_point"]]
+position = Vector3(0, 0.05, -5.2)
+
+[node name="BuildingEntrance" parent="." instance=ExtResource("1_door")]
+position = Vector3(0, 0, -7.78)
+rotation = Vector3(0, 3.1415927, 0)
+interaction_text = "Gebäude betreten"
+destination_group = &"procedural_spawn_point"
+
+[node name="Van" parent="." instance=ExtResource("2_van")]
+position = Vector3(4.8, -0.05, 2.2)
+rotation = Vector3(0, -0.65, 0)
+
+[node name="HallLight01" type="OmniLight3D" parent="."]
+position = Vector3(-4.5, 4.2, 0)
+light_energy = 4.0
+shadow_enabled = true
+omni_range = 11.0
+
+[node name="HallLight02" type="OmniLight3D" parent="."]
+position = Vector3(4.5, 4.2, 0)
+light_energy = 4.0
+shadow_enabled = true
+omni_range = 11.0

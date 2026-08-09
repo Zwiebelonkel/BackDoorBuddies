@@ -20,8 +20,9 @@ extends Resource
 @export var held_offset: Vector3 = Vector3.ZERO
 
 @export_group("Gameplay")
-@export var value: int = 0
-@export var weight: float = 1.0
+@export_range(0, 100_000, 1) var value: int = 0
+@export_range(0.0, 100.0, 0.05) var weight: float = 1.0
+@export var is_large_item: bool = false
 @export var stackable: bool = false
 @export var max_stack: int = 1
 

@@ -1,6 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://byeosjjl5c1lv"]
+[gd_scene load_steps=8 format=3 uid="uid://byeosjjl5c1lv"]
 
 [ext_resource type="PackedScene" uid="uid://c5dk5vmdthen6" path="res://models/van/van.glb" id="1_2b7gi"]
+[ext_resource type="PackedScene" uid="uid://cyj3ajyb24yvq" path="res://scenes/props/van/Minimap.tscn" id="2_minimap"]
+[ext_resource type="PackedScene" uid="uid://wfdehkst801e" path="res://scenes/props/van/ItemOverview.tscn" id="3_overview"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cargo"]
+size = Vector3(2.9, 2.15, 1.4)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_2b7gi"]
 size = Vector3(4.75238, 0.112366, 1.6225)
@@ -14,6 +19,22 @@ size = Vector3(1.59471, 1.85303, 1.3967)
 [node name="Van" type="Node3D"]
 
 [node name="van" parent="." instance=ExtResource("1_2b7gi")]
+
+[node name="Minimap" parent="." instance=ExtResource("2_minimap")]
+transform = Transform3D(-1.02722e-08, 0, 0.291, 0.0337167, 0.316689, 1.82501e-09, -0.232569, 0.0459121, -1.25884e-08, 0, 1.45, -0.824)
+
+[node name="ItemOverview" parent="." instance=ExtResource("3_overview")]
+transform = Transform3D(-1.01672e-08, 1.98881e-09, -0.292, 0.0335178, 0.315739, 0, 0.232597, -0.0454986, -1.27637e-08, 0, 1.45, 0.843022)
+
+[node name="CargoArea" type="Area3D" parent="." groups=["van_item_zone"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 1.57, 0.05)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CargoArea"]
+shape = SubResource("BoxShape3D_cargo")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 
@@ -40,3 +61,9 @@ shape = SubResource("BoxShape3D_jaefu")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D3"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 1.56219, 1.16147, 0.0359195)
 shape = SubResource("BoxShape3D_e5jmm")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.46659, 1.22545, 0)
+light_color = Color(0, 1, 0, 1)
+light_energy = 2.011
+omni_range = 4096.0

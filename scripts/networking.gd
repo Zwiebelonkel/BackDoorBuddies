@@ -9,6 +9,7 @@ const GAME_SCENE_PATH := "res://scenes/main.tscn"
 var peer: SteamMultiplayerPeer
 var current_lobby_id: int = 0
 var _is_joining := false
+var _host_request_pending := false
 
 
 func _ready() -> void:
@@ -24,7 +25,23 @@ func _process(_delta: float) -> void:
 
 
 func host_lobby() -> void:
+	_host_request_pending = true
 	Steam.createLobby(LOBBY_TYPE, MAX_MEMBERS)
+
+
+func leave_lobby() -> void:
+	_is_joining = false
+	_host_request_pending = false
+
+	if current_lobby_id != 0:
+		Steam.leaveLobby(current_lobby_id)
+		current_lobby_id = 0
+
+	if multiplayer.multiplayer_peer != null:
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+
+	peer = null
 
 
 func host_lobby_after_scene_change() -> void:
@@ -34,11 +51,20 @@ func host_lobby_after_scene_change() -> void:
 	if get_tree().current_scene == null:
 		push_error("Die Spielszene wurde noch nicht geladen.")
 		return
+	if get_tree().current_scene.scene_file_path != GAME_SCENE_PATH:
+		return
 
 	host_lobby()
 
 
 func on_lobby_created(connect: int, lobby_id: int) -> void:
+	if not _host_request_pending:
+		if connect == Steam.RESULT_OK and lobby_id != 0:
+			Steam.leaveLobby(lobby_id)
+		return
+
+	_host_request_pending = false
+
 	if connect != Steam.RESULT_OK:
 		push_error("Steam-Lobby konnte nicht erstellt werden: %s" % connect)
 		return
