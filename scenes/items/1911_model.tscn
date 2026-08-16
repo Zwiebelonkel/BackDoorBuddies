@@ -1,8 +1,41 @@
-[gd_scene load_steps=2 format=3 uid="uid://bhgmgk2oj4qf8"]
+[gd_scene load_steps=4 format=3 uid="uid://bhgmgk2oj4qf8"]
 
 [ext_resource type="PackedScene" uid="uid://bstgujjg2fx11" path="res://models/1911/1911.glb" id="1_oimpv"]
+[ext_resource type="Shader" uid="uid://doumm2et77dd3" path="res://shaders/outline.gdshader" id="2_pl86a"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1wdi5"]
+render_priority = 0
+shader = ExtResource("2_pl86a")
+shader_parameter/outline_color = Color(0, 1, 0.0352941, 1)
+shader_parameter/thickness = 0.04
+shader_parameter/outline_energy = 4.0
+shader_parameter/outline_transparency = 1.0
+shader_parameter/merge_group = true
+shader_parameter/merge_depth_range = 0.1
 
 [node name="1911Model" type="Node3D"]
 
 [node name="1911" parent="." instance=ExtResource("1_oimpv")]
 transform = Transform3D(1.01236e-06, -23.16, 3.49706e-06, -23.16, -1.01236e-06, 0, 1.52861e-13, -3.49706e-06, -23.16, 1.04993, 0, 0.659158)
+
+[node name="1912" parent="." instance=ExtResource("1_oimpv")]
+transform = Transform3D(1.01236e-06, -23.16, 3.49706e-06, -23.16, -1.01236e-06, 0, 1.52861e-13, -3.49706e-06, -23.16, 1.04993, 0, 0.659158)
+visible = false
+
+[node name="PistolBarrel_Pistol_Metal_0" parent="1912/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/PistolBody/PistolBarrel" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_1wdi5")
+
+[node name="PistolBody_Pistol_Metal_0" parent="1912/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/PistolBody" index="1"]
+surface_material_override/0 = SubResource("ShaderMaterial_1wdi5")
+
+[node name="PistolBody_Wood_0" parent="1912/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/PistolBody" index="2"]
+surface_material_override/0 = SubResource("ShaderMaterial_1wdi5")
+
+[node name="PistolMagazine_Pistol_Metal_0" parent="1912/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/PistolBody/PistolMagazine" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_1wdi5")
+
+[node name="PistolTrigger_Pistol_Metal_0" parent="1912/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/PistolBody/PistolTrigger" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_1wdi5")
+
+[editable path="1911"]
+[editable path="1912"]

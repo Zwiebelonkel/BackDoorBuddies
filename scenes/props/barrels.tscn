@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3 uid="uid://bsmk61t7prtf6"]
+
+[ext_resource type="PackedScene" uid="uid://dv5dlhgqt005g" path="res://models/barrels/scene.gltf" id="1_0yih3"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_m03mi"]
+[ext_resource type="Texture2D" uid="uid://b72vlfqby2diu" path="res://models/barrels/textures/barrel_diffuse.png" id="3_e1nw8"]
+[ext_resource type="Texture2D" uid="uid://piqrkwoh00vx" path="res://models/barrels/textures/barrel_rust_diffuse.png" id="4_ceuym"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ofglx"]
+render_priority = 0
+shader = ExtResource("2_m03mi")
+shader_parameter/albedo = ExtResource("3_e1nw8")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/jitter = 0.61
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qyrgg"]
+render_priority = 0
+shader = ExtResource("2_m03mi")
+shader_parameter/albedo = ExtResource("4_ceuym")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/jitter = 0.598
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_m03mi"]
+size = Vector3(8.17993, 4.20605, 3.54971)
+
+[node name="Barrels" type="Node3D"]
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_0yih3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.12714, 0)
+
+[node name="barrel_barrel_0" parent="Sketchfab_Scene/Sketchfab_model/barrels_fbx/RootNode/barrel" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_ofglx")
+
+[node name="emission water_Material_0" parent="Sketchfab_Scene/Sketchfab_model/barrels_fbx/RootNode/barrel/emission water" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_ofglx")
+
+[node name="rust barrel_barrel rust_0" parent="Sketchfab_Scene/Sketchfab_model/barrels_fbx/RootNode/rust barrel" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_qyrgg")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0775146, 2.11279, 0.0451813)
+shape = SubResource("BoxShape3D_m03mi")
+
+[editable path="Sketchfab_Scene"]

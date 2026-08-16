@@ -83,6 +83,16 @@ var minimum_weight_speed_multiplier: float = 0.45
 @export var idle_sway_amount: float = 0.004
 @export var idle_sway_speed: float = 1.2
 
+@export_group("Health")
+@export_range(1.0, 1000.0, 1.0) var maximum_health := 100.0
+@export_range(1.0, 1000.0, 1.0) var revive_health := 50.0
+@export_range(1.0, 10.0, 0.1) var revive_distance := 2.5
+
+@export_group("Combat")
+@export_range(0.0, 1000.0, 1.0) var pistol_damage := 34.0
+@export_range(0.0, 1000.0, 1.0) var sniper_damage := 100.0
+@export_range(0.0, 1000.0, 1.0) var knife_damage := 45.0
+
 @export_group("Multiplayer")
 ## Wie oft pro Sekunde wird der State an andere Peers gesendet (Authority → alle)
 @export var sync_rate: int            = 30
@@ -97,6 +107,9 @@ signal footstep(speed_ratio: float)
 signal crouched(is_crouching: bool)
 signal inventory_changed(items: Array[ItemData], selected_index: int)
 signal stamina_changed(current_stamina: float, maximum_stamina: float)
+signal health_changed(current_health: float, maximum_health: float)
+signal died
+signal revived
 
 # ─────────────────────────────────────────────
 # NODES
@@ -104,11 +117,17 @@ signal stamina_changed(current_stamina: float, maximum_stamina: float)
 
 @onready var head: Node3D                         = $Head
 @onready var camera: Camera3D                     = $Head/Camera3D
+@onready var live_feed_camera: Camera3D = $Head/LiveFeedCamera
 @onready var standing_collision: CollisionShape3D = $CollisionShape3D
 @onready var crouch_collision: CollisionShape3D   = $CrouchCollision
+@onready var player_hitbox: CollisionShape3D = $PlayerHitbox/CollisionShape3D
 @onready var uncroch_raycast: RayCast3D           = $StandingRaycast
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
 @onready var item_holder: Marker3D = $Head/Camera3D/ItemHolder
+@onready var player_animation: Node = $PlayerAnimationController
+@onready var ragdoll_controller: Node = $PlayerRagdollController
+@onready var blood_effects: Node = $PlayerBloodEffects
+@onready var player_name_label: Label3D = $PlayerNameLabel
 var interaction_label: Label = null
 @onready var world_item_holder: Marker3D = $Head/Camera3D/WorldItemHolder
 
@@ -138,14 +157,28 @@ var _item_holder_start_position := Vector3.ZERO
 var _item_holder_start_rotation := Vector3.ZERO
 var _idle_sway_time := 0.0
 var current_stamina: float = 0.0
+var current_health: float = 0.0
+var is_dead := false
 var _sprint_active := false
 var _sprint_exhausted := false
 var _stamina_recovery_delay_remaining := 0.0
 var _base_mouse_sensitivity: float
 var _base_controller_sensitivity: float
+var _weapon_aim_sensitivity_multiplier := 1.0
 var _look_sway_impulse := Vector2.ZERO
 var _current_look_sway := Vector2.ZERO
 var _current_look_sway_roll := 0.0
+var _driven_vehicle: Node3D = null
+var _vehicle_entry_scale := Vector3.ONE
+var _active_camera_monitor: Node3D = null
+var _camera_monitor_mode_active := false
+var _monitor_camera_local_transform := Transform3D.IDENTITY
+var _monitor_camera_fov := 75.0
+var _monitor_previous_mouse_mode := Input.MOUSE_MODE_CAPTURED
+var _hovered_pickup: PickupItem = null
+var _last_attack_time_by_type: Dictionary = {}
+var _steam_name_refresh_remaining := 0.0
+var _steam_name_resolved := false
 
 # Multiplayer sync
 var _sync_timer: float        = 0.0
@@ -153,6 +186,16 @@ var world_held_item_instance: Node3D = null
 
 const STEP_INTERVAL_WALK   := 0.55
 const STEP_INTERVAL_SPRINT := 0.42
+const PISTOL_ATTACK_RANGE := 105.0
+const SNIPER_ATTACK_RANGE := 500.0
+const KNIFE_ATTACK_RANGE := 2.5
+const PISTOL_SERVER_COOLDOWN_MSEC := 180
+const SNIPER_SERVER_COOLDOWN_MSEC := 1200
+const KNIFE_SERVER_COOLDOWN_MSEC := 350
+const PISTOL_ITEM_PATH := "res://resources/items/1911.tres"
+const SNIPER_ITEM_PATH := "res://resources/items/sniper.tres"
+const KNIFE_ITEM_PATH := "res://resources/items/knife.tres"
+const LOCAL_HEAD_RENDER_LAYER := 20
 
 const MAX_INVENTORY_SIZE := 4
 var player_hud: PlayerHUD = null
@@ -168,6 +211,7 @@ const PLAYER_HUD_SCENE := preload(
 func _ready() -> void:
 	set_multiplayer_authority(name.to_int())
 	current_stamina = maximum_stamina
+	current_health = maximum_health
 	_base_mouse_sensitivity = mouse_sensitivity
 	_base_controller_sensitivity = controller_sensitivity
 
@@ -177,6 +221,7 @@ func _ready() -> void:
 	if is_multiplayer_authority():
 		add_to_group("local_player_controller")
 		_load_look_sensitivity()
+		_hide_local_head_from_camera()
 		camera.make_current()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -192,6 +237,82 @@ func _ready() -> void:
 
 	if crouch_collision:
 		crouch_collision.disabled = true
+
+	_setup_player_name_label()
+
+
+func _hide_local_head_from_camera() -> void:
+	camera.set_cull_mask_value(LOCAL_HEAD_RENDER_LAYER, false)
+
+	var skeleton := get_node_or_null(
+		"playerModell/Armature/Skeleton3D"
+	)
+
+	if skeleton == null:
+		push_warning("Spieler-Skelett zum Ausblenden des Kopfes fehlt.")
+		return
+
+	for mesh_path in [^"Head", ^"Hair"]:
+		var head_part := skeleton.get_node_or_null(mesh_path) as VisualInstance3D
+
+		if head_part == null:
+			continue
+
+		head_part.set_layer_mask_value(1, false)
+		head_part.set_layer_mask_value(LOCAL_HEAD_RENDER_LAYER, true)
+
+
+func _process(delta: float) -> void:
+	_update_player_name_label_position()
+
+	if player_name_label == null or not player_name_label.visible:
+		return
+
+	_steam_name_refresh_remaining -= delta
+
+	if _steam_name_refresh_remaining <= 0.0:
+		_refresh_player_name_label()
+		_steam_name_refresh_remaining = 10.0 if _steam_name_resolved else 1.0
+
+
+func _setup_player_name_label() -> void:
+	if player_name_label == null:
+		return
+
+	var peer_id := get_multiplayer_authority()
+	player_name_label.visible = peer_id > 0 and not is_multiplayer_authority()
+	player_name_label.text = "Spieler %d" % peer_id
+	_steam_name_refresh_remaining = 0.0
+
+
+func _refresh_player_name_label() -> void:
+	if player_name_label == null or not player_name_label.visible:
+		return
+
+	var peer_id := get_multiplayer_authority()
+	var display_name := Networking.get_player_display_name(peer_id)
+
+	if display_name.is_empty():
+		return
+
+	player_name_label.text = display_name
+	_steam_name_resolved = true
+
+
+func _update_player_name_label_position() -> void:
+	if player_name_label == null or not player_name_label.visible:
+		return
+
+	if is_dead and ragdoll_controller.is_ragdoll_active():
+		player_name_label.top_level = true
+		player_name_label.global_position = (
+			ragdoll_controller.get_ragdoll_center_position()
+			+ Vector3.UP * 1.35
+		)
+		return
+
+	player_name_label.top_level = false
+	player_name_label.position = Vector3(0.0, 2.25, 0.0)
 
 # ─────────────────────────────────────────────
 # INPUT  (nur Authority)
@@ -217,23 +338,52 @@ func _create_local_hud() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_multiplayer_authority():
 		return
+
+	if is_using_camera_monitor():
+		if event.is_action_pressed("ui_cancel"):
+			exit_camera_monitor()
+			get_viewport().set_input_as_handled()
+
+		return
+
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		_mouse_sway_input += event.relative
-		_rotate_camera(event.relative * mouse_sensitivity)
+		_rotate_camera(
+			event.relative
+			* mouse_sensitivity
+			* _weapon_aim_sensitivity_multiplier
+		)
 
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = \
 			Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED \
 			else Input.MOUSE_MODE_CAPTURED
 
+	if event.is_action_released("secondary_use"):
+		_use_held_item_secondary(false)
+
+	if is_dead:
+		return
+
+	if event.is_action_pressed("secondary_use"):
+		_use_held_item_secondary(true)
+
 	if event.is_action_pressed("jump"):
 		_jump_buffer = jump_buffer_time
+
+	if event.is_action_pressed("wave") and not is_driving_vehicle():
+		player_animation.play_wave()
+		_play_wave_remote.rpc()
 		
 	if event.is_action_pressed("primary_use"):
 		_use_held_item()
 
 	if event.is_action_pressed("interact"):
-		_try_interact()
+		if is_driving_vehicle():
+			if _driven_vehicle.has_method("request_driver_exit"):
+				_driven_vehicle.request_driver_exit(self)
+		else:
+			_try_interact()
 
 	if event.is_action_pressed("inventory_slot_1"):
 		select_inventory_item(0)
@@ -273,6 +423,10 @@ func apply_look_sensitivity(sensitivity: float) -> void:
 		_base_controller_sensitivity * clamped_sensitivity
 	)
 
+
+func set_weapon_aim_sensitivity_multiplier(multiplier: float) -> void:
+	_weapon_aim_sensitivity_multiplier = clampf(multiplier, 0.05, 1.0)
+
 # ─────────────────────────────────────────────
 # PHYSICS PROCESS
 # ─────────────────────────────────────────────
@@ -281,6 +435,29 @@ func _physics_process(delta: float) -> void:
 	if not is_multiplayer_authority():
 		# Fremde Spieler: Interpolation zum zuletzt empfangenen State
 		# (läuft weiter, move_and_slide sorgt für korrekte Kollision)
+		return
+
+	if is_dead:
+		velocity = Vector3.ZERO
+
+		if interaction_label != null:
+			interaction_label.visible = false
+
+		return
+
+	if is_using_camera_monitor():
+		_process_camera_monitor(delta)
+		return
+
+	if is_driving_vehicle():
+		_update_controller_look(delta)
+		_update_hand_sway(delta)
+		_update_interaction_text()
+		velocity = Vector3.ZERO
+		_update_tilt(delta)
+		_update_look_sway(delta)
+		_update_head_bob(delta)
+		_broadcast_local_state(delta)
 		return
 
 	_update_controller_look(delta)
@@ -298,11 +475,21 @@ func _physics_process(delta: float) -> void:
 	_handle_landing()
 	move_and_slide()
 
+	_broadcast_local_state(delta)
+
+
+func _broadcast_local_state(delta: float) -> void:
 	# State an alle anderen Peers broadcasten
 	_sync_timer += delta
 	if _sync_timer >= 1.0 / sync_rate:
 		_sync_timer = 0.0
-		_broadcast_state.rpc(global_position, global_rotation, head.rotation.x, _is_crouching)
+		_broadcast_state.rpc(
+			global_position,
+			global_rotation,
+			head.rotation.x,
+			_is_crouching,
+			player_animation.get_locomotion_state()
+		)
 
 # ─────────────────────────────────────────────
 # MULTIPLAYER RPC – State-Sync
@@ -315,7 +502,8 @@ func _broadcast_state(
 	pos: Vector3,
 	rot: Vector3,
 	pitch: float,
-	crouching: bool
+	crouching: bool,
+	locomotion_animation: StringName
 ) -> void:
 	# Empfänger: smooth interpolieren statt harter Zuweisung
 	global_position = global_position.lerp(pos, 0.3)
@@ -328,6 +516,25 @@ func _broadcast_state(
 		_target_head_y = crouch_head_y if crouching else stand_head_y
 
 	head.position.y = lerpf(head.position.y, _target_head_y, 0.2)
+	player_animation.set_locomotion_state(locomotion_animation)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _play_wave_remote() -> void:
+	player_animation.play_wave()
+
+
+func play_player_action(animation_name: StringName) -> void:
+	if not is_inside_tree() or not is_multiplayer_authority() or is_dead:
+		return
+
+	player_animation.play_action(animation_name)
+	_play_player_action_remote.rpc(animation_name)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _play_player_action_remote(animation_name: StringName) -> void:
+	player_animation.play_action(animation_name)
 
 # ─────────────────────────────────────────────
 # GRAVITY & COYOTE TIME
@@ -456,7 +663,12 @@ func _update_controller_look(delta: float) -> void:
 	)
 
 	if look_input.length() > 0.1:
-		_rotate_camera(look_input * controller_sensitivity * delta)
+		_rotate_camera(
+			look_input
+			* controller_sensitivity
+			* _weapon_aim_sensitivity_multiplier
+			* delta
+		)
 
 
 func _update_look_sway(delta: float) -> void:
@@ -589,6 +801,369 @@ func _ceiling_blocks_standup() -> bool:
 # PUBLIC HELPERS
 # ─────────────────────────────────────────────
 
+func request_player_attack(
+	target_collider: Object,
+	attack_type: StringName,
+	hit_position: Vector3,
+	hit_normal: Vector3
+) -> void:
+	if not is_multiplayer_authority() or is_dead:
+		return
+
+	var target_player := _find_player_from_node(target_collider)
+
+	if target_player == null or target_player == self:
+		return
+
+	var target_peer_id := target_player.get_multiplayer_authority()
+
+	if multiplayer.is_server():
+		_server_process_player_attack(
+			target_peer_id,
+			attack_type,
+			hit_position,
+			hit_normal
+		)
+	else:
+		_request_player_attack_server.rpc_id(
+			1,
+			target_peer_id,
+			attack_type,
+			hit_position,
+			hit_normal
+		)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_player_attack_server(
+	target_peer_id: int,
+	attack_type: StringName,
+	hit_position: Vector3,
+	hit_normal: Vector3
+) -> void:
+	if not multiplayer.is_server():
+		return
+
+	if multiplayer.get_remote_sender_id() != get_multiplayer_authority():
+		return
+
+	_server_process_player_attack(
+		target_peer_id,
+		attack_type,
+		hit_position,
+		hit_normal
+	)
+
+
+func _server_process_player_attack(
+	target_peer_id: int,
+	attack_type: StringName,
+	hit_position: Vector3,
+	hit_normal: Vector3
+) -> void:
+	if not multiplayer.is_server() or is_dead:
+		return
+
+	var attack_data := _get_server_attack_data(attack_type)
+
+	if attack_data.is_empty():
+		return
+
+	if equipped_item_resource_path != attack_data["required_item"]:
+		return
+
+	var now := Time.get_ticks_msec()
+	var last_attack_time := int(_last_attack_time_by_type.get(attack_type, -10000))
+
+	if now - last_attack_time < int(attack_data["cooldown_msec"]):
+		return
+
+	var players_root := get_parent()
+
+	if players_root == null:
+		return
+
+	var target_player := players_root.get_node_or_null(
+		str(target_peer_id)
+	) as FPSController
+
+	if target_player == null or target_player == self or target_player.is_dead:
+		return
+
+	if global_position.distance_to(target_player.global_position) > float(
+		attack_data["range"]
+	):
+		return
+
+	if not _server_attack_path_reaches_target(
+		target_player,
+		hit_position,
+		attack_type
+	):
+		return
+
+	_last_attack_time_by_type[attack_type] = now
+	var impulse_direction := (
+		target_player.global_position - global_position
+	).normalized()
+
+	if impulse_direction.length_squared() < 0.001:
+		impulse_direction = -global_basis.z
+
+	target_player.server_receive_damage(
+		float(attack_data["damage"]),
+		get_multiplayer_authority(),
+		hit_position,
+		hit_normal,
+		impulse_direction * float(attack_data["impulse"])
+	)
+
+
+func _server_attack_path_reaches_target(
+	target_player: FPSController,
+	hit_position: Vector3,
+	attack_type: StringName
+) -> bool:
+	if hit_position.distance_to(target_player.global_position) > 3.0:
+		return false
+
+	var ray_origin := camera.global_position
+	var ray_direction := (hit_position - ray_origin).normalized()
+	var minimum_aim_dot := 0.7 if attack_type == &"knife" else 0.965
+
+	if attack_type == &"sniper":
+		minimum_aim_dot = 0.99
+
+	if (-camera.global_basis.z).dot(ray_direction) < minimum_aim_dot:
+		return false
+
+	var query := PhysicsRayQueryParameters3D.create(
+		ray_origin,
+		hit_position + ray_direction * 0.15
+	)
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	var exclusions: Array[RID] = [get_rid()]
+	var own_hitbox := $PlayerHitbox as CollisionObject3D
+
+	if own_hitbox != null:
+		exclusions.append(own_hitbox.get_rid())
+
+	query.exclude = exclusions
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+
+	if hit.is_empty():
+		return false
+
+	return _find_player_from_node(hit["collider"]) == target_player
+
+
+func _get_server_attack_data(attack_type: StringName) -> Dictionary:
+	if attack_type == &"pistol":
+		return {
+			"damage": pistol_damage,
+			"range": PISTOL_ATTACK_RANGE,
+			"cooldown_msec": PISTOL_SERVER_COOLDOWN_MSEC,
+			"required_item": PISTOL_ITEM_PATH,
+			"impulse": 2.4,
+		}
+
+	if attack_type == &"sniper":
+		return {
+			"damage": sniper_damage,
+			"range": SNIPER_ATTACK_RANGE,
+			"cooldown_msec": SNIPER_SERVER_COOLDOWN_MSEC,
+			"required_item": SNIPER_ITEM_PATH,
+			"impulse": 5.5,
+		}
+
+	if attack_type == &"knife":
+		return {
+			"damage": knife_damage,
+			"range": KNIFE_ATTACK_RANGE,
+			"cooldown_msec": KNIFE_SERVER_COOLDOWN_MSEC,
+			"required_item": KNIFE_ITEM_PATH,
+			"impulse": 1.2,
+		}
+
+	return {}
+
+
+func server_receive_damage(
+	damage: float,
+	_attacker_peer_id: int,
+	hit_position: Vector3,
+	hit_normal: Vector3,
+	death_impulse: Vector3
+) -> void:
+	if not multiplayer.is_server() or is_dead:
+		return
+
+	current_health = maxf(current_health - maxf(damage, 0.0), 0.0)
+	var died_from_damage := current_health <= 0.0
+	_sync_damage_result.rpc(
+		current_health,
+		died_from_damage,
+		hit_position,
+		hit_normal,
+		death_impulse
+	)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _sync_damage_result(
+	health: float,
+	died_from_damage: bool,
+	hit_position: Vector3,
+	hit_normal: Vector3,
+	death_impulse: Vector3
+) -> void:
+	if not _is_rpc_from_server():
+		return
+
+	current_health = clampf(health, 0.0, maximum_health)
+	health_changed.emit(current_health, maximum_health)
+	blood_effects.spawn_blood_impact(hit_position, hit_normal)
+
+	if died_from_damage and not is_dead:
+		_enter_dead_state(death_impulse)
+	elif not is_dead:
+		player_animation.play_action(&"ual/Hit_Chest")
+
+
+func get_interaction_text() -> String:
+	return "Wiederbeleben" if is_dead else ""
+
+
+func request_interaction(reviver: Node3D) -> void:
+	if not is_dead or reviver == null or reviver == self:
+		return
+
+	if not reviver is FPSController or (reviver as FPSController).is_dead:
+		return
+
+	if multiplayer.is_server():
+		_server_try_revive(reviver.get_multiplayer_authority())
+	else:
+		_request_revive_server.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_revive_server() -> void:
+	if not multiplayer.is_server() or not is_dead:
+		return
+
+	_server_try_revive(multiplayer.get_remote_sender_id())
+
+
+func _server_try_revive(reviver_peer_id: int) -> void:
+	if not multiplayer.is_server() or not is_dead:
+		return
+
+	var players_root := get_parent()
+	var reviver := (
+		players_root.get_node_or_null(str(reviver_peer_id)) as FPSController
+		if players_root != null
+		else null
+	)
+
+	if reviver == null or reviver == self or reviver.is_dead:
+		return
+
+	var ragdoll_center: Vector3 = ragdoll_controller.get_ragdoll_center_position()
+
+	if reviver.global_position.distance_to(ragdoll_center) > revive_distance:
+		return
+
+	current_health = minf(revive_health, maximum_health)
+	var revive_position := Vector3(
+		ragdoll_center.x,
+		global_position.y,
+		ragdoll_center.z
+	)
+	_sync_revive_result.rpc(current_health, revive_position)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _sync_revive_result(health: float, revive_position: Vector3) -> void:
+	if not _is_rpc_from_server():
+		return
+
+	current_health = clampf(health, 1.0, maximum_health)
+	global_position = revive_position
+	health_changed.emit(current_health, maximum_health)
+	_leave_dead_state()
+
+
+func server_sync_vitals_to_peer(peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+
+	_sync_vital_snapshot.rpc_id(peer_id, current_health, is_dead)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _sync_vital_snapshot(health: float, dead: bool) -> void:
+	if not _is_rpc_from_server():
+		return
+
+	current_health = clampf(health, 0.0, maximum_health)
+	health_changed.emit(current_health, maximum_health)
+
+	if dead and not is_dead:
+		_enter_dead_state(Vector3.ZERO)
+	elif not dead and is_dead:
+		_leave_dead_state()
+
+
+func _enter_dead_state(death_impulse: Vector3) -> void:
+	exit_camera_monitor()
+	_use_held_item_secondary(false)
+	is_dead = true
+	velocity = Vector3.ZERO
+	_sprint_active = false
+	standing_collision.set_deferred("disabled", true)
+	crouch_collision.set_deferred("disabled", true)
+	player_hitbox.set_deferred("disabled", true)
+	item_holder.visible = false
+	world_item_holder.visible = false
+	player_animation.set_ragdoll_active(true)
+	ragdoll_controller.set_ragdoll_active(true, death_impulse)
+	died.emit()
+
+
+func _leave_dead_state() -> void:
+	is_dead = false
+	_is_crouching = false
+	_target_head_y = stand_head_y
+	_target_col_height = stand_height
+	ragdoll_controller.set_ragdoll_active(false)
+	player_animation.set_ragdoll_active(false)
+	standing_collision.set_deferred("disabled", false)
+	crouch_collision.set_deferred("disabled", true)
+	player_hitbox.set_deferred("disabled", false)
+	item_holder.visible = is_multiplayer_authority()
+	world_item_holder.visible = not is_multiplayer_authority()
+	revived.emit()
+
+
+func _find_player_from_node(value: Object) -> FPSController:
+	var current_node := value as Node
+
+	while current_node != null:
+		if current_node is FPSController:
+			return current_node as FPSController
+
+		current_node = current_node.get_parent()
+
+	return null
+
+
+func _is_rpc_from_server() -> bool:
+	var sender_peer_id := multiplayer.get_remote_sender_id()
+	return sender_peer_id == 0 or sender_peer_id == 1
+
+
 func is_moving() -> bool:
 	return Vector2(velocity.x, velocity.z).length() > 0.1
 
@@ -600,6 +1175,182 @@ func is_crouching() -> bool:
 
 func horizontal_speed() -> float:
 	return Vector2(velocity.x, velocity.z).length()
+
+
+func is_using_camera_monitor(monitor: Node3D = null) -> bool:
+	if not _camera_monitor_mode_active:
+		return false
+
+	if monitor == null:
+		return true
+
+	return (
+		is_instance_valid(_active_camera_monitor)
+		and _active_camera_monitor == monitor
+	)
+
+
+func enter_camera_monitor(monitor: Node3D) -> bool:
+	if (
+		monitor == null
+		or not is_multiplayer_authority()
+		or is_dead
+		or is_driving_vehicle()
+	):
+		return false
+
+	if is_using_camera_monitor(monitor):
+		return true
+
+	if is_using_camera_monitor():
+		exit_camera_monitor()
+
+	_use_held_item_secondary(false)
+
+	_active_camera_monitor = monitor
+	_camera_monitor_mode_active = true
+	_monitor_camera_local_transform = camera.transform
+	_monitor_camera_fov = camera.fov
+	_monitor_previous_mouse_mode = Input.mouse_mode
+	velocity = Vector3.ZERO
+	item_holder.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	_update_camera_monitor_view()
+	return true
+
+
+func exit_camera_monitor() -> void:
+	if not is_using_camera_monitor():
+		return
+
+	var monitor := _active_camera_monitor
+	_camera_monitor_mode_active = false
+	_active_camera_monitor = null
+	camera.transform = _monitor_camera_local_transform
+	camera.fov = _monitor_camera_fov
+	item_holder.visible = is_multiplayer_authority()
+	Input.mouse_mode = _monitor_previous_mouse_mode
+
+	if is_instance_valid(monitor) and monitor.has_method("end_view"):
+		monitor.end_view(self)
+
+	if interaction_label != null:
+		interaction_label.visible = false
+
+
+func get_live_feed_transform() -> Transform3D:
+	return live_feed_camera.global_transform
+
+
+func get_live_feed_fov() -> float:
+	return live_feed_camera.fov
+
+
+func _process_camera_monitor(delta: float) -> void:
+	if not is_using_camera_monitor():
+		return
+
+	if not is_instance_valid(_active_camera_monitor):
+		exit_camera_monitor()
+		return
+
+	if Input.is_action_just_pressed("move_forward"):
+		_active_camera_monitor.next_camera()
+	elif Input.is_action_just_pressed("move_backward"):
+		_active_camera_monitor.previous_camera()
+
+	var pan_direction := Input.get_axis("move_left", "move_right")
+	_active_camera_monitor.rotate_current_camera(pan_direction, delta)
+	velocity = Vector3.ZERO
+	_update_camera_monitor_view()
+
+	if interaction_label != null:
+		interaction_label.text = (
+			"[W/S] Feed  [A/D] Kamera drehen  [ESC] Beenden"
+		)
+		interaction_label.visible = true
+
+	_broadcast_local_state(delta)
+
+
+func _update_camera_monitor_view() -> void:
+	if not is_using_camera_monitor():
+		return
+
+	if (
+		not is_instance_valid(_active_camera_monitor)
+		or not _active_camera_monitor.has_method("get_view_transform")
+	):
+		exit_camera_monitor()
+		return
+
+	camera.global_transform = _active_camera_monitor.get_view_transform(
+		global_position
+	)
+	camera.fov = _active_camera_monitor.get_viewing_fov()
+
+
+func is_driving_vehicle() -> bool:
+	return is_instance_valid(_driven_vehicle)
+
+
+func enter_vehicle(
+	vehicle: Node3D,
+	seat_transform: Transform3D
+) -> void:
+	if vehicle == null:
+		return
+
+	exit_camera_monitor()
+
+	if _driven_vehicle == vehicle:
+		return
+
+	_vehicle_entry_scale = global_basis.get_scale()
+	_driven_vehicle = vehicle
+	velocity = Vector3.ZERO
+	global_transform = _vehicle_marker_transform(seat_transform)
+	_is_crouching = false
+	_target_head_y = stand_head_y
+	_target_col_height = stand_height
+
+	if standing_collision != null:
+		standing_collision.set_deferred("disabled", true)
+
+	if crouch_collision != null:
+		crouch_collision.set_deferred("disabled", true)
+
+
+func exit_vehicle(
+	vehicle: Node3D,
+	exit_transform: Transform3D,
+	vehicle_velocity: Vector3 = Vector3.ZERO
+) -> void:
+	if _driven_vehicle != vehicle:
+		return
+
+	_driven_vehicle = null
+	global_transform = _vehicle_marker_transform(exit_transform)
+	velocity = vehicle_velocity
+	_is_crouching = false
+	_target_head_y = stand_head_y
+	_target_col_height = stand_height
+
+	if standing_collision != null:
+		standing_collision.set_deferred("disabled", false)
+
+	if crouch_collision != null:
+		crouch_collision.set_deferred("disabled", true)
+
+
+func _vehicle_marker_transform(marker_transform: Transform3D) -> Transform3D:
+	# Vehicle markers inherit the vehicle's scale. Keep only their rotation and
+	# position so entering or exiting a scaled vehicle cannot resize the player.
+	var rotation_basis := marker_transform.basis.orthonormalized()
+	return Transform3D(
+		rotation_basis.scaled(_vehicle_entry_scale),
+		marker_transform.origin
+	)
 
 
 func get_total_inventory_weight() -> float:
@@ -637,7 +1388,7 @@ func _load_item_data(item_resource_path: String) -> ItemData:
 	return null
 
 func _try_interact() -> void:
-	if not is_multiplayer_authority():
+	if not is_multiplayer_authority() or is_dead:
 		print("Keine Authority")
 		return
 
@@ -657,22 +1408,29 @@ func _try_interact() -> void:
 		print("Collider ist null")
 		return
 
+	var interaction_target := _resolve_interaction_target(collider)
+
+	if interaction_target == null:
+		return
+
 	print(
 		"InteractionRay trifft: ",
-		collider.name,
+		interaction_target.name,
 		" | Klasse: ",
-		collider.get_class()
+		interaction_target.get_class()
 	)
 
-	if collider.has_method("request_interaction"):
-		collider.request_interaction(self)
-	elif collider.has_method("request_pickup"):
+	if interaction_target.has_method("request_interaction"):
+		interaction_target.request_interaction(self)
+		play_player_action(&"ual/Interact")
+	elif interaction_target.has_method("request_pickup"):
 		if is_holding_large_item():
 			print("Mit einem Großitem in der Hand kann nichts aufgenommen werden.")
 			return
 
 		print("Pickup wird angefragt")
-		collider.request_pickup()
+		interaction_target.request_pickup()
+		play_player_action(&"ual/PickUp_Table")
 	else:
 		print("Getroffenes Objekt besitzt keine Interaktionsmethode")
 
@@ -1079,32 +1837,62 @@ func _clear_held_item() -> void:
 	if held_item_instance == null:
 		return
 
+	if held_item_instance.has_method("use_secondary"):
+		held_item_instance.use_secondary(false)
+
 	held_item_instance.queue_free()
 	held_item_instance = null
 func _update_interaction_text() -> void:
 	if not is_multiplayer_authority():
 		return
 
+	if is_dead:
+		_set_hovered_pickup(null)
+
+		if interaction_label != null:
+			interaction_label.visible = false
+
+		return
+
 	if interaction_label == null or interaction_ray == null:
+		_set_hovered_pickup(null)
+		return
+
+	if is_driving_vehicle():
+		_set_hovered_pickup(null)
+		interaction_label.text = "[W/S] Gas  [A/D] Lenken  [E] Aussteigen"
+		interaction_label.visible = true
 		return
 
 	interaction_ray.force_raycast_update()
 
 	if not interaction_ray.is_colliding():
+		_set_hovered_pickup(null)
 		interaction_label.visible = false
 		return
 
 	var collider := interaction_ray.get_collider()
 
 	if collider == null:
+		_set_hovered_pickup(null)
 		interaction_label.visible = false
 		return
 
-	if collider.has_method("get_interaction_text"):
-		interaction_label.text = "[E] " + str(collider.get_interaction_text())
-		interaction_label.visible = true
-	elif collider is PickupItem:
-		var pickup := collider as PickupItem
+	var interaction_target := _resolve_interaction_target(collider)
+
+	if interaction_target == null:
+		_set_hovered_pickup(null)
+		interaction_label.visible = false
+		return
+
+	if interaction_target.has_method("get_interaction_text"):
+		_set_hovered_pickup(null)
+		var text := str(interaction_target.get_interaction_text())
+		interaction_label.text = "[E] " + text
+		interaction_label.visible = not text.is_empty()
+	elif interaction_target is PickupItem:
+		var pickup := interaction_target as PickupItem
+		_set_hovered_pickup(pickup)
 
 		if pickup.item_data == null:
 			interaction_label.visible = false
@@ -1118,7 +1906,36 @@ func _update_interaction_text() -> void:
 		interaction_label.text = "[E] " + pickup.item_data.interaction_text
 		interaction_label.visible = true
 	else:
+		_set_hovered_pickup(null)
 		interaction_label.visible = false
+
+
+func _resolve_interaction_target(collider: Object) -> Node:
+	var current_node := collider as Node
+
+	while current_node != null:
+		if (
+			current_node.has_method("request_interaction")
+			or current_node.has_method("request_pickup")
+		):
+			return current_node
+
+		current_node = current_node.get_parent()
+
+	return null
+
+
+func _set_hovered_pickup(pickup: PickupItem) -> void:
+	if _hovered_pickup == pickup:
+		return
+
+	if is_instance_valid(_hovered_pickup):
+		_hovered_pickup.set_hovered(false)
+
+	_hovered_pickup = pickup
+
+	if is_instance_valid(_hovered_pickup):
+		_hovered_pickup.set_hovered(true)
 
 func clear_inventory() -> void:
 	inventory.clear()
@@ -1135,6 +1952,8 @@ func clear_inventory() -> void:
 	print("Inventar wurde geleert.")
 	
 func _exit_tree() -> void:
+	exit_camera_monitor()
+	_set_hovered_pickup(null)
 	_clear_held_item()
 	inventory.clear()
 
@@ -1144,7 +1963,7 @@ func _exit_tree() -> void:
 	player_hud = null
 	
 func _use_held_item() -> void:
-	if not is_multiplayer_authority():
+	if not is_multiplayer_authority() or is_dead:
 		return
 
 	if held_item_instance == null:
@@ -1154,6 +1973,18 @@ func _use_held_item() -> void:
 		held_item_instance.use_primary()
 
 	_play_world_item_use.rpc()
+
+
+func _use_held_item_secondary(is_pressed: bool) -> void:
+	if not is_multiplayer_authority():
+		return
+
+	if held_item_instance == null:
+		set_weapon_aim_sensitivity_multiplier(1.0)
+		return
+
+	if held_item_instance.has_method("use_secondary"):
+		held_item_instance.use_secondary(is_pressed)
 	
 	
 @rpc("authority", "call_remote", "unreliable")

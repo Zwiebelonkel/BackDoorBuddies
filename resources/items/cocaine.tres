@@ -22,5 +22,7 @@ weight = 0.25
 is_large_item = false
 stackable = false
 max_stack = 1
+is_mission_clue = false
+target_clue_type = &""
 interaction_text = "Aufheben"
 metadata/_custom_type_script = "uid://dv3vf8bsc4qul"

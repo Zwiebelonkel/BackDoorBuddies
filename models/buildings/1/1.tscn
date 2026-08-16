@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://dkjq0wp4kvbi2"]
+
+[ext_resource type="PackedScene" uid="uid://dwvadp2q63gbs" path="res://models/buildings/1/scene.gltf" id="1_ok22r"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ok22r"]
+size = Vector3(5.00111, 4.99536, 9.34155)
+
+[node name="Garage" type="Node3D"]
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_ok22r")]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Sketchfab_Scene/Sketchfab_model/PSX Apartment_fbx/RootNode/PSX Apartment" index="12"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sketchfab_Scene/Sketchfab_model/PSX Apartment_fbx/RootNode/PSX Apartment/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0136989, -0.015503, 4.17078)
+shape = SubResource("BoxShape3D_ok22r")
+
+[editable path="Sketchfab_Scene"]

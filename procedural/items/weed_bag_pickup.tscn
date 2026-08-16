@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://btcfukdqwy7n3"]
 
-[ext_resource type="PackedScene" path="res://scenes/items/PickupItem.tscn" id="1"]
-[ext_resource type="Resource" path="res://resources/items/weedBag.tres" id="2"]
+[ext_resource type="PackedScene" uid="uid://6rung1eddhoj" path="res://scenes/items/PickupItem.tscn" id="1"]
+[ext_resource type="Resource" uid="uid://dp6uqgeul62c5" path="res://resources/items/weedBag.tres" id="2"]
 
 [node name="WeedBagPickup" instance=ExtResource("1")]
 collision_layer = 4

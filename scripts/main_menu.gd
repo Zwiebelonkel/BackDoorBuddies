@@ -1,6 +1,6 @@
 extends Control
 
-const GAME_SCENE_PATH := "res://scenes/main.tscn"
+const LOBBY_SCENE_PATH := "res://scenes/lobby.tscn"
 
 
 func _ready() -> void:
@@ -11,10 +11,10 @@ func _on_host_button_pressed() -> void:
 	var tree := get_tree()
 	tree.paused = false
 
-	var error := tree.change_scene_to_file(GAME_SCENE_PATH)
+	var error := tree.change_scene_to_file(LOBBY_SCENE_PATH)
 
 	if error != OK:
-		push_error("Game-Szene konnte nicht geladen werden: %s" % error)
+		push_error("Lobby-Szene konnte nicht geladen werden: %s" % error)
 		return
 
 	Networking.host_lobby_after_scene_change()

@@ -1,11 +1,20 @@
-[gd_scene load_steps=4 format=3 uid="uid://baelow8p2kn74"]
+[gd_scene load_steps=5 format=3 uid="uid://baelow8p2kn74"]
 
-[sub_resource type="StandardMaterial3D" id="WallMaterial"]
-albedo_color = Color(0.34, 0.35, 0.38, 1)
-roughness = 0.9
+[ext_resource type="Shader" uid="uid://cvw74bs46075a" path="res://shaders/brick.gdshader" id="1_ju2kl"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5nya4"]
+render_priority = 0
+shader = ExtResource("1_ju2kl")
+shader_parameter/noise_scale = 200.0
+shader_parameter/brick_scale = Vector2(9.755, 29.495)
+shader_parameter/mortar_width_x = 0.017
+shader_parameter/mortar_width_y = 0.039
+shader_parameter/brick_color = Color(0.745, 0.341, 0.219, 1)
+shader_parameter/brick_color2 = Color(0.37, 0.12, 0.04, 1)
+shader_parameter/mortar_joint_color = Color(1, 0.987, 0.987, 1)
 
 [sub_resource type="BoxMesh" id="WallMesh"]
-material = SubResource("WallMaterial")
+material = SubResource("ShaderMaterial_5nya4")
 size = Vector3(1.2, 2.2, 0.15)
 
 [sub_resource type="BoxShape3D" id="WallShape"]

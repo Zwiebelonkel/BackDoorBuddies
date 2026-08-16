@@ -1,0 +1,83 @@
+[gd_scene load_steps=5 format=3 uid="uid://bdq7555e851o2"]
+
+[ext_resource type="Script" path="res://scripts/items/SniperHeld.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://0v6ho1wwpcjt" path="res://scenes/items/sniper_model.tscn" id="2_model"]
+[ext_resource type="Shader" path="res://shaders/sniper_scope.gdshader" id="3_scope"]
+
+[sub_resource type="ShaderMaterial" id="Material_scope"]
+shader = ExtResource("3_scope")
+shader_parameter/radius = 0.46
+shader_parameter/edge_softness = 0.004
+shader_parameter/line_width = 0.0025
+shader_parameter/reticle_color = Color(0.01, 0.02, 0.012, 0.92)
+shader_parameter/lens_tint = Color(0.04, 0.11, 0.07, 0.08)
+
+[node name="SniperHeld" type="Node3D"]
+script = ExtResource("1_script")
+fire_cooldown = 1.25
+shot_distance = 500.0
+attack_type = &"sniper"
+muzzle_flash_duration = 0.065
+muzzle_flash_energy = 28.0
+muzzle_flash_range = 7.0
+shot_smoke_amount = 64
+shot_smoke_lifetime = 5.5
+shot_smoke_puff_size = 0.16
+shot_smoke_scale_max = 0.78
+shot_smoke_velocity_min = 0.1
+shot_smoke_velocity_max = 0.3
+bullet_hole_radius = 0.034
+recoil_back_distance = 0.2
+recoil_up_distance = 0.06
+recoil_side_distance = 0.015
+recoil_rotation_degrees = Vector3(-17, 0, 2.5)
+recoil_duration = 0.07
+return_duration = 0.42
+random_rotation_degrees = 0.55
+random_side_distance = 0.003
+
+[node name="ModelRoot" parent="." instance=ExtResource("2_model")]
+
+[node name="Muzzle" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.035, -1.42)
+
+[node name="ScopeLayer" type="CanvasLayer" parent="."]
+layer = 220
+
+[node name="ScopeOverlay" type="Control" parent="ScopeLayer"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MaskAndReticle" type="ColorRect" parent="ScopeLayer/ScopeOverlay"]
+material = SubResource("Material_scope")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ZoomLabel" type="Label" parent="ScopeLayer/ScopeOverlay"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = -58.0
+offset_right = 90.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.35, 0.75, 0.42, 0.72)
+theme_override_font_sizes/font_size = 15
+text = "8x  //  .308"
+horizontal_alignment = 1

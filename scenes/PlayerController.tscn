@@ -1,6 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://c30xd8tlqhkv4"]
+[gd_scene load_steps=15 format=3 uid="uid://c30xd8tlqhkv4"]
 
 [ext_resource type="Script" uid="uid://ch8vih0wn4rne" path="res://scripts/PlayerController.gd" id="1_ci81t"]
+[ext_resource type="PackedScene" uid="uid://chiusqce0r7vq" path="res://models/player/player.glb" id="2_awcob"]
+[ext_resource type="Script" uid="uid://q8fadspm1602" path="res://scripts/PlayerAnimationController.gd" id="3_animation"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="3_iqnxw"]
+[ext_resource type="Script" uid="uid://cserqki2x4pyo" path="res://scripts/PlayerRagdollController.gd" id="4_ragdoll"]
+[ext_resource type="Script" uid="uid://c1r5nperixsec" path="res://scripts/PlayerBloodEffects.gd" id="5_blood"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5lwik"]
 radius = 0.340263
@@ -9,6 +14,10 @@ height = 0.734576
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ci81t"]
 radius = 0.4
 height = 1.1
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hitbox"]
+radius = 0.38
+height = 1.9
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ci81t"]
 height = 1.172
@@ -20,23 +29,35 @@ albedo_color = Color(1, 0, 0, 1)
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_awcob"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 0
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_ci81t"]
 radius = 0.4
 height = 1.46
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d1xya"]
+render_priority = 0
+shader = ExtResource("3_iqnxw")
+shader_parameter/albedo_color = Color(0, 0, 0, 1)
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
 [node name="PlayerController" type="CharacterBody3D"]
 collision_layer = 4
+platform_on_leave = 2
+platform_floor_layers = 0
 script = ExtResource("1_ci81t")
 walk_speed = 3.0
 sprint_speed = 5.0
 acceleration = 15.16
 friction = 25.12
 tilt_max_degrees = 1.875
-stand_height = 1.47
+stand_height = 1.683
 crouch_head_y = 0.87
-stand_head_y = 1.3
+stand_head_y = 1.683
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.861763, 0)
@@ -47,13 +68,29 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
 shape = SubResource("CapsuleShape3D_ci81t")
 disabled = true
 
+[node name="PlayerHitbox" type="Area3D" parent="."]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerHitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+shape = SubResource("CapsuleShape3D_hitbox")
+
+[node name="PlayerNameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 0)
+billboard = 1
+text = "Spieler"
+font_size = 48
+
 [node name="Head" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.34638, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.683, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
+cull_mask = 524287
 
 [node name="InteractionRay" type="RayCast3D" parent="Head/Camera3D"]
-target_position = Vector3(0, 0, -1.865)
+target_position = Vector3(0, 0, -1.51)
 collision_mask = 5
 collide_with_areas = true
 
@@ -64,12 +101,14 @@ transform = Transform3D(-0.215809, 0.976436, 0, -0.976436, -0.215809, 0, 0, 0, 1
 transform = Transform3D(-0.215809, 0.976436, 0, -0.976436, -0.215809, 0, 0, 0, 1, 0.525871, 0, -0.726766)
 
 [node name="SpotLight3D" type="SpotLight3D" parent="Head/Camera3D"]
-visible = false
-light_energy = 3.556
-light_volumetric_fog_energy = 1.485
+light_energy = 9.993
+light_indirect_energy = 3.575
+light_volumetric_fog_energy = 3.784
+light_specular = 1.328
 shadow_enabled = true
-spot_range = 8.28598
-spot_angle = 36.2418
+shadow_blur = 2.667
+spot_range = 8.692
+spot_angle = 54.86
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Head/Camera3D"]
 transform = Transform3D(0.23, 0, 0, 0, -1.00536e-08, -0.23, 0, 0.23, -1.00536e-08, 0.121097, -0.000255823, -0.269043)
@@ -83,6 +122,9 @@ visible = false
 mesh = SubResource("CylinderMesh_ci81t")
 surface_material_override/0 = SubResource("StandardMaterial3D_awcob")
 
+[node name="LiveFeedCamera" type="Camera3D" parent="Head"]
+cull_mask = 524287
+
 [node name="StandingRaycast" type="RayCast3D" parent="."]
 target_position = Vector3(0, 1.2, 0)
 
@@ -91,11 +133,80 @@ replication_config = SubResource("SceneReplicationConfig_awcob")
 
 [node name="MultiMeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.722256, 0)
+visible = false
 mesh = SubResource("CapsuleMesh_ci81t")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25885, 0)
-light_energy = 5.781
-light_size = 0.36
-shadow_enabled = true
-omni_range = 21.0055
+[node name="playerModell" parent="." instance=ExtResource("2_awcob")]
+transform = Transform3D(-1.06, 0, -1.60056e-07, 0, 1.06, 0, 1.60056e-07, 0, -1.06, -0.0281916, 0.93502, -0.013034)
+
+[node name="Skeleton3D" parent="playerModell/Armature" index="0"]
+bones/0/position = Vector3(-0.0342981, -0.0104253, -0.0401293)
+bones/0/rotation = Quaternion(1.05879e-22, -7.10543e-15, -8.88178e-16, 1)
+bones/1/rotation = Quaternion(7.45058e-09, 1.45439e-14, -8.88178e-16, 1)
+bones/2/rotation = Quaternion(-7.45058e-09, -2.77556e-17, 0, 1)
+bones/3/rotation = Quaternion(0.574507, 0.481671, -0.517681, 0.41224)
+bones/4/rotation = Quaternion(0.0760302, -0.771455, -0.035776, 0.630712)
+bones/5/rotation = Quaternion(-0.0372152, 0.70709, 0.0432922, 0.704815)
+bones/6/rotation = Quaternion(0.581171, -0.450793, 0.54478, 0.402791)
+bones/7/rotation = Quaternion(0.092122, 0.758136, 0.0509695, 0.643542)
+bones/8/rotation = Quaternion(0.0277107, -0.641196, -0.0277107, 0.766375)
+bones/9/rotation = Quaternion(0.0664995, -0.0187481, 0.997301, -0.0248227)
+bones/10/rotation = Quaternion(-0.0245373, 0.998756, 0.0434087, -0.000623764)
+bones/11/rotation = Quaternion(-0.0823037, 0.720702, -0.688289, -0.00856963)
+bones/12/rotation = Quaternion(-0.0250687, -0.00200146, 0.99966, 0.00685068)
+bones/13/rotation = Quaternion(0.0026784, 0.999985, 0.0046869, 6.76266e-05)
+bones/14/rotation = Quaternion(0.024472, 0.708701, -0.705001, 0.0108314)
+bones/15/position = Vector3(0.103014, -0.816081, -0.0467387)
+bones/15/rotation = Quaternion(-0.0097897, -0.707039, 0.707039, 0.0097897)
+bones/16/position = Vector3(0.0820162, -0.408545, 0.503321)
+bones/17/position = Vector3(-0.121616, -0.812011, -0.0467387)
+bones/17/rotation = Quaternion(0.0097897, -0.707039, 0.707039, -0.0097897)
+
+[node name="Arm_L" parent="playerModell/Armature/Skeleton3D" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="Arm_R" parent="playerModell/Armature/Skeleton3D" index="1"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="Body" parent="playerModell/Armature/Skeleton3D" index="2"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="Foot_L" parent="playerModell/Armature/Skeleton3D" index="3"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="Foot_R" parent="playerModell/Armature/Skeleton3D" index="4"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="Hair" parent="playerModell/Armature/Skeleton3D" index="5"]
+visible = false
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="Head" parent="playerModell/Armature/Skeleton3D" index="6"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="UpperArm_L" parent="playerModell/Armature/Skeleton3D" index="7"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="UpperArm_R" parent="playerModell/Armature/Skeleton3D" index="8"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="UpperLeg_L" parent="playerModell/Armature/Skeleton3D" index="9"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="UpperLeg_R" parent="playerModell/Armature/Skeleton3D" index="10"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="Waist" parent="playerModell/Armature/Skeleton3D" index="11"]
+surface_material_override/0 = SubResource("ShaderMaterial_d1xya")
+
+[node name="PlayerAnimationController" type="Node" parent="."]
+script = ExtResource("3_animation")
+
+[node name="PlayerRagdollController" type="Node" parent="."]
+script = ExtResource("4_ragdoll")
+
+[node name="PlayerBloodEffects" type="Node" parent="."]
+script = ExtResource("5_blood")
+maximum_blood_decals = 165
+
+[editable path="playerModell"]

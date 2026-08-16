@@ -26,6 +26,10 @@ extends Resource
 @export var stackable: bool = false
 @export var max_stack: int = 1
 
+@export_group("Mission Hint")
+@export var is_mission_clue: bool = false
+@export var target_clue_type: StringName = &""
+
 @export_group("Pickup")
 @export var interaction_text: String = "Aufheben"
 @export var pickup_sound: AudioStream

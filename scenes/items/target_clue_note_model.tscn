@@ -1,0 +1,49 @@
+[gd_scene load_steps=7 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Material_paper"]
+albedo_color = Color(0.78, 0.72, 0.52, 1)
+roughness = 0.92
+
+[sub_resource type="BoxMesh" id="Mesh_paper"]
+material = SubResource("Material_paper")
+size = Vector3(0.3, 0.008, 0.21)
+
+[sub_resource type="StandardMaterial3D" id="Material_ink"]
+albedo_color = Color(0.055, 0.07, 0.055, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_line"]
+material = SubResource("Material_ink")
+size = Vector3(0.19, 0.004, 0.009)
+
+[sub_resource type="StandardMaterial3D" id="Material_stamp"]
+albedo_color = Color(0.62, 0.035, 0.025, 1)
+emission_enabled = true
+emission = Color(0.24, 0.006, 0.004, 1)
+emission_energy_multiplier = 1.35
+
+[sub_resource type="BoxMesh" id="Mesh_stamp"]
+material = SubResource("Material_stamp")
+size = Vector3(0.055, 0.005, 0.055)
+
+[node name="TargetClueNoteModel" type="Node3D"]
+
+[node name="Paper" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_paper")
+
+[node name="Line1" type="MeshInstance3D" parent="."]
+position = Vector3(-0.025, 0.007, -0.064)
+mesh = SubResource("Mesh_line")
+
+[node name="Line2" type="MeshInstance3D" parent="."]
+position = Vector3(-0.025, 0.007, -0.026)
+mesh = SubResource("Mesh_line")
+
+[node name="Line3" type="MeshInstance3D" parent="."]
+position = Vector3(-0.055, 0.007, 0.012)
+scale = Vector3(0.68, 1, 1)
+mesh = SubResource("Mesh_line")
+
+[node name="RedStamp" type="MeshInstance3D" parent="."]
+position = Vector3(0.1, 0.008, 0.058)
+mesh = SubResource("Mesh_stamp")

@@ -1,3 +1,4 @@
+@tool
 class_name ProceduralRoom
 extends Node3D
 
@@ -25,6 +26,57 @@ var maximum_items: int = 3
 
 var generation_depth: int = 0
 var generation_index: int = 0
+
+
+func _get_configuration_warnings() -> PackedStringArray:
+	var warnings := PackedStringArray()
+	var visual_root := get_node_or_null("Visuals")
+	var generated_geometry := get_node_or_null("Geometry")
+
+	if visual_root == null and generated_geometry == null:
+		warnings.append(
+			"Add a Visuals node for an imported Blender scene, or keep the "
+			+ "generated Geometry node."
+		)
+
+	var configured_bounds := get_node_or_null(
+		"RoomBounds/CollisionShape3D"
+	) as CollisionShape3D
+
+	if configured_bounds == null:
+		warnings.append(
+			"RoomBounds/CollisionShape3D is required for overlap checks and "
+			+ "the minimap."
+		)
+	elif not configured_bounds.shape is BoxShape3D:
+		warnings.append(
+			"RoomBounds must use a BoxShape3D. Resize it to cover the room "
+			+ "without overlapping neighbouring rooms."
+		)
+
+	var configured_sockets := get_node_or_null("DoorSockets")
+
+	if configured_sockets == null:
+		warnings.append("A DoorSockets Node3D is required.")
+	else:
+		var socket_count := 0
+
+		for child in configured_sockets.get_children():
+			if child is RoomSocket:
+				socket_count += 1
+
+		if socket_count == 0:
+			warnings.append(
+				"Add at least one RoomSocket below DoorSockets. Its local +Z "
+				+ "axis must point out of the room."
+			)
+
+	if get_node_or_null("ItemSpawnPoints") == null:
+		warnings.append(
+			"ItemSpawnPoints is missing. The room will not spawn loot."
+		)
+
+	return warnings
 
 
 func get_free_sockets() -> Array[RoomSocket]:
@@ -76,6 +128,76 @@ func get_world_aabb(shrink: float = 0.03) -> AABB:
 	final_size.z = maxf(final_size.z, 0.001)
 
 	return AABB(final_position, final_size)
+
+
+func spawn_surveillance_camera(
+	camera_scene: PackedScene,
+	camera_rng: RandomNumberGenerator,
+	camera_id: int
+) -> SurveillanceCamera:
+	if camera_scene == null or camera_rng == null:
+		return null
+
+	var box := bounds_shape.shape as BoxShape3D
+
+	if box == null:
+		return null
+
+	var instance := camera_scene.instantiate()
+	var surveillance_camera := instance as SurveillanceCamera
+
+	if surveillance_camera == null:
+		instance.free()
+		push_warning("Surveillance camera scene requires SurveillanceCamera.")
+		return null
+
+	surveillance_camera.name = "SecurityCamera_%03d" % camera_id
+	surveillance_camera.configure(camera_id, generation_index, room_id)
+	add_child(surveillance_camera, true)
+
+	var half_size := box.size * 0.5
+	var wall_inset := minf(0.18, minf(half_size.x, half_size.z) * 0.2)
+	var across_wall := camera_rng.randf_range(-0.58, 0.58)
+	var local_position := Vector3.ZERO
+
+	match camera_rng.randi_range(0, 3):
+		0:
+			local_position = Vector3(
+				-half_size.x + wall_inset,
+				half_size.y * 0.65,
+				half_size.z * across_wall
+			)
+		1:
+			local_position = Vector3(
+				half_size.x - wall_inset,
+				half_size.y * 0.65,
+				half_size.z * across_wall
+			)
+		2:
+			local_position = Vector3(
+				half_size.x * across_wall,
+				half_size.y * 0.65,
+				-half_size.z + wall_inset
+			)
+		_:
+			local_position = Vector3(
+				half_size.x * across_wall,
+				half_size.y * 0.65,
+				half_size.z - wall_inset
+			)
+
+	var local_target := Vector3(
+		camera_rng.randf_range(-0.18, 0.18) * half_size.x,
+		-half_size.y * 0.28,
+		camera_rng.randf_range(-0.18, 0.18) * half_size.z
+	)
+	var camera_position := bounds_shape.global_transform * local_position
+	var camera_target := bounds_shape.global_transform * local_target
+	var room_up := bounds_shape.global_basis.y.normalized()
+
+	surveillance_camera.global_position = camera_position
+	surveillance_camera.look_at(camera_target, room_up)
+	return surveillance_camera
 
 
 func spawn_random_items(

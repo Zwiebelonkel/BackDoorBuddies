@@ -1,0 +1,396 @@
+[gd_scene load_steps=34 format=3 uid="uid://cqapsd0jo17ov"]
+
+[ext_resource type="Script" uid="uid://d175dwblcl8rp" path="res://scripts/lobby.gd" id="1_lobby"]
+[ext_resource type="Material" uid="uid://ctpygeog7ypqd" path="res://resources/textures/darkBricks.tres" id="2_apkv3"]
+[ext_resource type="Material" uid="uid://dtdvt6gb8h5dr" path="res://resources/textures/metal.tres" id="2_omrgh"]
+[ext_resource type="PackedScene" uid="uid://c30xd8tlqhkv4" path="res://scenes/PlayerController.tscn" id="2_player"]
+[ext_resource type="Shader" uid="uid://cinp7nq70xbhs" path="res://shaders/wood.gdshader" id="3_ncsg4"]
+[ext_resource type="Script" uid="uid://cy3iyeoxwrwnw" path="res://scripts/lobby_start_button.gd" id="5_start"]
+[ext_resource type="Script" uid="uid://dsrnp00r8a1vk" path="res://scripts/lobby_multiplayer_button.gd" id="6_multiplayer"]
+[ext_resource type="PackedScene" uid="uid://d2ei5j2nrftl3" path="res://scenes/options_menu.tscn" id="6_options"]
+[ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="7_font"]
+
+[sub_resource type="Environment" id="Environment_lobby"]
+background_mode = 1
+background_color = Color(0.015, 0.018, 0.022, 1)
+background_energy_multiplier = 0.0
+ambient_light_source = 3
+ambient_light_color = Color(0.42, 0.48, 0.55, 1)
+ambient_light_energy = 0.7
+tonemap_mode = 2
+sdfgi_enabled = true
+glow_enabled = true
+glow_intensity = 2.09
+glow_strength = 0.75
+volumetric_fog_density = 0.15
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.105, 0.115, 0.125, 1)
+metallic = 0.12
+roughness = 0.78
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+material = SubResource("FloorMaterial")
+size = Vector3(14, 0.2, 10)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_07nfq"]
+render_priority = 0
+shader = ExtResource("3_ncsg4")
+shader_parameter/wood_color = Color(0.32, 0.16, 0.07, 1)
+shader_parameter/wood_color_dark = Color(0.12, 0.055, 0.02, 1)
+shader_parameter/grain_scale = 18.0
+shader_parameter/grain_strength = 0.7
+shader_parameter/noise_scale = 8.0
+shader_parameter/noise_strength = 0.25
+shader_parameter/roughness = 0.8
+shader_parameter/bump_strength = 0.25
+
+[sub_resource type="BoxMesh" id="CeilingMesh"]
+material = SubResource("ShaderMaterial_07nfq")
+size = Vector3(14, 0.2, 10)
+
+[sub_resource type="StandardMaterial3D" id="WallMaterial"]
+albedo_color = Color(0.18, 0.2, 0.22, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="NorthSouthWallMesh"]
+material = SubResource("WallMaterial")
+size = Vector3(14, 4, 0.2)
+
+[sub_resource type="BoxMesh" id="EastWestWallMesh"]
+material = SubResource("WallMaterial")
+size = Vector3(0.2, 4, 10)
+
+[sub_resource type="StandardMaterial3D" id="AccentMaterial"]
+albedo_color = Color(0.045, 0.16, 0.09, 1)
+emission_enabled = true
+emission = Color(0.03, 0.35, 0.13, 1)
+emission_energy_multiplier = 1.6
+
+[sub_resource type="StandardMaterial3D" id="ButtonMaterial"]
+albedo_color = Color(0.04, 0.72, 0.16, 1)
+emission_enabled = true
+emission = Color(0.02, 1, 0.12, 1)
+emission_energy_multiplier = 3.5
+
+[sub_resource type="BoxMesh" id="ButtonMesh"]
+material = SubResource("ButtonMaterial")
+size = Vector3(0.48, 0.14, 0.48)
+
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(14, 0.2, 10)
+
+[sub_resource type="BoxShape3D" id="CeilingShape"]
+size = Vector3(14, 0.2, 10)
+
+[sub_resource type="BoxShape3D" id="NorthSouthWallShape"]
+size = Vector3(14, 4, 0.2)
+
+[sub_resource type="BoxShape3D" id="EastWestWallShape"]
+size = Vector3(0.2, 4, 10)
+
+[sub_resource type="StandardMaterial3D" id="TableMaterial"]
+albedo_color = Color(0.16, 0.105, 0.065, 1)
+roughness = 0.72
+
+[sub_resource type="BoxMesh" id="TableMesh"]
+material = SubResource("TableMaterial")
+size = Vector3(6.275, 0.18, 1.1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ncsg4"]
+render_priority = 0
+shader = ExtResource("3_ncsg4")
+shader_parameter/wood_color = Color(0.32, 0.16, 0.07, 1)
+shader_parameter/wood_color_dark = Color(0.205967, 0.10918, 0.0513944, 1)
+shader_parameter/grain_scale = 21.551
+shader_parameter/grain_strength = 1.261
+shader_parameter/noise_scale = 100.0
+shader_parameter/noise_strength = 0.207
+shader_parameter/roughness = 1.0
+shader_parameter/bump_strength = 1.262
+
+[sub_resource type="BoxShape3D" id="TableShape"]
+size = Vector3(6.04641, 0.18, 1.1)
+
+[sub_resource type="StandardMaterial3D" id="ButtonHousingMaterial"]
+albedo_color = Color(0.055, 0.065, 0.07, 1)
+metallic = 0.75
+roughness = 0.32
+
+[sub_resource type="BoxMesh" id="PedestalMesh"]
+material = SubResource("ButtonHousingMaterial")
+size = Vector3(1.15, 0.9, 1.15)
+
+[sub_resource type="BoxShape3D" id="PedestalShape"]
+size = Vector3(1.15, 0.9, 1.15)
+
+[sub_resource type="BoxMesh" id="ButtonHousingMesh"]
+material = SubResource("ButtonHousingMaterial")
+size = Vector3(0.72, 0.16, 0.72)
+
+[sub_resource type="BoxShape3D" id="ButtonShape"]
+size = Vector3(0.72, 0.32, 0.72)
+
+[node name="Lobby" type="Node3D"]
+script = ExtResource("1_lobby")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_lobby")
+
+[node name="Room" type="Node3D" parent="."]
+
+[node name="Floor" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+material_override = ExtResource("2_omrgh")
+mesh = SubResource("FloorMesh")
+surface_material_override/0 = ExtResource("2_omrgh")
+
+[node name="Ceiling" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.1, 0)
+material_override = ExtResource("2_omrgh")
+mesh = SubResource("CeilingMesh")
+
+[node name="NorthWall" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -5)
+mesh = SubResource("NorthSouthWallMesh")
+surface_material_override/0 = ExtResource("2_apkv3")
+
+[node name="SouthWall" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 5)
+material_override = ExtResource("2_apkv3")
+mesh = SubResource("NorthSouthWallMesh")
+surface_material_override/0 = ExtResource("2_apkv3")
+
+[node name="EastWall" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 2, 0)
+mesh = SubResource("EastWestWallMesh")
+surface_material_override/0 = ExtResource("2_apkv3")
+
+[node name="WestWall" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 2, 0)
+mesh = SubResource("EastWestWallMesh")
+surface_material_override/0 = ExtResource("2_apkv3")
+
+[node name="NorthAccent" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(8, 0, 0, 0, 0.12, 0, 0, 0, 0.08, 0, 3.6, -4.88)
+material_override = SubResource("AccentMaterial")
+mesh = SubResource("ButtonMesh")
+
+[node name="Collision" type="StaticBody3D" parent="."]
+collision_mask = 0
+
+[node name="Floor" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+shape = SubResource("FloorShape")
+
+[node name="Ceiling" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.1, 0)
+shape = SubResource("CeilingShape")
+
+[node name="NorthWall" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -5)
+shape = SubResource("NorthSouthWallShape")
+
+[node name="SouthWall" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 5)
+shape = SubResource("NorthSouthWallShape")
+
+[node name="EastWall" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 2, 0)
+shape = SubResource("EastWestWallShape")
+
+[node name="WestWall" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 2, 0)
+shape = SubResource("EastWestWallShape")
+
+[node name="WeaponTable" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.15713, 0.92, -2.3)
+mesh = SubResource("TableMesh")
+surface_material_override/0 = SubResource("ShaderMaterial_ncsg4")
+
+[node name="WeaponTableCollision" type="StaticBody3D" parent="."]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WeaponTableCollision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.05219, 0.92, -2.3)
+shape = SubResource("TableShape")
+
+[node name="WeaponPickups" type="Node3D" parent="."]
+
+[node name="WeaponSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://procedural/items/pistol_pickup.tscn", "res://procedural/items/knife_pickup.tscn", "uid://eabswffi3p10")
+spawn_path = NodePath("../WeaponPickups")
+
+[node name="StartPedestal" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 0.45, -2.8)
+mesh = SubResource("PedestalMesh")
+
+[node name="StartPedestalCollision" type="StaticBody3D" parent="."]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StartPedestalCollision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 0.45, -2.8)
+shape = SubResource("PedestalShape")
+
+[node name="StartButton" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 0.98, -2.8)
+collision_mask = 0
+monitoring = false
+script = ExtResource("5_start")
+
+[node name="Housing" type="MeshInstance3D" parent="StartButton"]
+mesh = SubResource("ButtonHousingMesh")
+
+[node name="ButtonMesh" type="MeshInstance3D" parent="StartButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+mesh = SubResource("ButtonMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StartButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+shape = SubResource("ButtonShape")
+
+[node name="StartLabel" type="Label3D" parent="StartButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.82, 0)
+billboard = 1
+text = "HOST START"
+font = ExtResource("7_font")
+font_size = 42
+outline_size = 8
+
+[node name="MultiplayerPedestal" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 0.45, -1.25)
+mesh = SubResource("PedestalMesh")
+
+[node name="MultiplayerPedestalCollision" type="StaticBody3D" parent="."]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MultiplayerPedestalCollision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 0.45, -1.25)
+shape = SubResource("PedestalShape")
+
+[node name="MultiplayerButton" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 0.98, -1.25)
+collision_mask = 0
+monitoring = false
+script = ExtResource("6_multiplayer")
+
+[node name="Housing" type="MeshInstance3D" parent="MultiplayerButton"]
+mesh = SubResource("ButtonHousingMesh")
+
+[node name="ButtonMesh" type="MeshInstance3D" parent="MultiplayerButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+mesh = SubResource("ButtonMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MultiplayerButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+shape = SubResource("ButtonShape")
+
+[node name="MultiplayerLabel" type="Label3D" parent="MultiplayerButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.82, 0)
+billboard = 1
+text = "MULTIPLAYER"
+font = ExtResource("7_font")
+font_size = 34
+outline_size = 8
+
+[node name="LobbySign" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.05, -4.83156)
+text = "BACKDOOR BUDDIES
+SAFEHOUSE LOBBY"
+font = ExtResource("7_font")
+font_size = 68
+
+[node name="WeaponSign" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8, 1.65, -4.82)
+text = "TESTWAFFEN"
+font = ExtResource("7_font")
+font_size = 36
+outline_size = 8
+
+[node name="PlayerSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 2.7)
+
+[node name="Players" type="Node3D" parent="."]
+
+[node name="0" parent="Players" instance=ExtResource("2_player")]
+transform = Transform3D(-1, 0, 2.53518e-06, 0, 1, 0, -2.53518e-06, 0, -1, 0, 0.1, -2.5)
+
+[node name="DummyLabel" type="Label3D" parent="Players/0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
+visible = false
+pixel_size = 0.001
+billboard = 1
+fixed_size = true
+text = "TRAINING DUMMY
+ABSCHIESSEN / MESSER / E ZUM WIEDERBELEBEN"
+font = ExtResource("7_font")
+font_size = 34
+outline_size = 8
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://c30xd8tlqhkv4")
+spawn_path = NodePath("../Players")
+
+[node name="DroppedItems" type="Node3D" parent="."]
+
+[node name="ItemSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://6rung1eddhoj")
+spawn_path = NodePath("../DroppedItems")
+
+[node name="OmniLight01" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 3.35, 0)
+light_color = Color(0, 0.95, 0.0791666, 1)
+light_energy = 3.476
+shadow_enabled = true
+omni_range = 9.0
+
+[node name="OmniLight02" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.96434, 2.16458, 0)
+light_color = Color(0, 1, 0.0833333, 1)
+light_energy = 4.0
+shadow_enabled = true
+omni_range = 9.0
+
+[node name="FallbackCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.992809, 0.119712, 0, -0.119712, 0.992809, 0, 2.5, 7.5)
+current = true
+
+[node name="LobbyUI" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="LobbyUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -443.0
+offset_top = 12.0
+offset_right = -7.0
+offset_bottom = 52.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.45, 1, 0.62, 1)
+theme_override_fonts/font = ExtResource("7_font")
+theme_override_font_sizes/font_size = 24
+text = "LOBBY WIRD VERBUNDEN ..."
+
+[node name="Hint" type="Label" parent="LobbyUI"]
+visible = false
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -52.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.75, 0.82, 0.78, 1)
+theme_override_fonts/font = ExtResource("7_font")
+theme_override_font_sizes/font_size = 20
+text = "WAFFEN TESTEN  |  DUMMY NACH TOD MIT E WIEDERBELEBEN  |  HOST STARTET AM GRUENEN KNOPF"
+horizontal_alignment = 1
+
+[node name="OptionsMenu" parent="." instance=ExtResource("6_options")]
+show_exit_to_main_menu = true
+
+[connection signal="spawned" from="PlayerSpawner" to="." method="_on_multiplayer_spawner_spawned"]
+
+[editable path="Players/0"]
+[editable path="Players/0/playerModell"]

@@ -1,36 +1,24 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://bgc882x0y1xgx"]
 
-[ext_resource type="Script" path="res://procedural/scripts/exit_door.gd" id="1_door"]
-
-[sub_resource type="StandardMaterial3D" id="DoorMaterial"]
-albedo_color = Color(0.08, 0.24, 0.14, 1)
-roughness = 0.72
-emission_enabled = true
-emission = Color(0.02, 0.12, 0.055, 1)
-emission_energy_multiplier = 1.4
-
-[sub_resource type="BoxMesh" id="DoorMesh"]
-material = SubResource("DoorMaterial")
-size = Vector3(1.1, 2.1, 0.08)
+[ext_resource type="Script" uid="uid://dfuo5yu5e4fl7" path="res://procedural/scripts/exit_door.gd" id="1_door"]
+[ext_resource type="PackedScene" uid="uid://d3fr0t8j4yw4l" path="res://models/hospitalDoor/hospitalDoor.glb" id="2_ubn4o"]
 
 [sub_resource type="BoxShape3D" id="DoorShape"]
-size = Vector3(1.1, 2.1, 0.08)
+size = Vector3(1.25486, 2.1501, 0.164287)
 
 [node name="ExitDoor" type="StaticBody3D"]
-collision_layer = 1
 collision_mask = 0
 script = ExtResource("1_door")
 
-[node name="DoorMesh" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.05, -0.04)
-mesh = SubResource("DoorMesh")
-
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 1.05, -0.04)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0385621, 1.07505, -0.0393994)
 shape = SubResource("DoorShape")
 
 [node name="ExitLight" type="OmniLight3D" parent="."]
-position = Vector3(0, 2.35, -0.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, -0.35)
 light_color = Color(0.22, 1, 0.48, 1)
 light_energy = 1.6
 omni_range = 2.5
+
+[node name="hospitalDoor" parent="." instance=ExtResource("2_ubn4o")]
+transform = Transform3D(0.65, 0, 0, 0, 0.65, 0, 0, 0, 0.65, 0, 0.007, -0.0270879)

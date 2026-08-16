@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/items/ItemData.gd" id="1_data"]
+[ext_resource type="PackedScene" path="res://scenes/items/target_clue_note_model.tscn" id="2_model"]
+
+[resource]
+script = ExtResource("1_data")
+item_id = &"target_clue_hair"
+display_name = "Zielhinweis: Haare"
+description = "Eine chiffrierte Notiz mit einem Hinweis auf die Haare der Zielperson."
+world_model = ExtResource("2_model")
+model_rotation_degrees = Vector3(0, -11, 0)
+model_offset = Vector3(0, 0.018, 0)
+held_model = ExtResource("2_model")
+held_scale = Vector3(1.25, 1.25, 1.25)
+held_rotation_degrees = Vector3(72, -12, -8)
+held_offset = Vector3(0.16, -0.08, 0.3)
+value = 0
+weight = 0.05
+is_large_item = false
+stackable = false
+max_stack = 1
+is_mission_clue = true
+target_clue_type = &"hair"
+interaction_text = "Zielhinweis sichern"

@@ -9,6 +9,8 @@ const LOCAL_PLAYER_COLOR := Color(0.3, 1.0, 0.5, 1.0)
 const REMOTE_PLAYER_COLOR := Color(1.0, 0.73, 0.22, 1.0)
 const ITEM_COLOR := Color(0.2, 0.78, 1.0, 1.0)
 const LARGE_ITEM_COLOR := Color(1.0, 0.25, 0.65, 1.0)
+const CAMERA_COLOR := Color(1.0, 0.42, 0.12, 1.0)
+const CAMERA_VIEW_COLOR := Color(1.0, 0.52, 0.18, 0.72)
 
 var _generator: ProceduralLevelGenerator
 var _players_root: Node3D
@@ -89,14 +91,15 @@ func _draw() -> void:
 		draw_rect(room_rect, ROOM_BORDER_COLOR, false, 2.0, true)
 
 	_draw_items(world_rect, map_origin, map_scale)
+	_draw_cameras(world_rect, map_origin, map_scale)
 	_draw_players(world_rect, map_origin, map_scale)
 	draw_string(
 		font,
 		Vector2(24.0, canvas_size.y - 16.0),
-		"CYAN: ITEM  PINK: GROSS  GRUEN/GELB: SPIELER",
+		"CYAN: ITEM  PINK: GROSS  ORANGE: KAMERA  GRUEN/GELB: SPIELER",
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1.0,
-		12,
+		10,
 		Color(0.55, 0.78, 0.62, 1.0)
 	)
 
@@ -186,6 +189,60 @@ func _draw_items(
 		draw_rect(marker_rect, marker_color, true)
 
 
+func _draw_cameras(
+	world_rect: Rect2,
+	map_origin: Vector2,
+	map_scale: float
+) -> void:
+	if _generator == null:
+		return
+
+	for surveillance_camera in _generator.generated_surveillance_cameras:
+		if not is_instance_valid(surveillance_camera):
+			continue
+
+		var feed_transform := surveillance_camera.get_feed_transform()
+		var marker_position := _world_to_map(
+			Vector2(feed_transform.origin.x, feed_transform.origin.z),
+			world_rect,
+			map_origin,
+			map_scale
+		)
+		var world_forward := -feed_transform.basis.z.normalized()
+		var map_forward := Vector2(world_forward.x, world_forward.z)
+
+		if map_forward.is_zero_approx():
+			map_forward = Vector2.UP
+		else:
+			map_forward = map_forward.normalized()
+
+		var view_end := marker_position + map_forward * 16.0
+		var view_side := Vector2(-map_forward.y, map_forward.x) * 6.0
+		draw_line(
+			marker_position,
+			view_end + view_side,
+			CAMERA_VIEW_COLOR,
+			2.0,
+			true
+		)
+		draw_line(
+			marker_position,
+			view_end - view_side,
+			CAMERA_VIEW_COLOR,
+			2.0,
+			true
+		)
+		draw_circle(marker_position, 7.0, Color(0.0, 0.0, 0.0, 0.9))
+		draw_circle(marker_position, 4.5, CAMERA_COLOR)
+		draw_line(
+			marker_position,
+			marker_position + map_forward * 10.0,
+			Color(1.0, 0.85, 0.52, 1.0),
+			3.0,
+			true
+		)
+
+
 func get_scanned_item_count() -> int:
 	if _generator == null or not is_instance_valid(_generator.items_root):
 		return 0
@@ -200,6 +257,19 @@ func get_scanned_item_count() -> int:
 			and pickup.item_data != null
 			and _is_inside_generated_room(pickup.global_position)
 		):
+			result += 1
+
+	return result
+
+
+func get_scanned_camera_count() -> int:
+	if _generator == null:
+		return 0
+
+	var result := 0
+
+	for surveillance_camera in _generator.generated_surveillance_cameras:
+		if is_instance_valid(surveillance_camera):
 			result += 1
 
 	return result

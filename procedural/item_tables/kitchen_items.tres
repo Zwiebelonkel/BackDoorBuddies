@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://d1dwepdsdct1k" path="res://procedural/scripts/item_spawn_entry.gd" id="2_entry"]
 [ext_resource type="PackedScene" uid="uid://cas2l4b18llcf" path="res://procedural/items/cocaine_pickup.tscn" id="3_cocaine"]
 [ext_resource type="PackedScene" path="res://procedural/items/coke_brick_pickup.tscn" id="4_brick"]
-[ext_resource type="PackedScene" path="res://procedural/items/weed_bag_pickup.tscn" id="5_bag"]
+[ext_resource type="PackedScene" uid="uid://btcfukdqwy7n3" path="res://procedural/items/weed_bag_pickup.tscn" id="5_bag"]
 
 [sub_resource type="Resource" id="Cocaine"]
 script = ExtResource("2_entry")

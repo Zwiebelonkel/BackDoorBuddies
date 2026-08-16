@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cgnhccn28yici"]
+
+[ext_resource type="Script" uid="uid://dikijbr4aqwob" path="res://procedural/tests/sniper_smoke_test.gd" id="1_test"]
+[ext_resource type="PackedScene" uid="uid://bdq7555e851o2" path="res://scenes/items/held/SniperHeld.tscn" id="2_sniper"]
+
+[node name="SniperSmokeTest" type="Node3D"]
+script = ExtResource("1_test")
+
+[node name="Shooter" type="CharacterBody3D" parent="."]
+
+[node name="Head" type="Node3D" parent="Shooter"]
+
+[node name="Camera3D" type="Camera3D" parent="Shooter/Head"]
+current = true
+
+[node name="SniperHeld" parent="Shooter/Head/Camera3D" instance=ExtResource("2_sniper")]

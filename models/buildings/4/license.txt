@@ -1,0 +1,11 @@
+Model Information:
+* title:	PSXprop - Ps1/psx House
+* source:	https://sketchfab.com/3d-models/psxprop-ps1psx-house-508a0d596b5f4836ab057475b77fa47a
+* author:	Wardster (https://sketchfab.com/WardsterSAW)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "PSXprop - Ps1/psx House" (https://sketchfab.com/3d-models/psxprop-ps1psx-house-508a0d596b5f4836ab057475b77fa47a) by Wardster (https://sketchfab.com/WardsterSAW) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

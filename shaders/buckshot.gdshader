@@ -3,17 +3,17 @@ shader_type canvas_item;
 uniform sampler2D screen_tex : hint_screen_texture;
 
 uniform float exposure    : hint_range(0.5, 2.0) = 1.0;
-uniform float contrast    : hint_range(0.5, 2.0) = 1.1;
-uniform float saturation  : hint_range(0.0, 2.0) = 1.12;
+uniform float contrast    : hint_range(0.5, 2.0) = 1.25;
+uniform float saturation  : hint_range(0.0, 2.0) = 0.9;
 
-uniform bool  enable_pixelate = true;
-uniform float pixel_factor    : hint_range(0.5, 6.0) = 3.0;
+uniform bool enable_pixelate = true;
+uniform float pixel_factor    : hint_range(0.5, 6.0) = 2.0;
 
 uniform bool  enable_posterize = true;
-uniform float color_levels     : hint_range(2.0, 16.0) = 16.0;
-uniform float dither_strength  : hint_range(0.0, 1.0) = 0.35;
+uniform float color_levels     : hint_range(2.0, 16.0) = 12.0;
+uniform float dither_strength  : hint_range(0.0, 1.0) = 0.75;
 
-uniform float chrom_aberration : hint_range(0.0, 2.0) = 0.01;
+uniform float chrom_aberration : hint_range(0.0, 2.0) = 4.0;
 uniform float vignette_strength: hint_range(0.0, 2.0) = 1.0;
 uniform float grain_strength   : hint_range(0.0, 1.0) = 0.2;
 
@@ -93,22 +93,36 @@ void fragment(){
     vec2 center = vec2(0.5);
     vec2 dir = uv - center;
     float dist = length(dir);
-    float ca = chrom_aberration * dist * dist;
+
+	vec2 pixel_size_step = px;
+    if (enable_pixelate) {
+        pixel_size_step = px * pixel_factor;
+    }
+
+	vec2 ca_offset = dir * (chrom_aberration * dist * pixel_size_step);
 
     vec3 col;
-    col.r = texture(screen_tex, uv + dir * ( ca)).r;
-    col.g = texture(screen_tex, uv                    ).g;
-    col.b = texture(screen_tex, uv - dir * ( ca)).b;
+    col.r = texture(screen_tex, uv + ca_offset).r;
+    col.g = texture(screen_tex, uv).g;
+    col.b = texture(screen_tex, uv - ca_offset).b;
 
     col *= exposure;
 
     col = mix(col, col * tint_color, tint_strength);
 
     if (enable_posterize){
-        vec2 frag_xy = floor(uv / px);
+        // Lock the dither coordinates to the pixelation grid
+        vec2 dither_px = px;
+        if (enable_pixelate) {
+            dither_px = px * pixel_factor;
+        }
+        vec2 frag_xy = floor(uv / dither_px);
         float b = bayer4x4(frag_xy);
 
-        vec3 q = floor(col * color_levels + b * dither_strength);
+        // Subtract 0.5 from the bayer value so it dithers both up and down,
+        // preventing the overall image from artificially brightening or darkening.
+        vec3 dithered = col + (b - 0.5) * (dither_strength / (color_levels - 1.0));
+        vec3 q = floor(dithered * color_levels);
         col = q / (color_levels - 1.0);
     }
 

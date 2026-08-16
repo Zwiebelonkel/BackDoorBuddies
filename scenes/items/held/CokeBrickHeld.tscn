@@ -2,17 +2,19 @@
 
 [ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_8u23o"]
 [ext_resource type="PackedScene" uid="uid://ceb237512epss" path="res://models/cokeBrick/cokeBrick.glb" id="2_4ed2m"]
-[ext_resource type="Shader" uid="uid://sk210fehdisr" path="res://shaders/noDepth.gdshader" id="3_7gjhs"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="3_8u23o"]
 [ext_resource type="Texture2D" uid="uid://njqi5v7mwt6g" path="res://models/cokeBrick/cokeBrick_coke (2).png" id="4_8u23o"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gjarn"]
 render_priority = 0
-shader = ExtResource("3_7gjhs")
-shader_parameter/albedo_texture = ExtResource("4_8u23o")
+shader = ExtResource("3_8u23o")
+shader_parameter/albedo = ExtResource("4_8u23o")
 shader_parameter/albedo_color = Color(1, 1, 1, 1)
-shader_parameter/roughness = 0.488
-shader_parameter/metallic = 0.0
-shader_parameter/specular = 0.43
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
 [node name="CokeBrickHeld" type="Node3D"]
 script = ExtResource("1_8u23o")

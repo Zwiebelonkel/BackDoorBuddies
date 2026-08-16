@@ -14,7 +14,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.55)
+color = Color(0, 0, 0, 0.68)
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = 8
@@ -22,120 +22,335 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -190.0
-offset_right = 220.0
-offset_bottom = 190.0
+offset_left = -330.0
+offset_top = -280.0
+offset_right = 330.0
+offset_bottom = 280.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
+theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_bottom = 20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_ijpji")
-text = "Options"
+theme_override_font_sizes/font_size = 24
+text = "OPTIONS"
 horizontal_alignment = 1
 
-[node name="FpsRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Tabs" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 390)
 layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="FpsLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/FpsRow"]
-custom_minimum_size = Vector2(150, 0)
-layout_mode = 2
+size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("2_ijpji")
-text = "Max FPS"
+current_tab = 0
 
-[node name="FpsSpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/FpsRow"]
+[node name="General" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs"]
 layout_mode = 2
-min_value = 30.0
-max_value = 240.0
-value = 60.0
+metadata/_tab_name = "GENERAL"
+metadata/_tab_index = 0
 
-[node name="FullscreenRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="GeneralMargin" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="GeneralOptions" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="VolumeRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="FullscreenLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/FullscreenRow"]
-custom_minimum_size = Vector2(150, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_ijpji")
-text = "Fullscreen"
-
-[node name="FullscreenCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/FullscreenRow"]
-layout_mode = 2
-text = "Enabled"
-
-[node name="VolumeRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="VolumeLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
-custom_minimum_size = Vector2(150, 0)
+[node name="VolumeLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/VolumeRow"]
+custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_ijpji")
 text = "Master Volume"
 
-[node name="VolumeSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
-custom_minimum_size = Vector2(150, 0)
+[node name="VolumeSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/VolumeRow"]
+custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 max_value = 1.0
 step = 0.01
 value = 1.0
 
-[node name="VolumeValueLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VolumeRow"]
-custom_minimum_size = Vector2(48, 0)
+[node name="VolumeValueLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/VolumeRow"]
+custom_minimum_size = Vector2(58, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_ijpji")
 text = "100%"
+horizontal_alignment = 2
 
-[node name="LookSensitivityRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="LookSensitivityRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LookSensitivityLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/LookSensitivityRow"]
-custom_minimum_size = Vector2(150, 0)
+[node name="LookSensitivityLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/LookSensitivityRow"]
+custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_ijpji")
 text = "Look Sensitivity"
 
-[node name="LookSensitivitySlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/LookSensitivityRow"]
-custom_minimum_size = Vector2(150, 0)
+[node name="LookSensitivitySlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/LookSensitivityRow"]
+custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 min_value = 0.25
 max_value = 3.0
 step = 0.05
 value = 1.0
 
-[node name="LookSensitivityValueLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/LookSensitivityRow"]
-custom_minimum_size = Vector2(48, 0)
+[node name="LookSensitivityValueLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/LookSensitivityRow"]
+custom_minimum_size = Vector2(58, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_ijpji")
 text = "100%"
+horizontal_alignment = 2
 
-[node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="GeneralHint" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.7, 0.68, 1)
+theme_override_fonts/font = ExtResource("2_ijpji")
+theme_override_font_sizes/font_size = 14
+text = "Changes are saved automatically."
+
+[node name="Graphics" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs"]
+visible = false
+layout_mode = 2
+metadata/_tab_name = "GRAPHICS"
+metadata/_tab_index = 1
+
+[node name="GraphicsScroll" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="GraphicsMargin" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 12
+
+[node name="GraphicsOptions" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PerformancePresetButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_ijpji")
-text = "Close"
+text = "APPLY PERFORMANCE PRESET"
 
-[node name="ExitToMainMenuButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="FpsRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FpsLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FpsRow"]
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_ijpji")
-text = "Exit to Main Menu"
+text = "Max FPS"
 
-[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/FpsRow/FpsSpinBox" to="." method="_on_fps_spin_box_value_changed"]
-[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/FullscreenRow/FullscreenCheckBox" to="." method="_on_fullscreen_check_box_toggled"]
-[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/VolumeRow/VolumeSlider" to="." method="_on_volume_slider_value_changed"]
-[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/LookSensitivityRow/LookSensitivitySlider" to="." method="_on_look_sensitivity_slider_value_changed"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/CloseButton" to="." method="_on_close_button_pressed"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/ExitToMainMenuButton" to="." method="_on_exit_to_main_menu_button_pressed"]
+[node name="FpsSpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FpsRow"]
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 30.0
+max_value = 240.0
+step = 5.0
+value = 60.0
+
+[node name="FullscreenRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+
+[node name="FullscreenLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FullscreenRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Fullscreen"
+
+[node name="FullscreenCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FullscreenRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Enabled"
+
+[node name="VsyncRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+
+[node name="VsyncLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/VsyncRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "VSync"
+
+[node name="VsyncCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/VsyncRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Enabled"
+
+[node name="RenderScaleRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RenderScaleLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/RenderScaleRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "3D Render Scale"
+
+[node name="RenderScaleSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/RenderScaleRow"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="RenderScaleValueLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/RenderScaleRow"]
+custom_minimum_size = Vector2(58, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "100%"
+horizontal_alignment = 2
+
+[node name="MsaaRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MsaaLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/MsaaRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "3D Anti-Aliasing (MSAA)"
+
+[node name="MsaaOptionButton" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/MsaaRow"]
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+
+[node name="ShadowsRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+
+[node name="ShadowsLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/ShadowsRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Dynamic Shadows"
+
+[node name="ShadowsCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/ShadowsRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Enabled"
+
+[node name="FogRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+
+[node name="FogLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FogRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Fog"
+
+[node name="FogCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FogRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Enabled"
+
+[node name="GlowRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+
+[node name="GlowLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/GlowRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Glow / Bloom"
+
+[node name="GlowCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/GlowRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Enabled"
+
+[node name="SdfgiRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+
+[node name="SdfgiLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/SdfgiRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Global Illumination (SDFGI)"
+
+[node name="SdfgiCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/SdfgiRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Enabled"
+
+[node name="GraphicsHint" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.7, 0.68, 1)
+theme_override_fonts/font = ExtResource("2_ijpji")
+theme_override_font_sizes/font_size = 14
+text = "Lower render scale and disabled effects improve GPU performance."
+autowrap_mode = 2
+
+[node name="Footer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "CLOSE"
+
+[node name="ExitToMainMenuButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "EXIT TO MAIN MENU"
+
+[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/VolumeRow/VolumeSlider" to="." method="_on_volume_slider_value_changed"]
+[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/LookSensitivityRow/LookSensitivitySlider" to="." method="_on_look_sensitivity_slider_value_changed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/PerformancePresetButton" to="." method="_on_performance_preset_button_pressed"]
+[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FpsRow/FpsSpinBox" to="." method="_on_fps_spin_box_value_changed"]
+[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FullscreenRow/FullscreenCheckBox" to="." method="_on_fullscreen_check_box_toggled"]
+[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/VsyncRow/VsyncCheckBox" to="." method="_on_vsync_check_box_toggled"]
+[connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/RenderScaleRow/RenderScaleSlider" to="." method="_on_render_scale_slider_value_changed"]
+[connection signal="item_selected" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/MsaaRow/MsaaOptionButton" to="." method="_on_msaa_option_button_item_selected"]
+[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/ShadowsRow/ShadowsCheckBox" to="." method="_on_world_graphics_toggled"]
+[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FogRow/FogCheckBox" to="." method="_on_world_graphics_toggled"]
+[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/GlowRow/GlowCheckBox" to="." method="_on_world_graphics_toggled"]
+[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/SdfgiRow/SdfgiCheckBox" to="." method="_on_world_graphics_toggled"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Footer/CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Footer/ExitToMainMenuButton" to="." method="_on_exit_to_main_menu_button_pressed"]

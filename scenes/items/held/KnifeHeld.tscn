@@ -2,23 +2,27 @@
 
 [ext_resource type="PackedScene" uid="uid://coc6b78e8hjdw" path="res://models/knife/knife.glb" id="1_tikr1"]
 [ext_resource type="Script" uid="uid://dvdsxag4p2xoa" path="res://scripts/items/KnifeHeld.gd" id="1_w43kh"]
-[ext_resource type="Shader" uid="uid://sk210fehdisr" path="res://shaders/noDepth.gdshader" id="3_cmm3i"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="3_cmm3i"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_bsch7"]
 render_priority = 0
 shader = ExtResource("3_cmm3i")
 shader_parameter/albedo_color = Color(0, 0, 0, 1)
-shader_parameter/roughness = 0.825
-shader_parameter/metallic = 0.0
-shader_parameter/specular = 0.5
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_cmm3i"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_j6lj7"]
 render_priority = 0
 shader = ExtResource("3_cmm3i")
-shader_parameter/albedo_color = Color(0.0728426, 0.0728426, 0.0728426, 1)
-shader_parameter/roughness = 0.221
-shader_parameter/metallic = 1.0
-shader_parameter/specular = 0.163
+shader_parameter/albedo_color = Color(0.400698, 0.400698, 0.400698, 1)
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
 [node name="KnifeHeld" type="Node3D"]
 script = ExtResource("1_w43kh")
@@ -29,6 +33,6 @@ script = ExtResource("1_w43kh")
 surface_material_override/0 = SubResource("ShaderMaterial_bsch7")
 
 [node name="Plane" parent="knife" index="2"]
-surface_material_override/0 = SubResource("ShaderMaterial_cmm3i")
+surface_material_override/0 = SubResource("ShaderMaterial_j6lj7")
 
 [editable path="knife"]

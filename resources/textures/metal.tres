@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://dtdvt6gb8h5dr"]
+
+[ext_resource type="Shader" uid="uid://durgw11y1wpv" path="res://shaders/metal.gdshader" id="1_71xtc"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_71xtc")
+shader_parameter/metal_color = Color(0.202455, 0.218244, 0.23403, 1)
+shader_parameter/dark_color = Color(0, 0, 0, 1)
+shader_parameter/metallic_strength = 1.0
+shader_parameter/roughness = 0.947
+shader_parameter/sheet_scale = 100.0
+shader_parameter/scratch_scale = 500.0
+shader_parameter/scratch_strength = 0.0
+shader_parameter/dirt_scale = 59.274
+shader_parameter/dirt_strength = 0.476
+shader_parameter/bump_strength = 0.494

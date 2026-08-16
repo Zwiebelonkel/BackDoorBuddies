@@ -1,0 +1,11 @@
+Model Information:
+* title:	psx fire extinguisher
+* source:	https://sketchfab.com/3d-models/psx-fire-extinguisher-e786b75a860c45c69590403504956a9a
+* author:	zynxeror (https://sketchfab.com/zynxeror)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "psx fire extinguisher" (https://sketchfab.com/3d-models/psx-fire-extinguisher-e786b75a860c45c69590403504956a9a) by zynxeror (https://sketchfab.com/zynxeror) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

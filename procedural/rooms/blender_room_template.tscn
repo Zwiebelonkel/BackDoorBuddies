@@ -1,0 +1,77 @@
+[gd_scene load_steps=8 format=3 uid="uid://c6poerscfnvpk"]
+
+[ext_resource type="Script" uid="uid://d1vxuex7tta84" path="res://procedural/scripts/procedural_room.gd" id="1_room"]
+[ext_resource type="Script" uid="uid://dug7toxweuxoa" path="res://procedural/scripts/room_socket.gd" id="2_socket"]
+[ext_resource type="Script" uid="uid://cis1fejnra0gg" path="res://procedural/scripts/item_spawn_point.gd" id="3_spawn"]
+[ext_resource type="PackedScene" uid="uid://baelow8p2kn74" path="res://procedural/caps/wall_cap.tscn" id="4_cap"]
+[ext_resource type="Resource" uid="uid://demkla716n2os" path="res://procedural/item_tables/common_floor_items.tres" id="5_items"]
+
+[sub_resource type="BoxShape3D" id="FloorCollisionShape"]
+size = Vector3(6, 0.1, 5)
+
+[sub_resource type="BoxShape3D" id="RoomBoundsShape"]
+size = Vector3(5.94, 2.94, 4.94)
+
+[node name="BlenderRoomTemplate" type="Node3D"]
+editor_description = "Duplicate this scene for a Blender room. Instance the imported or inherited visual scene below Visuals, then configure collision, bounds, sockets and item spawn points in Godot."
+script = ExtResource("1_room")
+room_id = &"blender_room"
+minimum_generation_depth = 1
+minimum_items = 1
+
+[node name="Visuals" type="Node3D" parent="."]
+editor_description = "Instance your imported .glb or an inherited visual .tscn here. Keep gameplay nodes outside the imported scene so re-exporting from Blender is safe."
+
+[node name="GameplayCollision" type="StaticBody3D" parent="."]
+editor_description = "Replace or extend these simple collisions in Godot. Keep walkable surfaces on physics layer 1 so item spawn rays can find them."
+collision_mask = 0
+
+[node name="FloorCollision" type="CollisionShape3D" parent="GameplayCollision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+shape = SubResource("FloorCollisionShape")
+
+[node name="RoomBounds" type="Area3D" parent="."]
+editor_description = "Resize this box to the room footprint. Keep it slightly inside shared wall/socket planes to prevent false overlap rejection."
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBounds"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("RoomBoundsShape")
+
+[node name="DoorSockets" type="Node3D" parent="."]
+editor_description = "Place sockets at the centre of each doorway on floor level. A socket's local +Z axis must point out of the room. Delete unused examples."
+
+[node name="SocketNorth" type="Marker3D" parent="DoorSockets"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -2.5)
+script = ExtResource("2_socket")
+socket_type = &"room_door"
+compatible_types = Array[StringName]([&"room_door"])
+cap_scene = ExtResource("4_cap")
+
+[node name="SocketSouth" type="Marker3D" parent="DoorSockets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
+script = ExtResource("2_socket")
+socket_type = &"room_door"
+compatible_types = Array[StringName]([&"room_door"])
+cap_scene = ExtResource("4_cap")
+
+[node name="ItemSpawnPoints" type="Node3D" parent="."]
+editor_description = "Move, duplicate or delete these markers. The downward ray places loot on collision layer 1."
+
+[node name="Floor01" type="Marker3D" parent="ItemSpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.08, 1)
+script = ExtResource("3_spawn")
+spawn_table = ExtResource("5_items")
+
+[node name="Floor02" type="Marker3D" parent="ItemSpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.08, -1)
+script = ExtResource("3_spawn")
+spawn_table = ExtResource("5_items")
+
+[node name="Floor03" type="Marker3D" parent="ItemSpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+script = ExtResource("3_spawn")
+spawn_table = ExtResource("5_items")

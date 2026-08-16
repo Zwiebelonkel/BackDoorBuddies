@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://daujcljsjss32"]
+[gd_scene load_steps=10 format=3 uid="uid://daujcljsjss32"]
 
 [ext_resource type="Script" uid="uid://d1vxuex7tta84" path="res://procedural/scripts/procedural_room.gd" id="1_room"]
 [ext_resource type="Script" uid="uid://dcqytbjftivxl" path="res://procedural/scripts/room_shell.gd" id="2_shell"]
@@ -6,7 +6,8 @@
 [ext_resource type="Script" uid="uid://cis1fejnra0gg" path="res://procedural/scripts/item_spawn_point.gd" id="4_spawn"]
 [ext_resource type="PackedScene" uid="uid://baelow8p2kn74" path="res://procedural/caps/wall_cap.tscn" id="5_cap"]
 [ext_resource type="Resource" uid="uid://demkla716n2os" path="res://procedural/item_tables/common_floor_items.tres" id="6_items"]
-[ext_resource type="PackedScene" path="res://procedural/doors/exit_door.tscn" id="7_exit"]
+[ext_resource type="PackedScene" uid="uid://bgc882x0y1xgx" path="res://procedural/doors/exit_door.tscn" id="7_exit"]
+[ext_resource type="PackedScene" uid="uid://bsmk61t7prtf6" path="res://scenes/props/barrels.tscn" id="8_qngvn"]
 
 [sub_resource type="BoxShape3D" id="RoomBoundsShape"]
 size = Vector3(5.94, 2.94, 4.94)
@@ -88,3 +89,9 @@ transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0.0
 
 [node name="ExitDoor" parent="." instance=ExtResource("7_exit")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
+
+[node name="Barrels" parent="." instance=ExtResource("8_qngvn")]
+transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, 1.89344, -4.84288e-08, 1.93852)
+
+[node name="Barrels2" parent="." instance=ExtResource("8_qngvn")]
+transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, -1.99063, -4.84288e-08, 1.93852)

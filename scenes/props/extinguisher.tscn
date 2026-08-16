@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://bbueg0ypcaaux"]
+
+[ext_resource type="PackedScene" uid="uid://csxtchs1dyaxm" path="res://models/fireextinguisher/scene.gltf" id="1_mpqdv"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_rwhct"]
+[ext_resource type="Texture2D" uid="uid://dfokv1uc33vdp" path="res://models/fireextinguisher/textures/material_0_baseColor.png" id="3_jr60a"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_foses"]
+render_priority = 0
+shader = ExtResource("2_rwhct")
+shader_parameter/albedo = ExtResource("3_jr60a")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[node name="Extinguisher" type="Node3D"]
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_mpqdv")]
+transform = Transform3D(0.26, 0, 0, 0, 0.26, 0, 0, 0, 0.26, 0, 0, 0)
+
+[node name="Object_6" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/_6/root_5/tank_0" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_foses")
+
+[node name="Object_8" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/_6/root_5/valve assembly_1" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_foses")
+
+[node name="Object_10" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/_6/root_5/handle_2" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_foses")
+
+[node name="Object_12" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/_6/root_5/release lever_3" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_foses")
+
+[node name="Object_14" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/_6/root_5/hose_4" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_foses")
+
+[editable path="Sketchfab_Scene"]

@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/items/PickupItem.tscn" id="1_pickup"]
+
+[sub_resource type="BoxShape3D" id="Shape_note"]
+size = Vector3(0.36, 0.1, 0.27)
+
+[node name="TargetClueNotePickup" instance=ExtResource("1_pickup")]
+collision_layer = 4
+collision_mask = 0
+rotate_model = false
+floating_enabled = false
+
+[node name="CollisionShape3D" parent="." index="1"]
+shape = SubResource("Shape_note")

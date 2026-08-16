@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://eabswffi3p10"]
+
+[ext_resource type="PackedScene" uid="uid://6rung1eddhoj" path="res://scenes/items/PickupItem.tscn" id="1_pickup"]
+[ext_resource type="Resource" uid="uid://coin4ob62uxg4" path="res://resources/items/sniper.tres" id="2_item"]
+
+[node name="SniperPickup" instance=ExtResource("1_pickup")]
+collision_layer = 4
+collision_mask = 0
+item_data = ExtResource("2_item")

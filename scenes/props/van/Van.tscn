@@ -1,8 +1,33 @@
-[gd_scene load_steps=8 format=3 uid="uid://byeosjjl5c1lv"]
+[gd_scene load_steps=16 format=3 uid="uid://byeosjjl5c1lv"]
 
 [ext_resource type="PackedScene" uid="uid://c5dk5vmdthen6" path="res://models/van/van.glb" id="1_2b7gi"]
 [ext_resource type="PackedScene" uid="uid://cyj3ajyb24yvq" path="res://scenes/props/van/Minimap.tscn" id="2_minimap"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="3_eilr7"]
 [ext_resource type="PackedScene" uid="uid://wfdehkst801e" path="res://scenes/props/van/ItemOverview.tscn" id="3_overview"]
+[ext_resource type="Script" path="res://scenes/props/van/van_controller.gd" id="4_controller"]
+[ext_resource type="Script" path="res://scenes/props/van/driver_interaction.gd" id="5_interaction"]
+[ext_resource type="PackedScene" uid="uid://bh5hdaqd481ik" path="res://scenes/props/van/CameraMonitor.tscn" id="6_camera_monitor"]
+[ext_resource type="PackedScene" path="res://scenes/props/van/TargetDisplay.tscn" id="7_target_display"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_alnhy"]
+render_priority = 0
+shader = ExtResource("3_eilr7")
+shader_parameter/albedo_color = Color(0.18359, 0.18359, 0.18359, 1)
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1e3l7"]
+render_priority = 0
+shader = ExtResource("3_eilr7")
+shader_parameter/albedo_color = Color(1.92523e-06, 0.648379, 0.149837, 1)
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cargo"]
 size = Vector3(2.9, 2.15, 1.4)
@@ -16,15 +41,95 @@ size = Vector3(4.75238, 0.112366, 1.3967)
 [sub_resource type="BoxShape3D" id="BoxShape3D_e5jmm"]
 size = Vector3(1.59471, 1.85303, 1.3967)
 
-[node name="Van" type="Node3D"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_driver_interaction"]
+size = Vector3(1.3, 1.8, 0.45)
+
+[node name="Van" type="CharacterBody3D"]
+script = ExtResource("4_controller")
+steering_speed_degrees = 65.0
 
 [node name="van" parent="." instance=ExtResource("1_2b7gi")]
+
+[node name="Shvan92_Blinkers_UCB_Lights_and_Glass_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Blinkers/Object_52" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Body_Shvan92_bodymat_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Body/Object_16" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Body_Badges_Carbadges_misc_U_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Body_Badges/Object_73" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Body_glass_UCB_Lights_and_Glass_Transperent_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Body_glass/Object_25" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Bottom_UCB_BOTTOM_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Bottom/Object_37" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Brakelights_UCB_Lights_and_Glass_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Brakelights/Object_34" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Bumper_front_UCB_BOTTOM_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Bumper_front/Object_19" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Bumper_rear_UCB_BOTTOM_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Bumper_rear/Object_4" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Glass_Driver_UCB_Lights_and_Glass_Transperent_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Glass_Driver/Object_40" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Glass_Passanger_UCB_Lights_and_Glass_Transperent_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Glass_Passanger/Object_43" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Headlights_UCB_Lights_and_Glass_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Headlights/Object_49" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Headlights_Glass_UCB_Lights_and_Glass_Transperent_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Headlights_Glass/Object_22" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_1e3l7")
+
+[node name="Shvan92_Hood_Shvan92_bodymat_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Hood/Object_28" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Interior_UCB_Interiors_1_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Interior/Object_13" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Numberplate_front_Numberplates_Misk_U_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Numberplate_front/Object_67" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Numberplate_rear_Numberplates_Misk_U_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Numberplate_rear/Object_70" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Reverse_UCB_Lights_and_Glass_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Reverse/Object_31" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Steering_Wheel_UCB_Interiors_1_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Steering/Object_46" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_Suspension_UCB_BOTTOM_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Suspension/Object_10" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_WheelStock_FL_RB1c_Tire_1k_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_WheelStock_FL/Object_55" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_WheelStock_FR_RB1c_Tire_1k_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_WheelStock_FR/Object_61" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_WheelStock_RL_RB1c_Tire_1k_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_WheelStock_RL/Object_58" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
+
+[node name="Shvan92_WheelStock_RL_RB1c_Tire_1k_0_001" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_WheelStock_RL_001/Object_64" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
 
 [node name="Minimap" parent="." instance=ExtResource("2_minimap")]
 transform = Transform3D(-1.02722e-08, 0, 0.291, 0.0337167, 0.316689, 1.82501e-09, -0.232569, 0.0459121, -1.25884e-08, 0, 1.45, -0.824)
 
 [node name="ItemOverview" parent="." instance=ExtResource("3_overview")]
 transform = Transform3D(-1.01672e-08, 1.98881e-09, -0.292, 0.0335178, 0.315739, 0, 0.232597, -0.0454986, -1.27637e-08, 0, 1.45, 0.843022)
+
+[node name="CameraMonitor" parent="." instance=ExtResource("6_camera_monitor")]
+transform = Transform3D(-1.01672e-08, 1.98881e-09, -0.292, 0.0335178, 0.315739, 0, 0.232597, -0.0454986, -1.27637e-08, -1.01335, 1.45, 0.792498)
+
+[node name="TargetDisplay" parent="." instance=ExtResource("7_target_display")]
+transform = Transform3D(-1.02722e-08, 0, 0.291, 0.0337167, 0.316689, 1.82501e-09, -0.232569, 0.0459121, -1.25884e-08, -1.01335, 1.45, -0.792498)
 
 [node name="CargoArea" type="Area3D" parent="." groups=["van_item_zone"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 1.57, 0.05)
@@ -36,34 +141,51 @@ monitorable = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CargoArea"]
 shape = SubResource("BoxShape3D_cargo")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CargoFloorCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0104065, 0.509698, 0.052887)
 shape = SubResource("BoxShape3D_2b7gi")
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="RoofCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0104065, 2.85659, 0.052887)
 shape = SubResource("BoxShape3D_2b7gi")
 
-[node name="StaticBody3D2" type="StaticBody3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2"]
+[node name="LeftWallCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0104065, 1.16147, 0.932861)
 shape = SubResource("BoxShape3D_jaefu")
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D2"]
+[node name="RightWallCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0104065, 1.16147, -0.832733)
 shape = SubResource("BoxShape3D_jaefu")
 
-[node name="StaticBody3D3" type="StaticBody3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D3"]
+[node name="FrontWallCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 1.56219, 1.16147, 0.0359195)
 shape = SubResource("BoxShape3D_e5jmm")
 
+[node name="DriverInteraction" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 1.2, -1.08)
+collision_mask = 0
+monitoring = false
+script = ExtResource("5_interaction")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DriverInteraction"]
+shape = SubResource("BoxShape3D_driver_interaction")
+
+[node name="DriverSeat" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.21804, 0.450611, -0.42)
+
+[node name="DriverExit" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 0.1, -1.45)
+
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.46659, 1.22545, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.543401, 1.22545, 0)
 light_color = Color(0, 1, 0, 1)
 light_energy = 2.011
-omni_range = 4096.0
+omni_range = 2.254
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.547135, 1.22545, 0)
+light_color = Color(0, 1, 0, 1)
+light_energy = 2.011
+omni_range = 2.254
+
+[editable path="van"]

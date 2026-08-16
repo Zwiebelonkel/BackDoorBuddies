@@ -1,6 +1,8 @@
 class_name PickupItem
 extends Area3D
 
+const OUTLINE_SHADER := preload("res://shaders/outline.gdshader")
+
 @export_group("Item")
 @export var item_data: ItemData:
 	set(value):
@@ -13,6 +15,10 @@ extends Area3D
 @export var pickup_distance: float = 3.5
 @export var can_be_picked_up: bool = true
 @export var initial_pickup_delay: float = 0.35
+
+@export_group("Vehicle Cargo")
+@export var van_attached := false
+@export var van_local_transform := Transform3D.IDENTITY
 
 @export_group("Animation")
 @export var rotate_model: bool = false
@@ -29,6 +35,9 @@ var _was_picked_up := false
 var _start_model_position := Vector3.ZERO
 var _floating_time := 0.0
 var use_initial_pickup_delay := false
+var _is_hovered := false
+var _outline_material: ShaderMaterial
+var _previous_material_overlays: Dictionary = {}
 
 
 func _ready() -> void:
@@ -94,13 +103,93 @@ func _apply_item_data() -> void:
 
 	pickup_audio.stream = item_data.pickup_sound
 
+	if _is_hovered:
+		_apply_hover_outline()
+
 
 func _clear_current_model() -> void:
 	if _model_instance == null:
 		return
 
+	_remove_hover_outline()
 	_model_instance.queue_free()
 	_model_instance = null
+
+
+func set_hovered(hovered: bool) -> void:
+	if _is_hovered == hovered:
+		return
+
+	_is_hovered = hovered
+
+	if _is_hovered:
+		_apply_hover_outline()
+	else:
+		_remove_hover_outline()
+
+
+func _apply_hover_outline() -> void:
+	if _model_instance == null:
+		return
+
+	if _outline_material == null:
+		_outline_material = ShaderMaterial.new()
+		_outline_material.shader = OUTLINE_SHADER
+		_outline_material.set_shader_parameter(
+			"outline_color",
+			Color(0.0, 1.0, 0.0352941, 1.0)
+		)
+		_outline_material.set_shader_parameter("thickness", 0.04)
+		_outline_material.set_shader_parameter("outline_energy", 4.0)
+		_outline_material.set_shader_parameter("outline_transparency", 1.0)
+		_outline_material.set_shader_parameter("merge_group", true)
+		_outline_material.set_shader_parameter("merge_depth_range", 0.1)
+
+	_previous_material_overlays.clear()
+
+	for child in _model_instance.find_children(
+		"*",
+		"MeshInstance3D",
+		true,
+		false
+	):
+		var mesh_instance := child as MeshInstance3D
+		_previous_material_overlays[mesh_instance] = mesh_instance.material_overlay
+		mesh_instance.material_overlay = _outline_material
+
+
+func _remove_hover_outline() -> void:
+	for mesh_variant in _previous_material_overlays:
+		var mesh_instance := mesh_variant as MeshInstance3D
+
+		if is_instance_valid(mesh_instance):
+			mesh_instance.material_overlay = _previous_material_overlays[mesh_variant]
+
+	_previous_material_overlays.clear()
+
+
+func attach_to_van(van_transform: Transform3D) -> void:
+	if not multiplayer.is_server() or van_attached:
+		return
+
+	van_local_transform = (
+		van_transform.affine_inverse()
+		* global_transform
+	)
+	van_attached = true
+
+
+func detach_from_van() -> void:
+	if not multiplayer.is_server():
+		return
+
+	van_attached = false
+	van_local_transform = Transform3D.IDENTITY
+
+
+func apply_van_transform(van_transform: Transform3D) -> void:
+	if van_attached:
+		global_transform = van_transform * van_local_transform
 	
 func request_pickup() -> void:
 	if not can_be_picked_up:

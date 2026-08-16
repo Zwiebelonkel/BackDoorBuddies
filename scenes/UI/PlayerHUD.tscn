@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dekujcoi2xbfv"]
+[gd_scene load_steps=16 format=3 uid="uid://dekujcoi2xbfv"]
 
 [ext_resource type="Script" uid="uid://co41cyy75txyx" path="res://scripts/PlayerHUD.gd" id="1_lc2f8"]
 [ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="2_0fkfg"]
@@ -31,6 +31,25 @@ outline_color = Color(0, 0, 0, 0.9)
 font_color = Color(0.55, 0.85, 0.62, 1)
 outline_size = 3
 outline_color = Color(0, 0, 0, 0.8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_background"]
+bg_color = Color(0.04, 0.018, 0.018, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.08, 0.07, 0.9)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_fill"]
+bg_color = Color(0.82, 0.08, 0.055, 0.95)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_background"]
 bg_color = Color(0.025, 0.035, 0.03, 0.95)
@@ -84,15 +103,15 @@ shader_parameter/exposure = 1.0
 shader_parameter/contrast = 1.1
 shader_parameter/saturation = 1.12
 shader_parameter/enable_pixelate = true
-shader_parameter/pixel_factor = 3.0
+shader_parameter/pixel_factor = 2.512
 shader_parameter/enable_posterize = true
-shader_parameter/color_levels = 16.0
-shader_parameter/dither_strength = 0.35
+shader_parameter/color_levels = 14.207
+shader_parameter/dither_strength = 0.75
 shader_parameter/chrom_aberration = 0.054
 shader_parameter/vignette_strength = 2.0
 shader_parameter/grain_strength = 0.0
 shader_parameter/tint_color = Vector3(0.95, 1.03, 0.9)
-shader_parameter/tint_strength = 0.15
+shader_parameter/tint_strength = 0.345
 shader_parameter/viewport_size_override = Vector2(0, 0)
 
 [node name="PlayerHUD" type="CanvasLayer"]
@@ -128,7 +147,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bar")
 [node name="StatusPanel" type="PanelContainer" parent="Root"]
 layout_mode = 1
 offset_right = 230.0
-offset_bottom = 122.0
+offset_bottom = 166.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_bar")
 
@@ -151,6 +170,22 @@ theme_override_font_sizes/font_size = 16
 text = "WERT  $0"
 label_settings = SubResource("LabelSettings_item_name")
 
+[node name="HealthLabel" type="Label" parent="Root/StatusPanel/StatusContent"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 14
+text = "LEBEN  100 / 100"
+label_settings = SubResource("LabelSettings_number")
+
+[node name="HealthBar" type="ProgressBar" parent="Root/StatusPanel/StatusContent"]
+custom_minimum_size = Vector2(210, 16)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_health_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_health_fill")
+value = 100.0
+show_percentage = false
+
 [node name="StaminaLabel" type="Label" parent="Root/StatusPanel/StatusContent"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_0fkfg")
@@ -166,6 +201,39 @@ theme_override_styles/background = SubResource("StyleBoxFlat_stamina_background"
 theme_override_styles/fill = SubResource("StyleBoxFlat_stamina_fill")
 value = 100.0
 show_percentage = false
+
+[node name="PerformancePanel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -222.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 52.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bar")
+
+[node name="PerformanceContent" type="HBoxContainer" parent="Root/PerformancePanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="FPSLabel" type="Label" parent="Root/PerformancePanel/PerformanceContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 0.62, 1)
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 14
+text = "FPS  --"
+
+[node name="PingLabel" type="Label" parent="Root/PerformancePanel/PerformanceContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 0.62, 1)
+theme_override_fonts/font = ExtResource("2_0fkfg")
+theme_override_font_sizes/font_size = 14
+text = "PING  -- MS"
 
 [node name="InventoryBar" type="HBoxContainer" parent="Root"]
 layout_mode = 1

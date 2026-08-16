@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=5 format=3 uid="uid://coin4ob62uxg4"]
+
+[ext_resource type="Script" uid="uid://dv3vf8bsc4qul" path="res://resources/items/ItemData.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://0v6ho1wwpcjt" path="res://scenes/items/sniper_model.tscn" id="2_world"]
+[ext_resource type="PackedScene" uid="uid://bdq7555e851o2" path="res://scenes/items/held/SniperHeld.tscn" id="3_held"]
+[ext_resource type="Texture2D" uid="uid://b0shyk633qv50" path="res://resources/items/sniper_icon.svg" id="4_icon"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = &"sniper"
+display_name = "SNIPER"
+description = "Repetiergewehr mit 8-fach-Zielfernrohr."
+world_model = ExtResource("2_world")
+icon = ExtResource("4_icon")
+model_scale = Vector3(0.72, 0.72, 0.72)
+model_rotation_degrees = Vector3(0, 0, 90)
+model_offset = Vector3(0, 0.08, 0)
+held_model = ExtResource("3_held")
+held_scale = Vector3(0.78, 0.78, 0.78)
+held_rotation_degrees = Vector3(0, 0, 102.46)
+held_offset = Vector3(0.445, -0.23, 0.1)
+value = 3200
+weight = 5.5
+is_large_item = false
+stackable = false
+max_stack = 1
+is_mission_clue = false
+target_clue_type = &""
+interaction_text = "Sniper aufheben"

@@ -46,7 +46,7 @@ horizontal_alignment = 1
 
 [node name="HostButton" type="Button" parent="MenuPanel/VBoxContainer"]
 layout_mode = 2
-text = "Host Game"
+text = "Lobby hosten"
 
 [node name="OptionsButton" type="Button" parent="MenuPanel/VBoxContainer"]
 layout_mode = 2

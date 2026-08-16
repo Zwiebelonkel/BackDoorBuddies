@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://dlpia2g2luvxm"]
+
+[ext_resource type="PackedScene" uid="uid://bsn7shftab6vh" path="res://models/buildings/2/scene.gltf" id="1_8o7a0"]
+[ext_resource type="Shader" uid="uid://horj2bp6ggy6" path="res://models/tablet/jitter.gdshader" id="2_ljrai"]
+[ext_resource type="Texture2D" uid="uid://coxklb8ojsxs2" path="res://models/buildings/2/textures/lambert2_baseColor.jpeg" id="3_ayaai"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vttfp"]
+render_priority = 0
+shader = ExtResource("2_ljrai")
+shader_parameter/snap_resolution = 166.707
+shader_parameter/albedo_texture = ExtResource("3_ayaai")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8o7a0"]
+size = Vector3(1.59528, 25.962, 1.07288)
+
+[node name="WhiteApartment" type="Node3D"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_8o7a0")]
+transform = Transform3D(3.485, 0, 0, 0, 3.485, 0, 0, 0, 3.485, -0.0309545, 0, 0.027576)
+
+[node name="pCube1_lambert2_0" parent="Sketchfab_Scene/Sketchfab_model/ebb26bda2c764bf088062024da07fb3a_fbx/RootNode/pCube1" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_vttfp")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1.19903, 0, 0, 0, 0.0960273, -1.94819e-16, 0, 2.13223e-17, 0.877386, -0.0309545, 0.111865, 0.027576)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.270843, 12.481, -0.00408937)
+shape = SubResource("BoxShape3D_8o7a0")
+
+[editable path="Sketchfab_Scene"]

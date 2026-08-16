@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dqv3ewpthkscg"]
+[gd_scene load_steps=13 format=3 uid="uid://dqv3ewpthkscg"]
 
 [ext_resource type="Script" uid="uid://d1vxuex7tta84" path="res://procedural/scripts/procedural_room.gd" id="1_room"]
 [ext_resource type="Script" uid="uid://dcqytbjftivxl" path="res://procedural/scripts/room_shell.gd" id="2_shell"]
@@ -7,9 +7,31 @@
 [ext_resource type="PackedScene" uid="uid://baelow8p2kn74" path="res://procedural/caps/wall_cap.tscn" id="5_cap"]
 [ext_resource type="Resource" uid="uid://demkla716n2os" path="res://procedural/item_tables/common_floor_items.tres" id="6_common"]
 [ext_resource type="Resource" uid="uid://4n14xyt4nbyd" path="res://procedural/item_tables/valuable_items.tres" id="7_valuable"]
+[ext_resource type="PackedScene" uid="uid://dbw5mtdsg62c7" path="res://models/TV/tv.glb" id="8_t37wt"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="9_w565h"]
 
 [sub_resource type="BoxShape3D" id="RoomBoundsShape"]
 size = Vector3(4.94, 2.94, 4.94)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_t37wt"]
+render_priority = 0
+shader = ExtResource("9_w565h")
+shader_parameter/albedo_color = Color(0.347817, 0.347817, 0.347817, 1)
+shader_parameter/jitter = 0.665
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w565h"]
+render_priority = 0
+shader = ExtResource("9_w565h")
+shader_parameter/albedo_color = Color(0.215902, 0.215902, 0.215902, 1)
+shader_parameter/jitter = 0.677
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
 [node name="Bedroom" type="Node3D"]
 script = ExtResource("1_room")
@@ -77,3 +99,12 @@ spawn_table = ExtResource("6_common")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 0.08, 1.2)
 script = ExtResource("4_spawn")
 spawn_table = ExtResource("7_valuable")
+
+[node name="tv" parent="." instance=ExtResource("8_t37wt")]
+transform = Transform3D(-1.00536e-08, 0, 0.23, 0, 0.23, 0, -0.23, 0, -1.00536e-08, -0.404995, -0.707178, 0.227214)
+
+[node name="Cube_008" parent="tv" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_t37wt")
+surface_material_override/1 = SubResource("ShaderMaterial_w565h")
+
+[editable path="tv"]

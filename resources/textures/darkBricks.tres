@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://ctpygeog7ypqd"]
+
+[ext_resource type="Shader" uid="uid://cvw74bs46075a" path="res://shaders/brick.gdshader" id="1_thocw"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_thocw")
+shader_parameter/noise_scale = 699.865
+shader_parameter/brick_scale = Vector2(90.23, 47.47)
+shader_parameter/mortar_width_x = 0.034
+shader_parameter/mortar_width_y = 0.08
+shader_parameter/brick_color = Color(0.35, 0.35, 0.35, 1)
+shader_parameter/brick_color2 = Color(0.252028, 0.252028, 0.252028, 1)
+shader_parameter/mortar_joint_color = Color(0, 0, 0, 1)
