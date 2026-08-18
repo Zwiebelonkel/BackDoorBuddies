@@ -126,6 +126,21 @@ theme_override_fonts/font = ExtResource("2_ijpji")
 text = "100%"
 horizontal_alignment = 2
 
+[node name="HideOwnBodyRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions"]
+layout_mode = 2
+
+[node name="HideOwnBodyLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/HideOwnBodyRow"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "First-Person Body"
+
+[node name="HideOwnBodyCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/HideOwnBodyRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Arms Only"
+
 [node name="GeneralHint" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.7, 0.68, 1)
@@ -342,6 +357,7 @@ text = "EXIT TO MAIN MENU"
 
 [connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/VolumeRow/VolumeSlider" to="." method="_on_volume_slider_value_changed"]
 [connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/LookSensitivityRow/LookSensitivitySlider" to="." method="_on_look_sensitivity_slider_value_changed"]
+[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/HideOwnBodyRow/HideOwnBodyCheckBox" to="." method="_on_hide_own_body_check_box_toggled"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/PerformancePresetButton" to="." method="_on_performance_preset_button_pressed"]
 [connection signal="value_changed" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FpsRow/FpsSpinBox" to="." method="_on_fps_spin_box_value_changed"]
 [connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FullscreenRow/FullscreenCheckBox" to="." method="_on_fullscreen_check_box_toggled"]

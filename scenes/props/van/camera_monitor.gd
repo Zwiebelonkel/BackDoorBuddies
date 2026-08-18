@@ -15,6 +15,7 @@ extends Node3D
 var _sources: Array[Node] = []
 var _source_index: int = -1
 var _active_viewer: FPSController = null
+var _hidden_player_source: FPSController = null
 var _refresh_time_remaining := 0.0
 var _fog_free_environment: Environment
 
@@ -41,6 +42,7 @@ func _process(delta: float) -> void:
 		is_instance_valid(_active_viewer)
 		and not _active_viewer.is_using_camera_monitor(self)
 	):
+		_set_hidden_player_source(null)
 		_active_viewer = null
 		_set_feed_spotlight_enabled(false)
 
@@ -83,6 +85,7 @@ func refresh_cameras() -> void:
 		_source_index = 0
 
 	_update_overlay()
+	_sync_hidden_player_source()
 	_set_feed_spotlight_enabled(is_instance_valid(_active_viewer))
 
 
@@ -102,6 +105,7 @@ func begin_view(player: FPSController) -> bool:
 		return false
 
 	_active_viewer = player
+	_sync_hidden_player_source()
 	_set_feed_spotlight_enabled(true)
 	return true
 
@@ -110,6 +114,7 @@ func end_view(player: FPSController) -> void:
 	if _active_viewer != player:
 		return
 
+	_set_hidden_player_source(null)
 	_active_viewer = null
 	_set_feed_spotlight_enabled(false)
 
@@ -199,6 +204,7 @@ func _change_source(direction: int) -> void:
 
 	_source_index = posmod(_source_index + direction, _sources.size())
 	_update_overlay()
+	_sync_hidden_player_source()
 	_update_feed()
 
 
@@ -264,12 +270,44 @@ func _get_source_label(source: Node) -> String:
 
 func _update_feed() -> void:
 	var current_source := _get_current_source()
+	_sync_hidden_player_source()
 
 	if current_source == null:
 		return
 
 	feed_camera.global_transform = _get_source_transform(current_source)
 	feed_camera.fov = _get_source_fov(current_source)
+
+
+func _sync_hidden_player_source() -> void:
+	var player_source := _get_current_source() as FPSController
+	var desired_source := (
+		player_source
+		if (
+			is_instance_valid(_active_viewer)
+			and player_source != null
+			and player_source != _active_viewer
+		)
+		else null
+	)
+	_set_hidden_player_source(desired_source)
+
+
+func _set_hidden_player_source(player: FPSController) -> void:
+	if _hidden_player_source == player:
+		return
+
+	if is_instance_valid(_hidden_player_source):
+		_hidden_player_source.set_camera_monitor_model_hidden(false)
+
+	_hidden_player_source = player
+
+	if is_instance_valid(_hidden_player_source):
+		_hidden_player_source.set_camera_monitor_model_hidden(true)
+
+
+func _exit_tree() -> void:
+	_set_hidden_player_source(null)
 
 
 func _update_overlay() -> void:

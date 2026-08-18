@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://bbueg0ypcaaux"]
+
+[ext_resource type="PackedScene" uid="uid://bnyq0r4n058x5" path="res://models/crate/scene.gltf" id="1_ou5ok"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_rc6k0"]
+[ext_resource type="Texture2D" uid="uid://cujffkjb11sh1" path="res://models/crate/textures/Material_baseColor.png" id="3_rc6k0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jr60a"]
+render_priority = 0
+shader = ExtResource("2_rc6k0")
+shader_parameter/albedo = ExtResource("3_rc6k0")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/jitter = 0.579
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cb6ia"]
+size = Vector3(1.5592, 1.67969, 1.5968)
+
+[node name="Crate" type="Node3D"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+
+[node name="model" parent="." instance=ExtResource("1_ou5ok")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0361, 0)
+
+[node name="Object_4" parent="model/Sketchfab_model/root/GLTF_SceneRootNode/Cube_0" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_jr60a")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0222778, 0.842773, -0.027771)
+shape = SubResource("BoxShape3D_cb6ia")
+
+[editable path="model"]

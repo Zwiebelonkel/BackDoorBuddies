@@ -32,6 +32,30 @@ animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
-_subresources={}
+_subresources={
+"nodes": {
+"PATH:Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Cardboard_box_01": {
+"import/skip_import": true
+},
+"PATH:Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Cardboard_box_02": {
+"import/skip_import": true
+},
+"PATH:Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Cardboard_box_03": {
+"import/skip_import": true
+},
+"PATH:Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Cardboard_box_04": {
+"import/skip_import": true
+},
+"PATH:Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Storage_Shelves_02": {
+"import/skip_import": true
+},
+"PATH:Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Storage_Shelves_03": {
+"import/skip_import": true
+},
+"PATH:Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Storage_Shelves_04": {
+"import/skip_import": true
+}
+}
+}
 gltf/naming_version=1
 gltf/embedded_image_handling=1

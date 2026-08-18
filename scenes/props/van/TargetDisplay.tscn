@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://bwde25yxrieb"]
 
 [ext_resource type="Script" path="res://scenes/props/van/target_display.gd" id="1_display"]
 [ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="2_font"]
+[ext_resource type="PackedScene" uid="uid://4xwkc03ckadr" path="res://models/rahmen/rahmen.glb" id="2_npbju"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_screen"]
 
@@ -14,7 +15,6 @@ mesh = SubResource("PlaneMesh_screen")
 
 [node name="SubViewport" type="SubViewport" parent="."]
 disable_3d = true
-size = Vector2i(512, 512)
 render_target_update_mode = 4
 
 [node name="Interface" type="Control" parent="SubViewport"]
@@ -184,3 +184,6 @@ theme_override_font_sizes/font_size = 17
 text = "HINWEISE IN DEN VAN BRINGEN"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="rahmen" parent="." instance=ExtResource("2_npbju")]
+transform = Transform3D(1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0, 0, 0)

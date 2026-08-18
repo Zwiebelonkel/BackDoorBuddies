@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dyi2y17vhtx0r"]
+[gd_scene load_steps=15 format=3 uid="uid://dyi2y17vhtx0r"]
 
 [ext_resource type="PackedScene" uid="uid://bgc882x0y1xgx" path="res://procedural/doors/exit_door.tscn" id="1_door"]
 [ext_resource type="PackedScene" uid="uid://byeosjjl5c1lv" path="res://scenes/props/van/Van.tscn" id="2_van"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://b02eoeo1e2rrd" path="res://models/street/scene.gltf" id="5_getr1"]
 [ext_resource type="Material" uid="uid://dtdvt6gb8h5dr" path="res://resources/textures/metal.tres" id="6_metal"]
 [ext_resource type="Material" uid="uid://ctpygeog7ypqd" path="res://resources/textures/darkBricks.tres" id="7_bricks"]
+[ext_resource type="PackedScene" uid="uid://bmijtjdkv4tlf" path="res://scenes/props/fence.tscn" id="8_43sax"]
 
 [sub_resource type="BoxMesh" id="FloorMesh"]
 material = ExtResource("6_metal")
@@ -47,10 +48,6 @@ mesh = SubResource("EastWestWallMesh")
 
 [node name="WestWall" type="MeshInstance3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.3797, 2.5, 10.227)
-mesh = SubResource("EastWestWallMesh")
-
-[node name="WestWall2" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.2886, 2.5, -15.8926)
 mesh = SubResource("EastWestWallMesh")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
@@ -109,3 +106,9 @@ transform = Transform3D(0.09, 0, 0, 0, 0.09, 0, 0, 0, 0.09, -8.99561, 0.150074, 
 
 [node name="Sketchfab_Scene2" parent="." instance=ExtResource("5_getr1")]
 transform = Transform3D(-0.09, 0, -7.86805e-09, 0, 0.09, 0, 7.86805e-09, 0, -0.09, -29.5356, 0.150074, 5.71148)
+
+[node name="fence" parent="." instance=ExtResource("8_43sax")]
+transform = Transform3D(-3.40949e-08, 0, 0.78, 0, 0.78, 0, -0.78, 0, -3.40949e-08, -2.19068, 0.0187733, -8.1673)
+
+[node name="fence2" parent="." instance=ExtResource("8_43sax")]
+transform = Transform3D(-3.40949e-08, 0, -0.78, 0, 0.78, 0, 0.78, 0, -3.40949e-08, 1.61929, 0.0187733, -8.1673)

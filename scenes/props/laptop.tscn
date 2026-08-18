@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3 uid="uid://lt2xc2x8pqhq"]
+
+[ext_resource type="PackedScene" uid="uid://hg3xmhuoix3t" path="res://models/laptop/scene.gltf" id="1_80j2p"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_202oy"]
+[ext_resource type="Texture2D" uid="uid://buspwukl0djao" path="res://models/laptop/textures/Material_baseColor.png" id="3_202oy"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5n7qh"]
+render_priority = 0
+shader = ExtResource("2_202oy")
+shader_parameter/albedo = ExtResource("3_202oy")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/jitter = 0.677
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[node name="Laptop" type="Node3D"]
+transform = Transform3D(0.18, 0, 0, 0, 0.18, 0, 0, 0, 0.18, 0, 0, 0)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_80j2p")]
+
+[node name="Object_4" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/Monitor_0" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_5n7qh")
+
+[node name="Object_5" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/Monitor_0" index="1"]
+surface_material_override/0 = SubResource("ShaderMaterial_5n7qh")
+
+[node name="Object_7" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/keyboard_1" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_5n7qh")
+
+[editable path="Sketchfab_Scene"]

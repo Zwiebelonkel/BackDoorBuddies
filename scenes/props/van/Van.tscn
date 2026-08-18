@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://scenes/props/van/van_controller.gd" id="4_controller"]
 [ext_resource type="Script" path="res://scenes/props/van/driver_interaction.gd" id="5_interaction"]
 [ext_resource type="PackedScene" uid="uid://bh5hdaqd481ik" path="res://scenes/props/van/CameraMonitor.tscn" id="6_camera_monitor"]
-[ext_resource type="PackedScene" path="res://scenes/props/van/TargetDisplay.tscn" id="7_target_display"]
+[ext_resource type="PackedScene" uid="uid://bwde25yxrieb" path="res://scenes/props/van/TargetDisplay.tscn" id="7_target_display"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_alnhy"]
 render_priority = 0
@@ -72,12 +72,6 @@ surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
 surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
 
 [node name="Shvan92_Bumper_rear_UCB_BOTTOM_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Bumper_rear/Object_4" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
-
-[node name="Shvan92_Glass_Driver_UCB_Lights_and_Glass_Transperent_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Glass_Driver/Object_40" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
-
-[node name="Shvan92_Glass_Passanger_UCB_Lights_and_Glass_Transperent_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Glass_Passanger/Object_43" index="0"]
 surface_material_override/0 = SubResource("ShaderMaterial_alnhy")
 
 [node name="Shvan92_Headlights_UCB_Lights_and_Glass_0" parent="van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Headlights/Object_49" index="0"]

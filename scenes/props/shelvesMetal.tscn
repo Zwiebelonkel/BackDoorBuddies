@@ -1,0 +1,67 @@
+[gd_scene load_steps=6 format=3 uid="uid://cygqn7l4udb0v"]
+
+[ext_resource type="PackedScene" uid="uid://b7nrahpnxhso2" path="res://models/shelvesMetal/scene.gltf" id="1_dyvk3"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_xk40b"]
+[ext_resource type="Texture2D" uid="uid://cd1bvf2bc85kw" path="res://models/shelvesMetal/textures/material_0_baseColor.png" id="3_xk40b"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_opvls"]
+render_priority = 0
+shader = ExtResource("2_xk40b")
+shader_parameter/albedo = ExtResource("3_xk40b")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/jitter = 0.61
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dyvk3"]
+size = Vector3(2.9834, 0.064209, 1)
+
+[node name="ShelvesMetal" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1_dyvk3")]
+
+[node name="Object_7" parent="Model/Sketchfab_model/root/GLTF_SceneRootNode/_11/root_10/shelves_4/shelf1_0" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_opvls")
+
+[node name="Object_9" parent="Model/Sketchfab_model/root/GLTF_SceneRootNode/_11/root_10/shelves_4/shelf2_1" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_opvls")
+
+[node name="Object_11" parent="Model/Sketchfab_model/root/GLTF_SceneRootNode/_11/root_10/shelves_4/shelf3_2" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_opvls")
+
+[node name="Object_13" parent="Model/Sketchfab_model/root/GLTF_SceneRootNode/_11/root_10/shelves_4/shelf4_3" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_opvls")
+
+[node name="Object_16" parent="Model/Sketchfab_model/root/GLTF_SceneRootNode/_11/root_10/legs_9/leg1_5" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_opvls")
+
+[node name="Object_18" parent="Model/Sketchfab_model/root/GLTF_SceneRootNode/_11/root_10/legs_9/leg2_6" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_opvls")
+
+[node name="Object_20" parent="Model/Sketchfab_model/root/GLTF_SceneRootNode/_11/root_10/legs_9/leg4_7" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_opvls")
+
+[node name="Object_22" parent="Model/Sketchfab_model/root/GLTF_SceneRootNode/_11/root_10/legs_9/leg3_8" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_opvls")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00341797, 0.21814, 0)
+shape = SubResource("BoxShape3D_dyvk3")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00341797, 0.904379, 0)
+shape = SubResource("BoxShape3D_dyvk3")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00341797, 1.58564, 0)
+shape = SubResource("BoxShape3D_dyvk3")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00341797, 2.27686, 0)
+shape = SubResource("BoxShape3D_dyvk3")
+
+[editable path="Model"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://ivlf8ca0xdbq"]
+[gd_scene load_steps=9 format=3 uid="uid://ivlf8ca0xdbq"]
 
 [ext_resource type="Script" uid="uid://d1vxuex7tta84" path="res://procedural/scripts/procedural_room.gd" id="1_room"]
 [ext_resource type="Script" uid="uid://dcqytbjftivxl" path="res://procedural/scripts/room_shell.gd" id="2_shell"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://cis1fejnra0gg" path="res://procedural/scripts/item_spawn_point.gd" id="4_spawn"]
 [ext_resource type="PackedScene" uid="uid://baelow8p2kn74" path="res://procedural/caps/wall_cap.tscn" id="5_cap"]
 [ext_resource type="Resource" uid="uid://demkla716n2os" path="res://procedural/item_tables/common_floor_items.tres" id="6_items"]
+[ext_resource type="PackedScene" uid="uid://nymrt42gryby" path="res://scenes/props/extinguisher.tscn" id="7_t0co6"]
 
 [sub_resource type="BoxShape3D" id="RoomBoundsShape"]
 size = Vector3(1.94, 2.94, 4.94)
@@ -83,3 +84,6 @@ spawn_table = ExtResource("6_items")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.08, -1.25)
 script = ExtResource("4_spawn")
 spawn_table = ExtResource("6_items")
+
+[node name="Extinguisher" parent="." instance=ExtResource("7_t0co6")]
+transform = Transform3D(0.665, 0, 0, 0, 0.665, 0, 0, 0, 0.665, -0.689064, -4.84288e-08, -2.19376)

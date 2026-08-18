@@ -1,11 +1,13 @@
-[gd_scene load_steps=15 format=3 uid="uid://c30xd8tlqhkv4"]
+[gd_scene load_steps=17 format=3 uid="uid://c30xd8tlqhkv4"]
 
 [ext_resource type="Script" uid="uid://ch8vih0wn4rne" path="res://scripts/PlayerController.gd" id="1_ci81t"]
+[ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="2_acn1i"]
 [ext_resource type="PackedScene" uid="uid://chiusqce0r7vq" path="res://models/player/player.glb" id="2_awcob"]
 [ext_resource type="Script" uid="uid://q8fadspm1602" path="res://scripts/PlayerAnimationController.gd" id="3_animation"]
 [ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="3_iqnxw"]
 [ext_resource type="Script" uid="uid://cserqki2x4pyo" path="res://scripts/PlayerRagdollController.gd" id="4_ragdoll"]
 [ext_resource type="Script" uid="uid://c1r5nperixsec" path="res://scripts/PlayerBloodEffects.gd" id="5_blood"]
+[ext_resource type="Script" uid="uid://0xfy3k8tdl5q" path="res://scripts/PlayerRightHandIK.gd" id="6_hand_ik"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5lwik"]
 radius = 0.340263
@@ -81,6 +83,7 @@ shape = SubResource("CapsuleShape3D_hitbox")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 0)
 billboard = 1
 text = "Spieler"
+font = ExtResource("2_acn1i")
 font_size = 48
 
 [node name="Head" type="Node3D" parent="."]
@@ -88,6 +91,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.683, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
 cull_mask = 524287
+fov = 95.7
 
 [node name="InteractionRay" type="RayCast3D" parent="Head/Camera3D"]
 target_position = Vector3(0, 0, -1.51)
@@ -108,7 +112,7 @@ light_specular = 1.328
 shadow_enabled = true
 shadow_blur = 2.667
 spot_range = 8.692
-spot_angle = 54.86
+spot_angle = 90.03
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Head/Camera3D"]
 transform = Transform3D(0.23, 0, 0, 0, -1.00536e-08, -0.23, 0, 0.23, -1.00536e-08, 0.121097, -0.000255823, -0.269043)
@@ -137,7 +141,7 @@ visible = false
 mesh = SubResource("CapsuleMesh_ci81t")
 
 [node name="playerModell" parent="." instance=ExtResource("2_awcob")]
-transform = Transform3D(-1.06, 0, -1.60056e-07, 0, 1.06, 0, 1.60056e-07, 0, -1.06, -0.0281916, 0.93502, -0.013034)
+transform = Transform3D(-1.06, 0, -1.60056e-07, 0, 1.06, 0, 1.60056e-07, 0, -1.06, -0.0281916, 0.93502, -0.068441)
 
 [node name="Skeleton3D" parent="playerModell/Armature" index="0"]
 bones/0/position = Vector3(-0.0342981, -0.0104253, -0.0401293)
@@ -204,6 +208,11 @@ script = ExtResource("3_animation")
 
 [node name="PlayerRagdollController" type="Node" parent="."]
 script = ExtResource("4_ragdoll")
+death_impulse_multiplier = 1.9
+
+[node name="PlayerRightHandIK" type="Node" parent="."]
+script = ExtResource("6_hand_ik")
+reach_margin = 1.0
 
 [node name="PlayerBloodEffects" type="Node" parent="."]
 script = ExtResource("5_blood")

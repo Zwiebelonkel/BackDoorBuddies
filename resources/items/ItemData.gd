@@ -19,6 +19,12 @@ extends Resource
 @export var held_rotation_degrees: Vector3 = Vector3.ZERO
 @export var held_offset: Vector3 = Vector3.ZERO
 
+@export_group("Right Hand Grip")
+## Griffpunkt im lokalen Raum des Held-Modells.
+## Neue Items funktionieren mit Vector3.ZERO; für sauberen Kontakt kann der
+## Punkt pro Item direkt auf Griff, Schaft oder Oberfläche gesetzt werden.
+@export var right_hand_grip_offset: Vector3 = Vector3.ZERO
+
 @export_group("Gameplay")
 @export_range(0, 100_000, 1) var value: int = 0
 @export_range(0.0, 100.0, 0.05) var weight: float = 1.0

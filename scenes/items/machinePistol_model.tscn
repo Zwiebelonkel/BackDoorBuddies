@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dkch205bkv81k"]
+
+[ext_resource type="PackedScene" uid="uid://bfmsv6g0x1qui" path="res://models/machinePistol/mp.glb" id="1_p8gba"]
+
+[node name="MachinePistolModel" type="Node3D"]
+
+[node name="mp" parent="." instance=ExtResource("1_p8gba")]
+transform = Transform3D(-3.845, 0, -5.80579e-07, 0, 3.845, 0, 5.80579e-07, 0, -3.845, 0, 0, 0)

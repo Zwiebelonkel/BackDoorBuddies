@@ -22,6 +22,15 @@ func _ready() -> void:
 	await get_tree().create_timer(0.2).timeout
 	assert(camera.fov < 20.0)
 	assert(sniper.scope_overlay.visible)
+	var initial_scope_fov := sniper.get_current_scope_fov()
+	assert(sniper.adjust_scope_zoom(1.0))
+	await get_tree().create_timer(0.1).timeout
+	assert(sniper.get_current_scope_fov() < initial_scope_fov)
+	assert(is_equal_approx(camera.fov, sniper.get_current_scope_fov()))
+	assert("x" in sniper.zoom_label.text)
+	assert(sniper.adjust_scope_zoom(-1.0))
+	await get_tree().create_timer(0.1).timeout
+	assert(is_equal_approx(sniper.get_current_scope_fov(), initial_scope_fov))
 
 	sniper.use_primary()
 	await get_tree().process_frame

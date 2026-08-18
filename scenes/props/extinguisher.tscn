@@ -1,13 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://bbueg0ypcaaux"]
+[gd_scene load_steps=5 format=3 uid="uid://nymrt42gryby"]
 
-[ext_resource type="PackedScene" uid="uid://csxtchs1dyaxm" path="res://models/fireextinguisher/scene.gltf" id="1_mpqdv"]
-[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_rwhct"]
-[ext_resource type="Texture2D" uid="uid://dfokv1uc33vdp" path="res://models/fireextinguisher/textures/material_0_baseColor.png" id="3_jr60a"]
+[ext_resource type="PackedScene" uid="uid://csxtchs1dyaxm" path="res://models/fireextinguisher/scene.gltf" id="1_ou5ok"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_rc6k0"]
+[ext_resource type="Texture2D" uid="uid://dfokv1uc33vdp" path="res://models/fireextinguisher/textures/material_0_baseColor.png" id="3_cb6ia"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_foses"]
 render_priority = 0
-shader = ExtResource("2_rwhct")
-shader_parameter/albedo = ExtResource("3_jr60a")
+shader = ExtResource("2_rc6k0")
+shader_parameter/albedo = ExtResource("3_cb6ia")
 shader_parameter/albedo_color = Color(1, 1, 1, 1)
 shader_parameter/jitter = 0.5
 shader_parameter/jitter_z_coordinate = true
@@ -16,8 +16,9 @@ shader_parameter/affine_texture_mapping = true
 shader_parameter/alpha_scissor = 0.5
 
 [node name="Extinguisher" type="Node3D"]
+transform = Transform3D(0.665, 0, 0, 0, 0.665, 0, 0, 0, 0.665, 0, 0, 0)
 
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_mpqdv")]
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_ou5ok")]
 transform = Transform3D(0.26, 0, 0, 0, 0.26, 0, 0, 0, 0.26, 0, 0, 0)
 
 [node name="Object_6" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/_6/root_5/tank_0" index="0"]

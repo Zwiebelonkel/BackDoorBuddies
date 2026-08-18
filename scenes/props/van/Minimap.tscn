@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://cyj3ajyb24yvq"]
+[gd_scene load_steps=4 format=3 uid="uid://cyj3ajyb24yvq"]
 
 [ext_resource type="Script" uid="uid://pr1puxtqhdsp" path="res://scenes/props/van/minimap_display.gd" id="1_minimap"]
+[ext_resource type="PackedScene" uid="uid://4xwkc03ckadr" path="res://models/rahmen/rahmen.glb" id="2_8hsbh"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_5rdm1"]
 
@@ -23,3 +24,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_minimap")
+
+[node name="rahmen" parent="." instance=ExtResource("2_8hsbh")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)

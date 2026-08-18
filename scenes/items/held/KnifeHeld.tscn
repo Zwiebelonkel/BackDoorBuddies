@@ -28,6 +28,7 @@ shader_parameter/alpha_scissor = 0.5
 script = ExtResource("1_w43kh")
 
 [node name="knife" parent="." instance=ExtResource("1_tikr1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.80489)
 
 [node name="Cylinder" parent="knife" index="1"]
 surface_material_override/0 = SubResource("ShaderMaterial_bsch7")

@@ -1,123 +1,53 @@
-[gd_scene load_steps=13 format=3 uid="uid://0v6ho1wwpcjt"]
+[gd_scene load_steps=6 format=3 uid="uid://0v6ho1wwpcjt"]
 
-[sub_resource type="StandardMaterial3D" id="Material_body"]
-albedo_color = Color(0.075, 0.095, 0.075, 1)
-metallic = 0.72
-roughness = 0.34
+[ext_resource type="PackedScene" uid="uid://c7g13ss2ylvta" path="res://models/sniper/sniper.glb" id="1_cvfk4"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_f8dlr"]
 
-[sub_resource type="BoxMesh" id="Mesh_receiver"]
-material = SubResource("Material_body")
-size = Vector3(0.14, 0.17, 0.78)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iv0pe"]
+render_priority = 0
+shader = ExtResource("2_f8dlr")
+shader_parameter/albedo_color = Color(0.29219, 0.29219, 0.29219, 1)
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
-[sub_resource type="StandardMaterial3D" id="Material_stock"]
-albedo_color = Color(0.16, 0.075, 0.025, 1)
-roughness = 0.76
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gnujp"]
+render_priority = 0
+shader = ExtResource("2_f8dlr")
+shader_parameter/albedo_color = Color(0.172833, 0.172833, 0.172833, 1)
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
-[sub_resource type="BoxMesh" id="Mesh_stock"]
-material = SubResource("Material_stock")
-size = Vector3(0.17, 0.22, 0.58)
-
-[sub_resource type="StandardMaterial3D" id="Material_metal"]
-albedo_color = Color(0.018, 0.022, 0.02, 1)
-metallic = 0.88
-roughness = 0.24
-
-[sub_resource type="CylinderMesh" id="Mesh_barrel"]
-material = SubResource("Material_metal")
-top_radius = 0.028
-bottom_radius = 0.036
-height = 1.12
-radial_segments = 12
-
-[sub_resource type="CylinderMesh" id="Mesh_scope"]
-material = SubResource("Material_metal")
-top_radius = 0.058
-bottom_radius = 0.058
-height = 0.52
-radial_segments = 16
-
-[sub_resource type="StandardMaterial3D" id="Material_lens"]
-albedo_color = Color(0.015, 0.16, 0.12, 1)
-metallic = 0.15
-roughness = 0.08
-emission_enabled = true
-emission = Color(0.01, 0.18, 0.105, 1)
-emission_energy_multiplier = 0.6
-
-[sub_resource type="CylinderMesh" id="Mesh_lens"]
-material = SubResource("Material_lens")
-top_radius = 0.052
-bottom_radius = 0.052
-height = 0.012
-radial_segments = 16
-
-[sub_resource type="BoxMesh" id="Mesh_small_box"]
-material = SubResource("Material_body")
-size = Vector3(0.1, 0.2, 0.14)
-
-[sub_resource type="CylinderMesh" id="Mesh_small_rod"]
-material = SubResource("Material_metal")
-top_radius = 0.012
-bottom_radius = 0.012
-height = 0.24
-radial_segments = 8
-
-[sub_resource type="SphereMesh" id="Mesh_knob"]
-material = SubResource("Material_metal")
-radius = 0.035
-height = 0.07
-radial_segments = 10
-rings = 5
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_45cx7"]
+render_priority = 0
+shader = ExtResource("2_f8dlr")
+shader_parameter/albedo_color = Color(0.688431, 0.471327, 0.442288, 1)
+shader_parameter/jitter = 0.5
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
 [node name="SniperModel" type="Node3D"]
 
-[node name="Receiver" type="MeshInstance3D" parent="."]
-mesh = SubResource("Mesh_receiver")
+[node name="sniper" parent="." instance=ExtResource("1_cvfk4")]
+transform = Transform3D(-1.925, 0, -2.90667e-07, 0, 1.925, 0, 2.90667e-07, 0, -1.925, -0.0206424, 0.124761, -0.064508)
 
-[node name="Stock" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025, 0.62)
-mesh = SubResource("Mesh_stock")
+[node name="Object_72" parent="sniper/Sketchfab_model/root/GLTF_SceneRootNode/Dragunov SVD_37/Dragunov SVD Body_36/Dragunov SVD Magazine_34" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_iv0pe")
 
-[node name="Barrel" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.035, -0.82)
-mesh = SubResource("Mesh_barrel")
+[node name="Object_74" parent="sniper/Sketchfab_model/root/GLTF_SceneRootNode/Dragunov SVD_37/Dragunov SVD Body_36/Dragunov SVD Trigger_35" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_gnujp")
 
-[node name="MuzzleBrake" type="MeshInstance3D" parent="."]
-transform = Transform3D(1.45, 0, 0, 0, -1.83588e-08, -1.45, 0, 0.42, -6.33815e-08, 0, 0.035, -1.39)
-mesh = SubResource("Mesh_scope")
+[node name="Object_69" parent="sniper/Sketchfab_model/root/GLTF_SceneRootNode/Dragunov SVD_37/Dragunov SVD Body_36" index="2"]
+surface_material_override/0 = SubResource("ShaderMaterial_gnujp")
 
-[node name="Scope" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.18, -0.22)
-mesh = SubResource("Mesh_scope")
+[node name="Object_70" parent="sniper/Sketchfab_model/root/GLTF_SceneRootNode/Dragunov SVD_37/Dragunov SVD Body_36" index="3"]
+surface_material_override/0 = SubResource("ShaderMaterial_45cx7")
 
-[node name="ScopeFrontLens" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.18, -0.486)
-mesh = SubResource("Mesh_lens")
-
-[node name="ScopeRearLens" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.18, 0.046)
-mesh = SubResource("Mesh_lens")
-
-[node name="ScopeMountFront" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.62, 0, 0, 0, 0.4, 0, 0, 0, 0.45, 0, 0.095, -0.36)
-mesh = SubResource("Mesh_small_box")
-
-[node name="ScopeMountRear" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.62, 0, 0, 0, 0.4, 0, 0, 0, 0.45, 0, 0.095, -0.08)
-mesh = SubResource("Mesh_small_box")
-
-[node name="Magazine" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.990268, 0.139173, 0, -0.139173, 0.990268, 0, -0.17, -0.03)
-mesh = SubResource("Mesh_small_box")
-
-[node name="Grip" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.9, 0, 0, 0, 1.28393, 0.231763, 0, -0.417173, 0.713292, 0, -0.18, 0.27)
-mesh = SubResource("Mesh_small_box")
-
-[node name="BoltHandle" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.13, 0.015, 0.18)
-mesh = SubResource("Mesh_small_rod")
-
-[node name="BoltKnob" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.015, 0.18)
-mesh = SubResource("Mesh_knob")
+[editable path="sniper"]

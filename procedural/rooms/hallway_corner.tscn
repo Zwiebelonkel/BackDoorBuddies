@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://cis1fejnra0gg" path="res://procedural/scripts/item_spawn_point.gd" id="4_spawn"]
 [ext_resource type="PackedScene" uid="uid://baelow8p2kn74" path="res://procedural/caps/wall_cap.tscn" id="5_cap"]
 [ext_resource type="Resource" uid="uid://demkla716n2os" path="res://procedural/item_tables/common_floor_items.tres" id="6_items"]
-[ext_resource type="PackedScene" uid="uid://bbueg0ypcaaux" path="res://scenes/props/extinguisher.tscn" id="7_1b5gl"]
+[ext_resource type="PackedScene" uid="uid://bbueg0ypcaaux" path="res://scenes/props/crate.tscn" id="7_1b5gl"]
 
 [sub_resource type="BoxShape3D" id="RoomBoundsShape"]
 size = Vector3(3.94, 2.94, 3.94)
@@ -81,9 +81,9 @@ script = ExtResource("4_spawn")
 spawn_table = ExtResource("6_items")
 
 [node name="Floor02" type="Marker3D" parent="ItemSpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0.08, -0.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.32548, 0.840093, 1.27509)
 script = ExtResource("4_spawn")
 spawn_table = ExtResource("6_items")
 
 [node name="Extinguisher" parent="." instance=ExtResource("7_1b5gl")]
-transform = Transform3D(0.61, 0, 0, 0, 0.61, 0, 0, 0, 0.61, -1.69683, 1.11759e-08, 1.66985)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -1.41842, 1.11759e-08, 1.3405)

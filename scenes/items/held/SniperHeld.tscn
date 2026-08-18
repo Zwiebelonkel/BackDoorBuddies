@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bdq7555e851o2"]
 
-[ext_resource type="Script" path="res://scripts/items/SniperHeld.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://b67fku2rpuihv" path="res://scripts/items/SniperHeld.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://0v6ho1wwpcjt" path="res://scenes/items/sniper_model.tscn" id="2_model"]
 [ext_resource type="Shader" path="res://shaders/sniper_scope.gdshader" id="3_scope"]
 
@@ -14,32 +14,34 @@ shader_parameter/lens_tint = Color(0.04, 0.11, 0.07, 0.08)
 
 [node name="SniperHeld" type="Node3D"]
 script = ExtResource("1_script")
-fire_cooldown = 1.25
+fire_cooldown = 5.0
 shot_distance = 500.0
 attack_type = &"sniper"
 muzzle_flash_duration = 0.065
 muzzle_flash_energy = 28.0
 muzzle_flash_range = 7.0
-shot_smoke_amount = 64
+shot_smoke_amount = 69
 shot_smoke_lifetime = 5.5
-shot_smoke_puff_size = 0.16
-shot_smoke_scale_max = 0.78
+shot_smoke_puff_size = 0.185
+shot_smoke_scale_max = 1.25
+shot_smoke_texture_resolution = 4
 shot_smoke_velocity_min = 0.1
 shot_smoke_velocity_max = 0.3
 bullet_hole_radius = 0.034
 recoil_back_distance = 0.2
-recoil_up_distance = 0.06
-recoil_side_distance = 0.015
-recoil_rotation_degrees = Vector3(-17, 0, 2.5)
+recoil_up_distance = 0.0
+recoil_side_distance = 0.0
+recoil_rotation_degrees = Vector3(0, 27.355, 0)
 recoil_duration = 0.07
 return_duration = 0.42
 random_rotation_degrees = 0.55
 random_side_distance = 0.003
 
 [node name="ModelRoot" parent="." instance=ExtResource("2_model")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.331679)
 
 [node name="Muzzle" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.035, -1.42)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016868, 0.0982684, -2.10421)
 
 [node name="ScopeLayer" type="CanvasLayer" parent="."]
 layer = 220
@@ -81,3 +83,6 @@ theme_override_colors/font_color = Color(0.35, 0.75, 0.42, 0.72)
 theme_override_font_sizes/font_size = 15
 text = "8x  //  .308"
 horizontal_alignment = 1
+
+[editable path="ModelRoot"]
+[editable path="ModelRoot/sniper"]

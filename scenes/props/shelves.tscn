@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://crlrcj48khc8"]
+[gd_scene load_steps=6 format=3 uid="uid://crlrcj48khc8"]
 
 [ext_resource type="PackedScene" uid="uid://0842k2ibitsc" path="res://models/shelves/scene.gltf" id="1_tgs2u"]
 [ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_wxdnc"]
@@ -15,32 +15,23 @@ shader_parameter/jitter_depth_independent = true
 shader_parameter/affine_texture_mapping = true
 shader_parameter/alpha_scissor = 0.5
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_tgs2u"]
+size = Vector3(7.93689, 8.21362, 2.36218)
+
 [node name="Shelves" type="Node3D"]
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_tgs2u")]
 
+[node name="Storage_Shelves_01" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode" index="0"]
+transform = Transform3D(100, 0, 0, 0, -1.62921e-05, 100, 0, -100, -1.62921e-05, -8.58583, 397.844, -3.61886e-06)
+
 [node name="Storage_Shelves_01_Storage_Shelves_0" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Storage_Shelves_01" index="0"]
 surface_material_override/0 = SubResource("ShaderMaterial_ub8hk")
 
-[node name="Storage_Shelves_02_Storage_Shelves_0" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Storage_Shelves_02" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_ub8hk")
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
 
-[node name="Storage_Shelves_03_Storage_Shelves_0" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Storage_Shelves_03" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_ub8hk")
-
-[node name="Storage_Shelves_04_Storage_Shelves_0" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Storage_Shelves_04" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_ub8hk")
-
-[node name="Cardboard_box_04_Storage_Shelves_0" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Cardboard_box_04" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_ub8hk")
-
-[node name="Cardboard_box_03_Storage_Shelves_0" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Cardboard_box_03" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_ub8hk")
-
-[node name="Cardboard_box_01_Storage_Shelves_0" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Cardboard_box_01" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_ub8hk")
-
-[node name="Cardboard_box_02_Storage_Shelves_0" parent="Sketchfab_Scene/Sketchfab_model/Storage_Shelves_and_Cardboard_Boxs_fbx/RootNode/Cardboard_box_02" index="0"]
-surface_material_override/0 = SubResource("ShaderMaterial_ub8hk")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.112854, 4.0675, -0.114807)
+shape = SubResource("BoxShape3D_tgs2u")
 
 [editable path="Sketchfab_Scene"]

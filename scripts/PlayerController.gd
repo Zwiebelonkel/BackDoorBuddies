@@ -92,6 +92,7 @@ var minimum_weight_speed_multiplier: float = 0.45
 @export_range(0.0, 1000.0, 1.0) var pistol_damage := 34.0
 @export_range(0.0, 1000.0, 1.0) var sniper_damage := 100.0
 @export_range(0.0, 1000.0, 1.0) var knife_damage := 45.0
+@export_range(0.0, 1000.0, 1.0) var unarmed_damage := 18.0
 
 @export_group("Multiplayer")
 ## Wie oft pro Sekunde wird der State an andere Peers gesendet (Authority → alle)
@@ -152,6 +153,7 @@ var selected_inventory_index: int = -1
 var server_inventory_paths: Array[String] = []
 var equipped_item_resource_path: String = ""
 var held_item_instance: Node3D = null
+var held_item_rig: Node3D = null
 var _mouse_sway_input := Vector2.ZERO
 var _item_holder_start_position := Vector3.ZERO
 var _item_holder_start_rotation := Vector3.ZERO
@@ -177,25 +179,39 @@ var _monitor_camera_fov := 75.0
 var _monitor_previous_mouse_mode := Input.MOUSE_MODE_CAPTURED
 var _hovered_pickup: PickupItem = null
 var _last_attack_time_by_type: Dictionary = {}
+var _next_unarmed_attack_time_msec := 0
+var _use_cross_punch_next := false
+var _local_model_mesh_visibility_defaults: Dictionary = {}
+var _hide_own_body_enabled := false
+var _camera_monitor_model_hidden := false
 var _steam_name_refresh_remaining := 0.0
 var _steam_name_resolved := false
 
 # Multiplayer sync
 var _sync_timer: float        = 0.0
 var world_held_item_instance: Node3D = null
+var world_held_item_rig: Node3D = null
 
 const STEP_INTERVAL_WALK   := 0.55
 const STEP_INTERVAL_SPRINT := 0.42
 const PISTOL_ATTACK_RANGE := 105.0
 const SNIPER_ATTACK_RANGE := 500.0
 const KNIFE_ATTACK_RANGE := 2.5
+const UNARMED_ATTACK_RANGE := 1.8
 const PISTOL_SERVER_COOLDOWN_MSEC := 180
 const SNIPER_SERVER_COOLDOWN_MSEC := 1200
 const KNIFE_SERVER_COOLDOWN_MSEC := 350
+const UNARMED_SERVER_COOLDOWN_MSEC := 500
 const PISTOL_ITEM_PATH := "res://resources/items/1911.tres"
 const SNIPER_ITEM_PATH := "res://resources/items/sniper.tres"
 const KNIFE_ITEM_PATH := "res://resources/items/knife.tres"
 const LOCAL_HEAD_RENDER_LAYER := 20
+const LOCAL_ARM_MESH_NAMES: Array[StringName] = [
+	&"Arm_L",
+	&"Arm_R",
+	&"UpperArm_L",
+	&"UpperArm_R",
+]
 
 const MAX_INVENTORY_SIZE := 4
 var player_hud: PlayerHUD = null
@@ -221,6 +237,8 @@ func _ready() -> void:
 	if is_multiplayer_authority():
 		add_to_group("local_player_controller")
 		_load_look_sensitivity()
+		_cache_local_model_mesh_visibility()
+		_load_local_model_visibility()
 		_hide_local_head_from_camera()
 		camera.make_current()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -260,6 +278,89 @@ func _hide_local_head_from_camera() -> void:
 
 		head_part.set_layer_mask_value(1, false)
 		head_part.set_layer_mask_value(LOCAL_HEAD_RENDER_LAYER, true)
+
+
+func _cache_local_model_mesh_visibility() -> void:
+	if not _local_model_mesh_visibility_defaults.is_empty():
+		return
+
+	var skeleton := get_node_or_null(
+		"playerModell/Armature/Skeleton3D"
+	)
+
+	if skeleton == null:
+		return
+
+	for child in skeleton.find_children(
+		"*",
+		"VisualInstance3D",
+		true,
+		false
+	):
+		var mesh := child as VisualInstance3D
+
+		if mesh == null:
+			continue
+
+		var mesh_path := skeleton.get_path_to(mesh)
+		_local_model_mesh_visibility_defaults[mesh_path] = mesh.visible
+
+
+func _load_local_model_visibility() -> void:
+	var config := ConfigFile.new()
+	config.load("user://options.cfg")
+	apply_hide_own_body(
+		bool(config.get_value("gameplay", "hide_own_body", false))
+	)
+
+
+func apply_hide_own_body(enabled: bool) -> void:
+	if not is_multiplayer_authority():
+		return
+
+	_hide_own_body_enabled = enabled
+	_refresh_local_model_mesh_visibility()
+
+
+func set_camera_monitor_model_hidden(hidden: bool) -> void:
+	_camera_monitor_model_hidden = hidden
+	_refresh_local_model_mesh_visibility()
+
+
+func _refresh_local_model_mesh_visibility() -> void:
+	_cache_local_model_mesh_visibility()
+	var skeleton := get_node_or_null(
+		"playerModell/Armature/Skeleton3D"
+	)
+
+	if skeleton == null:
+		return
+
+	for mesh_path in _local_model_mesh_visibility_defaults:
+		var mesh := skeleton.get_node_or_null(mesh_path) as VisualInstance3D
+
+		if mesh == null:
+			continue
+
+		var default_visible := bool(
+			_local_model_mesh_visibility_defaults[mesh_path]
+		)
+		mesh.visible = (
+			default_visible
+			and not _camera_monitor_model_hidden
+			and (
+				not _hide_own_body_enabled
+				or StringName(mesh.name) in LOCAL_ARM_MESH_NAMES
+			)
+		)
+
+
+func is_own_body_hidden() -> bool:
+	return _hide_own_body_enabled
+
+
+func is_model_hidden_for_camera_monitor() -> bool:
+	return _camera_monitor_model_hidden
 
 
 func _process(delta: float) -> void:
@@ -364,6 +465,21 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if is_dead:
 		return
+
+	if event is InputEventMouseButton and event.pressed:
+		var zoom_steps := 0.0
+
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			zoom_steps = 1.0
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			zoom_steps = -1.0
+
+		if (
+			not is_zero_approx(zoom_steps)
+			and _adjust_held_item_scope_zoom(zoom_steps)
+		):
+			get_viewport().set_input_as_handled()
+			return
 
 	if event.is_action_pressed("secondary_use"):
 		_use_held_item_secondary(true)
@@ -915,7 +1031,8 @@ func _server_process_player_attack(
 		get_multiplayer_authority(),
 		hit_position,
 		hit_normal,
-		impulse_direction * float(attack_data["impulse"])
+		impulse_direction * float(attack_data["impulse"]),
+		attack_type
 	)
 
 
@@ -929,7 +1046,11 @@ func _server_attack_path_reaches_target(
 
 	var ray_origin := camera.global_position
 	var ray_direction := (hit_position - ray_origin).normalized()
-	var minimum_aim_dot := 0.7 if attack_type == &"knife" else 0.965
+	var minimum_aim_dot := (
+		0.7
+		if attack_type == &"knife" or attack_type == &"unarmed"
+		else 0.965
+	)
 
 	if attack_type == &"sniper":
 		minimum_aim_dot = 0.99
@@ -986,6 +1107,15 @@ func _get_server_attack_data(attack_type: StringName) -> Dictionary:
 			"impulse": 1.2,
 		}
 
+	if attack_type == &"unarmed":
+		return {
+			"damage": unarmed_damage,
+			"range": UNARMED_ATTACK_RANGE,
+			"cooldown_msec": UNARMED_SERVER_COOLDOWN_MSEC,
+			"required_item": "",
+			"impulse": 0.8,
+		}
+
 	return {}
 
 
@@ -994,19 +1124,25 @@ func server_receive_damage(
 	_attacker_peer_id: int,
 	hit_position: Vector3,
 	hit_normal: Vector3,
-	death_impulse: Vector3
+	death_impulse: Vector3,
+	attack_type: StringName = &"unknown"
 ) -> void:
 	if not multiplayer.is_server() or is_dead:
 		return
 
 	current_health = maxf(current_health - maxf(damage, 0.0), 0.0)
 	var died_from_damage := current_health <= 0.0
+
+	if died_from_damage:
+		_server_drop_all_items_on_death()
+
 	_sync_damage_result.rpc(
 		current_health,
 		died_from_damage,
 		hit_position,
 		hit_normal,
-		death_impulse
+		death_impulse,
+		attack_type
 	)
 
 
@@ -1016,14 +1152,20 @@ func _sync_damage_result(
 	died_from_damage: bool,
 	hit_position: Vector3,
 	hit_normal: Vector3,
-	death_impulse: Vector3
+	death_impulse: Vector3,
+	attack_type: StringName
 ) -> void:
 	if not _is_rpc_from_server():
 		return
 
 	current_health = clampf(health, 0.0, maximum_health)
 	health_changed.emit(current_health, maximum_health)
-	blood_effects.spawn_blood_impact(hit_position, hit_normal)
+	blood_effects.spawn_blood_impact(
+		hit_position,
+		hit_normal,
+		death_impulse.normalized(),
+		attack_type
+	)
 
 	if died_from_damage and not is_dead:
 		_enter_dead_state(death_impulse)
@@ -1214,6 +1356,7 @@ func enter_camera_monitor(monitor: Node3D) -> bool:
 	_monitor_previous_mouse_mode = Input.mouse_mode
 	velocity = Vector3.ZERO
 	item_holder.visible = false
+	set_camera_monitor_model_hidden(true)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_update_camera_monitor_view()
 	return true
@@ -1229,6 +1372,7 @@ func exit_camera_monitor() -> void:
 	camera.transform = _monitor_camera_local_transform
 	camera.fov = _monitor_camera_fov
 	item_holder.visible = is_multiplayer_authority()
+	set_camera_monitor_model_hidden(false)
 	Input.mouse_mode = _monitor_previous_mouse_mode
 
 	if is_instance_valid(monitor) and monitor.has_method("end_view"):
@@ -1558,6 +1702,58 @@ func _server_drop_item(slot_index: int) -> void:
 	else:
 		_confirm_drop.rpc_id(owner_peer_id, slot_index)
 
+
+func _server_drop_all_items_on_death() -> void:
+	if not multiplayer.is_server() or server_inventory_paths.is_empty():
+		return
+
+	var main := get_tree().current_scene
+
+	if main == null or not main.has_method("server_spawn_dropped_item"):
+		push_error("Todesinventar konnte nicht gespawnt werden: Main fehlt.")
+		return
+
+	var dropped_paths := server_inventory_paths.duplicate()
+	var base_rotation_y := global_rotation.y
+
+	for item_index in range(dropped_paths.size()):
+		var item_path: String = dropped_paths[item_index]
+
+		if item_path.is_empty():
+			continue
+
+		var angle := float(item_index) * TAU / maxf(
+			float(dropped_paths.size()),
+			1.0
+		)
+		var radial_offset := Vector3(cos(angle), 0.0, sin(angle)) * 0.28
+		main.server_spawn_dropped_item(
+			item_path,
+			_find_drop_position(radial_offset),
+			Vector3(0.0, base_rotation_y + angle, 0.0)
+		)
+
+	server_inventory_paths.clear()
+	equipped_item_resource_path = ""
+	_sync_death_inventory_cleared.rpc()
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _sync_death_inventory_cleared() -> void:
+	if not _is_rpc_from_server():
+		return
+
+	equipped_item_resource_path = ""
+	_clear_world_held_item()
+
+	if not is_multiplayer_authority():
+		return
+
+	inventory.clear()
+	selected_inventory_index = -1
+	_clear_held_item()
+	_emit_inventory_changed()
+
 @rpc("any_peer", "call_remote", "reliable")
 func _confirm_drop(slot_index: int) -> void:
 	if multiplayer.get_remote_sender_id() != 1:
@@ -1568,13 +1764,14 @@ func _confirm_drop(slot_index: int) -> void:
 
 	_remove_dropped_item_local(slot_index)
 
-func _find_drop_position() -> Vector3:
+func _find_drop_position(radial_offset := Vector3.ZERO) -> Vector3:
 	var forward := -global_transform.basis.z.normalized()
 
 	# Gewünschte Stelle etwas vor dem Spieler.
 	var target_position := (
 		global_position
 		+ forward * 0.5
+		+ radial_offset
 	)
 
 	# Oberhalb beginnen und mehrere Meter nach unten suchen.
@@ -1779,14 +1976,23 @@ func _equip_world_item(data: ItemData) -> void:
 	world_held_item_instance.rotation_degrees = data.held_rotation_degrees
 	world_held_item_instance.scale = data.held_scale
 
-	world_item_holder.add_child(world_held_item_instance)
+	world_held_item_rig = Node3D.new()
+	world_held_item_rig.name = "WorldHeldItemRig"
+	world_item_holder.add_child(world_held_item_rig)
+	_add_right_hand_grip(world_held_item_instance, data)
+	world_held_item_rig.add_child(world_held_item_instance)
 	
 func _clear_world_held_item() -> void:
-	if world_held_item_instance == null:
+	if world_held_item_instance == null and world_held_item_rig == null:
 		return
 
-	world_held_item_instance.queue_free()
+	if is_instance_valid(world_held_item_rig):
+		world_held_item_rig.queue_free()
+	elif is_instance_valid(world_held_item_instance):
+		world_held_item_instance.queue_free()
+
 	world_held_item_instance = null
+	world_held_item_rig = null
 
 func _equip_item(data: ItemData) -> void:
 	_clear_held_item()
@@ -1819,7 +2025,11 @@ func _equip_item(data: ItemData) -> void:
 	held_item_instance.scale = data.held_scale
 
 	# Danach hinzufügen, damit _ready() die richtigen Werte speichert.
-	item_holder.add_child(held_item_instance)
+	held_item_rig = Node3D.new()
+	held_item_rig.name = "HeldItemRig"
+	item_holder.add_child(held_item_rig)
+	_add_right_hand_grip(held_item_instance, data)
+	held_item_rig.add_child(held_item_instance)
 
 func unequip_current_item() -> void:
 	if is_holding_large_item():
@@ -1834,14 +2044,53 @@ func unequip_current_item() -> void:
 
 
 func _clear_held_item() -> void:
-	if held_item_instance == null:
+	if held_item_instance == null and held_item_rig == null:
 		return
 
-	if held_item_instance.has_method("use_secondary"):
+	if (
+		is_instance_valid(held_item_instance)
+		and held_item_instance.has_method("use_secondary")
+	):
 		held_item_instance.use_secondary(false)
 
-	held_item_instance.queue_free()
+	if is_instance_valid(held_item_rig):
+		held_item_rig.queue_free()
+	elif is_instance_valid(held_item_instance):
+		held_item_instance.queue_free()
+
 	held_item_instance = null
+	held_item_rig = null
+
+
+func _add_right_hand_grip(item: Node3D, data: ItemData) -> void:
+	var grip := item.get_node_or_null("RightHandGrip") as Node3D
+
+	if grip == null:
+		grip = Marker3D.new()
+		grip.name = "RightHandGrip"
+		item.add_child(grip)
+
+	grip.position = data.right_hand_grip_offset
+
+
+func get_active_right_hand_grip() -> Node3D:
+	var item := (
+		held_item_instance
+		if is_multiplayer_authority()
+		else world_held_item_instance
+	)
+
+	if not is_instance_valid(item):
+		return null
+
+	return item.get_node_or_null("RightHandGrip") as Node3D
+
+
+func get_active_held_item_rig() -> Node3D:
+	var rig := held_item_rig if is_multiplayer_authority() else world_held_item_rig
+	return rig if is_instance_valid(rig) else null
+
+
 func _update_interaction_text() -> void:
 	if not is_multiplayer_authority():
 		return
@@ -1967,12 +2216,64 @@ func _use_held_item() -> void:
 		return
 
 	if held_item_instance == null:
+		_use_unarmed_attack()
 		return
 
 	if held_item_instance.has_method("use_primary"):
 		held_item_instance.use_primary()
 
 	_play_world_item_use.rpc()
+
+
+func _use_unarmed_attack() -> void:
+	if not equipped_item_resource_path.is_empty():
+		return
+
+	var now := Time.get_ticks_msec()
+
+	if now < _next_unarmed_attack_time_msec:
+		return
+
+	_next_unarmed_attack_time_msec = now + UNARMED_SERVER_COOLDOWN_MSEC
+	var animation_name := (
+		&"ual/Punch_Cross"
+		if _use_cross_punch_next
+		else &"ual/Punch_Jab"
+	)
+	_use_cross_punch_next = not _use_cross_punch_next
+	play_player_action(animation_name)
+
+	var ray_origin := camera.global_position
+	var ray_end := (
+		ray_origin
+		- camera.global_basis.z.normalized() * UNARMED_ATTACK_RANGE
+	)
+	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	var exclusions: Array[RID] = [get_rid()]
+	var own_hitbox := $PlayerHitbox as CollisionObject3D
+
+	if own_hitbox != null:
+		exclusions.append(own_hitbox.get_rid())
+
+	query.exclude = exclusions
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+
+	if hit.is_empty():
+		return
+
+	var target_player := _find_player_from_node(hit["collider"])
+
+	if target_player == null or target_player == self:
+		return
+
+	request_player_attack(
+		target_player,
+		&"unarmed",
+		hit["position"],
+		hit["normal"]
+	)
 
 
 func _use_held_item_secondary(is_pressed: bool) -> void:
@@ -1985,6 +2286,16 @@ func _use_held_item_secondary(is_pressed: bool) -> void:
 
 	if held_item_instance.has_method("use_secondary"):
 		held_item_instance.use_secondary(is_pressed)
+
+
+func _adjust_held_item_scope_zoom(zoom_steps: float) -> bool:
+	if held_item_instance == null:
+		return false
+
+	if not held_item_instance.has_method("adjust_scope_zoom"):
+		return false
+
+	return bool(held_item_instance.call("adjust_scope_zoom", zoom_steps))
 	
 	
 @rpc("authority", "call_remote", "unreliable")

@@ -1,0 +1,11 @@
+Model Information:
+* title:	psx planks
+* source:	https://sketchfab.com/3d-models/psx-planks-1b69c69857c24be6a284c8ca9af31dc1
+* author:	vylod (https://sketchfab.com/vylod)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "psx planks" (https://sketchfab.com/3d-models/psx-planks-1b69c69857c24be6a284c8ca9af31dc1) by vylod (https://sketchfab.com/vylod) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -17,6 +17,7 @@ held_model = ExtResource("1_rvh1q")
 held_scale = Vector3(0.1, 0.1, 0.1)
 held_rotation_degrees = Vector3(-11.8, -2.6, 0.3)
 held_offset = Vector3(0.267, -0.18, 0.217)
+right_hand_grip_offset = Vector3(0, 0, 0)
 value = 150
 weight = 0.7
 is_large_item = false

@@ -4,6 +4,7 @@ extends Node3D
 const PLAYER_CONTROLLER := preload("res://scenes/PlayerController.tscn")
 const PISTOL_PICKUP := preload("res://procedural/items/pistol_pickup.tscn")
 const SNIPER_PICKUP := preload("res://procedural/items/sniper_pickup.tscn")
+const MP_PICKUP := preload("res://procedural/items/machinePistol_pickup.tscn")
 const KNIFE_PICKUP := preload("res://procedural/items/knife_pickup.tscn")
 const PICKUP_ITEM_SCENE: PackedScene = preload(
 	"res://scenes/items/PickupItem.tscn"
@@ -85,6 +86,15 @@ func _spawn_lobby_weapons() -> void:
 		sniper.rotate_model = true
 		sniper.floating_enabled = true
 		weapons_root.add_child(sniper, true)
+		
+	if not weapons_root.has_node("MachinePistolPickup"):
+		var mp := MP_PICKUP.instantiate() as PickupItem
+		mp.name = "SniperPickup"
+		mp.position = Vector3(0.0, 1.08, -2.3)
+		mp.rotation = Vector3(0.0, 0.15, 0.0)
+		mp.rotate_model = true
+		mp.floating_enabled = true
+		weapons_root.add_child(mp, true)
 
 
 func _on_peer_connected(peer_id: int) -> void:

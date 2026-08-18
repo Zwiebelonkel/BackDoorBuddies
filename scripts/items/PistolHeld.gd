@@ -55,6 +55,24 @@ signal bullet_hit(collider: Object, position: Vector3, normal: Vector3)
 @export var random_rotation_degrees: float = 1.5
 @export var random_side_distance: float = 0.008
 
+@export_group("Pistol Mechanical Animation")
+@export var slide_back_distance: float = 0.22
+@export var slide_back_duration: float = 0.025
+@export var slide_return_duration: float = 0.055
+
+@export var trigger_rotation_degrees: float = -18.0
+@export var trigger_pull_duration: float = 0.025
+@export var trigger_return_duration: float = 0.07
+
+
+var _slide: Node3D
+var _trigger: Node3D
+
+var _slide_rest_position: Vector3
+var _trigger_rest_rotation: Vector3
+
+var _mechanical_tween: Tween
+
 var _can_fire := true
 var _rest_position: Vector3
 var _rest_rotation_degrees: Vector3
@@ -66,9 +84,39 @@ var _shot_smoke_mesh: QuadMesh
 func _ready() -> void:
 	_rest_position = position
 	_rest_rotation_degrees = rotation_degrees
+
 	_muzzle_marker = find_child("Muzzle", true, false) as Marker3D
 	_shot_smoke_mesh = _create_shot_smoke_mesh()
 
+	var pistol_model := get_node_or_null("1911Model")
+
+	if pistol_model == null:
+		push_error("1911Model wurde nicht gefunden!")
+		return
+
+	_slide = pistol_model.find_child(
+		"PistolBarrel_Pistol_Metal_0",
+		true,
+		false
+	) as Node3D
+
+	_trigger = pistol_model.find_child(
+		"PistolTrigger_Pistol_Metal_0",
+		true,
+		false
+	) as Node3D
+
+	if _slide != null:
+		_slide_rest_position = _slide.position
+		print("SLIDE GEFUNDEN: ", _slide.get_path())
+	else:
+		push_error("Slide im sichtbaren 1911Model NICHT gefunden!")
+
+	if _trigger != null:
+		_trigger_rest_rotation = _trigger.rotation_degrees
+		print("TRIGGER GEFUNDEN: ", _trigger.get_path())
+	else:
+		push_error("Trigger im sichtbaren 1911Model NICHT gefunden!")
 
 func use_primary() -> void:
 	if not _can_fire:
@@ -78,6 +126,7 @@ func use_primary() -> void:
 
 	# Gameplay-Systeme können zusätzlich auf Schuss und Treffer reagieren.
 	fired.emit()
+	_play_mechanical_animation()
 	_play_owner_animation(&"ual/Pistol_Shoot")
 	_fire_hitscan()
 
@@ -188,8 +237,8 @@ func _spawn_muzzle_flash(fallback_direction: Vector3) -> void:
 
 	var flash_mesh := MeshInstance3D.new()
 	var sphere := SphereMesh.new()
-	sphere.radius = 0.045
-	sphere.height = 0.09
+	sphere.radius = 0.3
+	sphere.height = 0.3
 	sphere.radial_segments = 8
 	sphere.rings = 4
 	flash_mesh.mesh = sphere
@@ -541,3 +590,85 @@ func _play_recoil_animation() -> void:
 	)
 
 	await _active_tween.finished
+	
+func _play_mechanical_animation() -> void:
+	if _mechanical_tween != null and _mechanical_tween.is_valid():
+		_mechanical_tween.kill()
+
+	if _slide == null and _trigger == null:
+		return
+
+	# Falls durch schnelles automatisches Feuern die vorherige Animation
+	# unterbrochen wurde, erst sauber auf Ausgangsposition setzen.
+	if _slide != null:
+		_slide.position = _slide_rest_position
+
+	if _trigger != null:
+		_trigger.rotation_degrees = _trigger_rest_rotation
+
+	_mechanical_tween = create_tween()
+	_mechanical_tween.set_trans(Tween.TRANS_QUAD)
+	_mechanical_tween.set_ease(Tween.EASE_OUT)
+
+	# ------------------------------------------------
+	# SLIDE
+	# ------------------------------------------------
+
+	if _slide != null:
+		# Bei deinem Modell müssen wir eventuell X/Y/Z anpassen.
+		# Z ist hier zunächst die Bewegungsachse des Schlittens.
+		var slide_back_position := (
+			_slide_rest_position
+			+ Vector3(0.0, 0.0, slide_back_distance)
+		)
+
+		_mechanical_tween.tween_property(
+			_slide,
+			"position",
+			slide_back_position,
+			slide_back_duration
+		)
+
+		_mechanical_tween.tween_property(
+			_slide,
+			"position",
+			_slide_rest_position,
+			slide_return_duration
+		)
+
+	# ------------------------------------------------
+	# TRIGGER
+	# ------------------------------------------------
+
+	if _trigger != null:
+		var pulled_rotation := (
+			_trigger_rest_rotation
+			+ Vector3(
+				trigger_rotation_degrees,
+				0.0,
+				0.0
+			)
+		)
+
+		# Trigger parallel zum Slide bewegen.
+		var trigger_tween := create_tween()
+
+		trigger_tween.set_trans(Tween.TRANS_QUAD)
+		trigger_tween.set_ease(Tween.EASE_OUT)
+
+		trigger_tween.tween_property(
+			_trigger,
+			"rotation_degrees",
+			pulled_rotation,
+			trigger_pull_duration
+		)
+
+		trigger_tween.set_trans(Tween.TRANS_SINE)
+		trigger_tween.set_ease(Tween.EASE_IN_OUT)
+
+		trigger_tween.tween_property(
+			_trigger,
+			"rotation_degrees",
+			_trigger_rest_rotation,
+			trigger_return_duration
+		)

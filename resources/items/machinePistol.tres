@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://mvv84viv7pya"]
+
+[ext_resource type="PackedScene" uid="uid://b07c6s1mrsodf" path="res://scenes/items/held/MachinePistolHeld.tscn" id="1_5hode"]
+[ext_resource type="Script" uid="uid://dv3vf8bsc4qul" path="res://resources/items/ItemData.gd" id="3_cprj5"]
+[ext_resource type="PackedScene" uid="uid://dkch205bkv81k" path="res://scenes/items/machinePistol_model.tscn" id="3_j67kg"]
+
+[resource]
+script = ExtResource("3_cprj5")
+item_id = &"mp"
+display_name = "MP"
+description = "bapapapapa"
+world_model = ExtResource("3_j67kg")
+model_scale = Vector3(0.72, 0.72, 0.72)
+model_rotation_degrees = Vector3(0, 0, 90)
+model_offset = Vector3(0, 0.08, 0)
+held_model = ExtResource("1_5hode")
+held_scale = Vector3(0.78, 0.78, 0.78)
+held_rotation_degrees = Vector3(0, 0, 102.46)
+held_offset = Vector3(0.445, -0.23, 0.1)
+right_hand_grip_offset = Vector3(0, 0, 0)
+value = 3200
+weight = 3.2
+is_large_item = false
+stackable = false
+max_stack = 1
+is_mission_clue = false
+target_clue_type = &""
+interaction_text = "Sniper aufheben"

@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://ce57fyjrvjccc" path="res://procedural/rooms/kitchen.tscn" id="6_kitchen"]
 [ext_resource type="PackedScene" uid="uid://dwr21fv8bbhnk" path="res://procedural/rooms/bathroom.tscn" id="7_bathroom"]
 [ext_resource type="PackedScene" uid="uid://dqv3ewpthkscg" path="res://procedural/rooms/bedroom.tscn" id="8_bedroom"]
-[ext_resource type="PackedScene" path="res://procedural/rooms/large_room.tscn" id="8_large"]
+[ext_resource type="PackedScene" uid="uid://bv8cbmp3pp0si" path="res://procedural/rooms/large_room.tscn" id="8_large"]
 [ext_resource type="PackedScene" uid="uid://dyi2y17vhtx0r" path="res://procedural/hall/hall.tscn" id="9_hall"]
 [ext_resource type="Script" uid="uid://bluoaept1d8we" path="res://procedural/scripts/item_value_tracker.gd" id="10_value_tracker"]
 

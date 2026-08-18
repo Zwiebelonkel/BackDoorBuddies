@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://bkl2q27qhwhhp"]
+
+[ext_resource type="PackedScene" uid="uid://cgmiqjoxb3tdt" path="res://models/planks/scene.gltf" id="1_tvfjd"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_o55o0"]
+[ext_resource type="Texture2D" uid="uid://d24x06vugewxx" path="res://models/planks/textures/m_e9f85447-4a46-e054-6d71-a8f134f90bb0_baseColor.png" id="3_o55o0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_meooh"]
+render_priority = 0
+shader = ExtResource("2_o55o0")
+shader_parameter/albedo = ExtResource("3_o55o0")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/jitter = 0.579
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[node name="Planks" type="Node3D"]
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_tvfjd")]
+
+[node name="Object_2" parent="Sketchfab_Scene/Sketchfab_model/planks_obj_cleaner_materialmerger_gles" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_meooh")
+
+[editable path="Sketchfab_Scene"]

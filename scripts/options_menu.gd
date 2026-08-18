@@ -28,6 +28,7 @@ const META_DEFAULT_SDFGI := &"options_default_sdfgi"
 @onready var volume_value_label: Label = $PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/VolumeRow/VolumeValueLabel
 @onready var look_sensitivity_slider: HSlider = $PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/LookSensitivityRow/LookSensitivitySlider
 @onready var look_sensitivity_value_label: Label = $PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/LookSensitivityRow/LookSensitivityValueLabel
+@onready var hide_own_body_check_box: CheckBox = $PanelContainer/MarginContainer/VBoxContainer/Tabs/General/GeneralMargin/GeneralOptions/HideOwnBodyRow/HideOwnBodyCheckBox
 @onready var fps_spin_box: SpinBox = $PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FpsRow/FpsSpinBox
 @onready var fullscreen_check_box: CheckBox = $PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FullscreenRow/FullscreenCheckBox
 @onready var vsync_check_box: CheckBox = $PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/VsyncRow/VsyncCheckBox
@@ -145,6 +146,9 @@ func _load_options() -> void:
 		MIN_LOOK_SENSITIVITY,
 		MAX_LOOK_SENSITIVITY
 	)
+	var hide_own_body := bool(
+		_config.get_value("gameplay", "hide_own_body", false)
+	)
 
 	fps_spin_box.value = fps
 	fullscreen_check_box.button_pressed = fullscreen
@@ -160,6 +164,7 @@ func _load_options() -> void:
 	_update_volume_label(volume)
 	look_sensitivity_slider.value = look_sensitivity
 	_update_look_sensitivity_label(look_sensitivity)
+	hide_own_body_check_box.button_pressed = hide_own_body
 
 	_loading_options = false
 	_apply_all_options()
@@ -184,6 +189,11 @@ func _save_options() -> void:
 		"look_sensitivity",
 		look_sensitivity_slider.value
 	)
+	_config.set_value(
+		"gameplay",
+		"hide_own_body",
+		hide_own_body_check_box.button_pressed
+	)
 
 	var error := _config.save(OPTIONS_CONFIG_PATH)
 	if error != OK:
@@ -199,6 +209,7 @@ func _apply_all_options() -> void:
 	_apply_world_graphics()
 	_apply_master_volume(volume_slider.value)
 	_apply_look_sensitivity(look_sensitivity_slider.value)
+	_apply_hide_own_body(hide_own_body_check_box.button_pressed)
 
 
 func _apply_max_fps(fps: int) -> void:
@@ -316,6 +327,12 @@ func _apply_look_sensitivity(sensitivity: float) -> void:
 			player.apply_look_sensitivity(clamped_sensitivity)
 
 
+func _apply_hide_own_body(enabled: bool) -> void:
+	for player in get_tree().get_nodes_in_group("local_player_controller"):
+		if player.has_method("apply_hide_own_body"):
+			player.apply_hide_own_body(enabled)
+
+
 func _is_fullscreen() -> bool:
 	return DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
 
@@ -418,6 +435,13 @@ func _on_look_sensitivity_slider_value_changed(value: float) -> void:
 	if _loading_options:
 		return
 	_apply_look_sensitivity(value)
+	_save_options()
+
+
+func _on_hide_own_body_check_box_toggled(toggled_on: bool) -> void:
+	if _loading_options:
+		return
+	_apply_hide_own_body(toggled_on)
 	_save_options()
 
 
