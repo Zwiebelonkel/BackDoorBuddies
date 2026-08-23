@@ -1,0 +1,359 @@
+[gd_scene load_steps=4 format=3 uid="uid://dm2c8jmbaaus1"]
+
+[sub_resource type="StyleBoxFlat" id="panel"]
+bg_color = Color(0.012, 0.02, 0.014, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.08, 0.65, 0.22, 0.45)
+
+[sub_resource type="StyleBoxFlat" id="button_hover"]
+bg_color = Color(0.035, 0.2, 0.07, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 1, 0.4, 1)
+
+[sub_resource type="StyleBoxFlat" id="button"]
+bg_color = Color(0.025, 0.105, 0.045, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.75, 0.25, 0.75)
+
+[node name="DarknetMarketV2" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.003, 0.006, 0.004, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 18.0
+offset_right = -20.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="PanelContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("panel")
+
+[node name="HeaderMargin" type="MarginContainer" parent="Margin/VBox/Header"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="HBox" type="HBoxContainer" parent="Margin/VBox/Header/HeaderMargin"]
+layout_mode = 2
+
+[node name="Brand" type="VBoxContainer" parent="Margin/VBox/Header/HeaderMargin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="Margin/VBox/Header/HeaderMargin/HBox/Brand"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 1, 0.38, 1)
+theme_override_font_sizes/font_size = 23
+text = "NULL//MARKET"
+
+[node name="Sub" type="Label" parent="Margin/VBox/Header/HeaderMargin/HBox/Brand"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 0.5, 0.22, 1)
+theme_override_font_sizes/font_size = 11
+text = "peer-to-peer contraband exchange"
+
+[node name="Wallet" type="Label" parent="Margin/VBox/Header/HeaderMargin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.95, 0.58, 1)
+theme_override_font_sizes/font_size = 16
+text = "$0"
+
+[node name="MainTabs" type="TabContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+current_tab = 0
+
+[node name="SELL" type="Control" parent="Margin/VBox/MainTabs"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="HBox" type="HBoxContainer" parent="Margin/VBox/MainTabs/SELL"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 8.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="InventoryPanel" type="PanelContainer" parent="Margin/VBox/MainTabs/SELL/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("panel")
+
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/MainTabs/SELL/HBox/InventoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Margin/VBox/MainTabs/SELL/HBox/InventoryPanel/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Margin/VBox/MainTabs/SELL/HBox/InventoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.42, 1)
+text = "LOCAL INVENTORY"
+
+[node name="InventoryList" type="ItemList" parent="Margin/VBox/MainTabs/SELL/HBox/InventoryPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+allow_reselect = true
+
+[node name="ListingPanel" type="PanelContainer" parent="Margin/VBox/MainTabs/SELL/HBox"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("panel")
+
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="Label" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.42, 1)
+text = "CREATE LISTING"
+
+[node name="SelectedItem" type="Label" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel/Margin/VBox"]
+layout_mode = 2
+text = "NO ITEM SELECTED"
+autowrap_mode = 2
+
+[node name="BaseValue" type="Label" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.7, 0.4, 1)
+text = "BASE VALUE: $0"
+
+[node name="PriceLabel" type="Label" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel/Margin/VBox"]
+layout_mode = 2
+text = "ASKING PRICE"
+
+[node name="Price" type="SpinBox" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel/Margin/VBox"]
+layout_mode = 2
+min_value = 1.0
+max_value = 999999.0
+value = 100.0
+
+[node name="MarketHint" type="Label" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.55, 0.28, 1)
+text = "market interest: ---"
+
+[node name="ListButton" type="Button" parent="Margin/VBox/MainTabs/SELL/HBox/ListingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_styles/hover = SubResource("button_hover")
+theme_override_styles/normal = SubResource("button")
+text = "PUBLISH LISTING"
+
+[node name="MY LISTINGS" type="Control" parent="Margin/VBox/MainTabs"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="ListingsVBox" type="VBoxContainer" parent="Margin/VBox/MainTabs/MY LISTINGS"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 8.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ListingsHeader" type="HBoxContainer" parent="Margin/VBox/MainTabs/MY LISTINGS/ListingsVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Margin/VBox/MainTabs/MY LISTINGS/ListingsVBox/ListingsHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.3, 1, 0.42, 1)
+text = "ACTIVE LISTINGS"
+
+[node name="Count" type="Label" parent="Margin/VBox/MainTabs/MY LISTINGS/ListingsVBox/ListingsHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.65, 0.3, 1)
+text = "0"
+
+[node name="ListingsScroll" type="ScrollContainer" parent="Margin/VBox/MainTabs/MY LISTINGS/ListingsVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ListingsContainer" type="VBoxContainer" parent="Margin/VBox/MainTabs/MY LISTINGS/ListingsVBox/ListingsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="INBOX" type="Control" parent="Margin/VBox/MainTabs"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="InboxHBox" type="HBoxContainer" parent="Margin/VBox/MainTabs/INBOX"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 8.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="MessagesPanel" type="PanelContainer" parent="Margin/VBox/MainTabs/INBOX/InboxHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("panel")
+
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/MessagesPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/MessagesPanel/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/MessagesPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.42, 1)
+text = "INCOMING OFFERS"
+
+[node name="InboxList" type="ItemList" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/MessagesPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="OfferPanel" type="PanelContainer" parent="Margin/VBox/MainTabs/INBOX/InboxHBox"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("panel")
+
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Buyer" type="Label" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 1, 0.45, 1)
+theme_override_font_sizes/font_size = 17
+text = "NO MESSAGE"
+
+[node name="Message" type="RichTextLabel" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+bbcode_enabled = true
+text = "Select an incoming offer."
+fit_content = true
+
+[node name="OfferValue" type="Label" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 1, 0.52, 1)
+theme_override_font_sizes/font_size = 22
+text = "$0"
+
+[node name="Counter" type="SpinBox" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin/VBox"]
+layout_mode = 2
+min_value = 1.0
+max_value = 999999.0
+value = 100.0
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Accept" type="Button" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/hover = SubResource("button_hover")
+theme_override_styles/normal = SubResource("button")
+text = "ACCEPT"
+
+[node name="CounterButton" type="Button" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/hover = SubResource("button_hover")
+theme_override_styles/normal = SubResource("button")
+text = "COUNTER"
+
+[node name="Decline" type="Button" parent="Margin/VBox/MainTabs/INBOX/InboxHBox/OfferPanel/Margin/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/hover = SubResource("button_hover")
+theme_override_styles/normal = SubResource("button")
+text = "DECLINE"
+
+[node name="BottomLog" type="PanelContainer" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("panel")
+
+[node name="Margin" type="MarginContainer" parent="Margin/VBox/BottomLog"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="Log" type="RichTextLabel" parent="Margin/VBox/BottomLog/Margin"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[color=#1f6a2c]>[/color] relay online"
+scroll_following = true

@@ -16,6 +16,10 @@ func _run_test() -> int:
 	var dummy := $Players.get_node_or_null("0") as FPSController
 	var pistol := $WeaponPickups/PistolPickup as PickupItem
 	var knife := $WeaponPickups/KnifePickup as PickupItem
+	var machine_pistol := $WeaponPickups/MachinePistolPickup as PickupItem
+	var flashlight := $WeaponPickups/FlashlightPickup as PickupItem
+	var note := $WeaponPickups/TargetClueNotePickup as PickupItem
+	var drive := $WeaponPickups/TargetClueDrivePickup as PickupItem
 	var start_button := $StartButton
 	var multiplayer_button := $MultiplayerButton
 
@@ -29,8 +33,39 @@ func _run_test() -> int:
 		or knife == null
 		or knife.item_data == null
 		or knife.item_data.item_id != &"knife"
+		or machine_pistol == null
+		or machine_pistol.item_data == null
+		or flashlight == null
+		or flashlight.item_data == null
+		or flashlight.item_data.item_id != &"flashlight"
+		or note == null
+		or note.item_data == null
+		or note.item_data.item_id != &"target_clue_age"
+		or not note.item_data.is_mission_clue
+		or drive == null
+		or drive.item_data == null
+		or drive.item_data.item_id != &"target_clue_hair_drive"
+		or not drive.item_data.is_mission_clue
 	):
-		return _fail("Lobby pistol or knife pickup is missing.")
+		return _fail("A permanent lobby weapon, flashlight or clue pickup is missing.")
+
+	var flashlight_is_spawnable := false
+	var note_is_spawnable := false
+	var drive_is_spawnable := false
+
+	for scene_index in range($WeaponSpawner.get_spawnable_scene_count()):
+		var scene_path: String = $WeaponSpawner.get_spawnable_scene(scene_index)
+
+		match scene_path:
+			"res://procedural/items/flashlight_pickup.tscn":
+				flashlight_is_spawnable = true
+			"res://procedural/items/lobby_target_clue_note_pickup.tscn":
+				note_is_spawnable = true
+			"res://procedural/items/lobby_target_clue_drive_pickup.tscn":
+				drive_is_spawnable = true
+
+	if not flashlight_is_spawnable or not note_is_spawnable or not drive_is_spawnable:
+		return _fail("A lobby item is not registered for multiplayer spawning.")
 
 	if (
 		start_button == null
@@ -60,6 +95,19 @@ func _run_test() -> int:
 
 	if player == null:
 		return _fail("Lobby could not spawn a connected player.")
+
+	var standing_shape := player.standing_collision.shape as CapsuleShape3D
+
+	if (
+		player.is_crouching()
+		or player.standing_collision.disabled
+		or not player.crouch_collision.disabled
+		or not is_equal_approx(player.head.position.y, player.stand_head_y)
+		or standing_shape == null
+		or not is_equal_approx(standing_shape.height, player.stand_height)
+	):
+		_cleanup_player(player)
+		return _fail("A lobby player does not spawn in the standing stance.")
 
 	var local_name_label := player.get_node_or_null(
 		"PlayerNameLabel"

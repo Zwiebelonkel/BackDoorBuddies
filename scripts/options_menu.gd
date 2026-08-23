@@ -39,6 +39,7 @@ const META_DEFAULT_SDFGI := &"options_default_sdfgi"
 @onready var fog_check_box: CheckBox = $PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FogRow/FogCheckBox
 @onready var glow_check_box: CheckBox = $PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/GlowRow/GlowCheckBox
 @onready var sdfgi_check_box: CheckBox = $PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/SdfgiRow/SdfgiCheckBox
+@onready var hud_canvas_filters_check_box: CheckBox = $PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/HudCanvasFiltersRow/HudCanvasFiltersCheckBox
 @onready var exit_to_main_menu_button: Button = $PanelContainer/MarginContainer/VBoxContainer/Footer/ExitToMainMenuButton
 
 var _config := ConfigFile.new()
@@ -60,6 +61,22 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		for player in get_tree().get_nodes_in_group("local_player_controller"):
+			if (
+				player.has_method("is_using_cabinet_storage")
+				and bool(player.call("is_using_cabinet_storage"))
+			):
+				player.call("exit_cabinet_storage")
+				get_viewport().set_input_as_handled()
+				return
+
+			if (
+				player.has_method("is_using_darknet_terminal")
+				and bool(player.call("is_using_darknet_terminal"))
+			):
+				player.call("exit_darknet_terminal")
+				get_viewport().set_input_as_handled()
+				return
+
 			if (
 				player.has_method("is_using_camera_monitor")
 				and player.is_using_camera_monitor()
@@ -130,6 +147,9 @@ func _load_options() -> void:
 	var fog := bool(_config.get_value("graphics", "fog", true))
 	var glow := bool(_config.get_value("graphics", "glow", true))
 	var sdfgi := bool(_config.get_value("graphics", "sdfgi", true))
+	var hud_canvas_filters := bool(
+		_config.get_value("graphics", "hud_canvas_filters", true)
+	)
 	var volume := clampf(
 		float(_config.get_value("audio", "master_volume", 1.0)),
 		0.0,
@@ -160,6 +180,7 @@ func _load_options() -> void:
 	fog_check_box.button_pressed = fog
 	glow_check_box.button_pressed = glow
 	sdfgi_check_box.button_pressed = sdfgi
+	hud_canvas_filters_check_box.button_pressed = hud_canvas_filters
 	volume_slider.value = volume
 	_update_volume_label(volume)
 	look_sensitivity_slider.value = look_sensitivity
@@ -183,6 +204,11 @@ func _save_options() -> void:
 	_config.set_value("graphics", "fog", fog_check_box.button_pressed)
 	_config.set_value("graphics", "glow", glow_check_box.button_pressed)
 	_config.set_value("graphics", "sdfgi", sdfgi_check_box.button_pressed)
+	_config.set_value(
+		"graphics",
+		"hud_canvas_filters",
+		hud_canvas_filters_check_box.button_pressed
+	)
 	_config.set_value("audio", "master_volume", volume_slider.value)
 	_config.set_value(
 		"controls",
@@ -207,6 +233,7 @@ func _apply_all_options() -> void:
 	_apply_render_scale(render_scale_slider.value)
 	_apply_msaa(_get_selected_msaa())
 	_apply_world_graphics()
+	_apply_hud_canvas_filters(hud_canvas_filters_check_box.button_pressed)
 	_apply_master_volume(volume_slider.value)
 	_apply_look_sensitivity(look_sensitivity_slider.value)
 	_apply_hide_own_body(hide_own_body_check_box.button_pressed)
@@ -333,6 +360,19 @@ func _apply_hide_own_body(enabled: bool) -> void:
 			player.apply_hide_own_body(enabled)
 
 
+func _apply_hud_canvas_filters(enabled: bool) -> void:
+	for hud in get_tree().get_nodes_in_group("player_hud"):
+		_apply_hud_canvas_filters_to_node(hud, enabled)
+
+
+func _apply_hud_canvas_filters_to_node(node: Node, enabled: bool) -> void:
+	if (
+		is_instance_valid(node)
+		and node.has_method("set_hud_canvas_filters_enabled")
+	):
+		node.call("set_hud_canvas_filters_enabled", enabled)
+
+
 func _is_fullscreen() -> bool:
 	return DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
 
@@ -363,6 +403,13 @@ func _update_render_scale_label(scale: float) -> void:
 func _on_tree_node_added(node: Node) -> void:
 	if node is Light3D or node is WorldEnvironment or node is Camera3D:
 		call_deferred("_apply_graphics_to_node", node)
+
+	if node.is_in_group("player_hud"):
+		call_deferred(
+			"_apply_hud_canvas_filters_to_node",
+			node,
+			hud_canvas_filters_check_box.button_pressed
+		)
 
 
 func _on_fps_spin_box_value_changed(value: float) -> void:
@@ -417,6 +464,7 @@ func _on_performance_preset_button_pressed() -> void:
 	fog_check_box.button_pressed = false
 	glow_check_box.button_pressed = false
 	sdfgi_check_box.button_pressed = false
+	hud_canvas_filters_check_box.button_pressed = false
 	_loading_options = false
 	_apply_all_options()
 	_save_options()
@@ -442,6 +490,13 @@ func _on_hide_own_body_check_box_toggled(toggled_on: bool) -> void:
 	if _loading_options:
 		return
 	_apply_hide_own_body(toggled_on)
+	_save_options()
+
+
+func _on_hud_canvas_filters_check_box_toggled(toggled_on: bool) -> void:
+	if _loading_options:
+		return
+	_apply_hud_canvas_filters(toggled_on)
 	_save_options()
 
 

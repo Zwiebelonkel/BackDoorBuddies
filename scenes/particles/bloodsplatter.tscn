@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://edt052t03c35"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_24utd"]
+angle_min = 1.07288e-05
+angle_max = 504.0
+spread = 10.823
+initial_velocity_min = 1.36
+initial_velocity_max = 3.01
+collision_mode = 1
+collision_friction = 0.71
+collision_bounce = 0.14
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_raqf4"]
+albedo_color = Color(1, 0, 0, 1)
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_ipfbw"]
+material = SubResource("StandardMaterial3D_raqf4")
+size = Vector2(0.155, 0.17)
+
+[node name="GPUParticles3D" type="GPUParticles3D"]
+transform = Transform3D(0.999798, -0.0201048, 0, 0.0201048, 0.999798, 0, 0, 0, 1, 0, 0, 0)
+emitting = false
+amount = 863
+lifetime = 3.54
+one_shot = true
+explosiveness = 0.95
+process_material = SubResource("ParticleProcessMaterial_24utd")
+draw_pass_1 = SubResource("QuadMesh_ipfbw")

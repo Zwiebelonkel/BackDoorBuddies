@@ -61,5 +61,15 @@ func _ready() -> void:
 	await get_tree().create_timer(0.5).timeout
 	assert(get_tree().get_nodes_in_group("shot_smoke").is_empty())
 
+	sniper.use_secondary(true)
+	await get_tree().create_timer(0.2).timeout
+	assert(sniper.adjust_scope_zoom(2.0))
+	await get_tree().create_timer(0.1).timeout
+	assert(camera.fov < 18.0)
+	sniper.queue_free()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert(is_equal_approx(camera.fov, 75.0))
+
 	print("SNIPER_SHOT_SMOKE_TEST_PASS")
 	get_tree().quit()

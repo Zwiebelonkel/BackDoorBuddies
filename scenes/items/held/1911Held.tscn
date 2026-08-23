@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://ctcji0jo6ihnp"]
+[gd_scene load_steps=9 format=3 uid="uid://ctcji0jo6ihnp"]
 
 [ext_resource type="Script" uid="uid://dhfy1rvjd8vya" path="res://scripts/items/PistolHeld.gd" id="1_opj43"]
 [ext_resource type="PackedScene" uid="uid://bstgujjg2fx11" path="res://models/1911/1911.glb" id="2_0cct7"]
+[ext_resource type="AudioStream" uid="uid://b0thbnp7hpv6m" path="res://sounds/pistol.mp3" id="2_pw0cq"]
 [ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="3_opj43"]
 [ext_resource type="PackedScene" uid="uid://bhgmgk2oj4qf8" path="res://scenes/items/1911_model.tscn" id="4_cdysq"]
 
@@ -40,6 +41,7 @@ script = ExtResource("1_opj43")
 fire_cooldown = 0.1
 automatic = true
 shot_distance = 308.0
+pistol_shot_sound = ExtResource("2_pw0cq")
 muzzle_flash_energy = 32.0
 muzzle_flash_range = 8.2
 shot_smoke_amount = 42
@@ -49,12 +51,13 @@ shot_smoke_scale_max = 0.71
 shot_smoke_texture_resolution = 4
 bullet_hole_radius = 0.019
 bullet_hole_lifetime = 65.0
-recoil_back_distance = 0.39
+recoil_back_distance = 0.0
 recoil_up_distance = 0.0
 recoil_side_distance = 0.0
-recoil_rotation_degrees = Vector3(0, 45, 0)
+recoil_rotation_degrees = Vector3(0, 3.225, 0)
 return_duration = 0.16
-slide_back_distance = 1.0
+slide_back_distance = 0.27
+slide_back_duration = 0.04
 
 [node name="1911" parent="." instance=ExtResource("2_0cct7")]
 transform = Transform3D(1.01236e-06, -23.16, 3.49706e-06, -23.16, -1.01236e-06, 0, 1.52861e-13, -3.49706e-06, -23.16, 0.682796, 0, 0.11186)
@@ -80,7 +83,7 @@ surface_material_override/0 = SubResource("ShaderMaterial_cdysq")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4351, 0, -0.5496)
 
 [node name="Muzzle" type="Marker3D" parent="1911Model"]
-transform = Transform3D(1.01236e-08, -0.2316, 3.49706e-08, -0.2316, -1.01236e-08, 0, 1.52861e-15, -3.49706e-08, -0.2316, -0.794264, -0.0355086, -2.12875)
+transform = Transform3D(1.01236e-08, -0.2316, 3.49706e-08, -0.2316, -1.01236e-08, 0, 1.52861e-15, -3.49706e-08, -0.2316, -0.562155, -0.0397446, -2.2046)
 
 [editable path="1911"]
 [editable path="1911Model"]

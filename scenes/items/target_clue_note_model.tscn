@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=7 format=3 uid="uid://rcslugvoghbf"]
 
 [sub_resource type="StandardMaterial3D" id="Material_paper"]
 albedo_color = Color(0.78, 0.72, 0.52, 1)
@@ -10,7 +10,6 @@ size = Vector3(0.3, 0.008, 0.21)
 
 [sub_resource type="StandardMaterial3D" id="Material_ink"]
 albedo_color = Color(0.055, 0.07, 0.055, 1)
-roughness = 1.0
 
 [sub_resource type="BoxMesh" id="Mesh_line"]
 material = SubResource("Material_ink")
@@ -32,18 +31,17 @@ size = Vector3(0.055, 0.005, 0.055)
 mesh = SubResource("Mesh_paper")
 
 [node name="Line1" type="MeshInstance3D" parent="."]
-position = Vector3(-0.025, 0.007, -0.064)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.025, 0.007, -0.064)
 mesh = SubResource("Mesh_line")
 
 [node name="Line2" type="MeshInstance3D" parent="."]
-position = Vector3(-0.025, 0.007, -0.026)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.025, 0.007, -0.026)
 mesh = SubResource("Mesh_line")
 
 [node name="Line3" type="MeshInstance3D" parent="."]
-position = Vector3(-0.055, 0.007, 0.012)
-scale = Vector3(0.68, 1, 1)
+transform = Transform3D(0.68, 0, 0, 0, 1, 0, 0, 0, 1, -0.055, 0.007, 0.012)
 mesh = SubResource("Mesh_line")
 
 [node name="RedStamp" type="MeshInstance3D" parent="."]
-position = Vector3(0.1, 0.008, 0.058)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0.008, 0.058)
 mesh = SubResource("Mesh_stamp")

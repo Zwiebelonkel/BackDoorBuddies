@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://procedural/tests/player_camera_shoulder_smoke_test.gd" id="1_test"]
+
+[node name="PlayerCameraShoulderSmokeTest" type="Node3D"]
+script = ExtResource("1_test")

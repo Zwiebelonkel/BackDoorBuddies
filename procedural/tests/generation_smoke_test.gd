@@ -71,6 +71,11 @@ func _run_test() -> int:
 	if not wall_error.is_empty():
 		return _fail(wall_error)
 
+	var hall_environment_error := _validate_hall_environment()
+
+	if not hall_environment_error.is_empty():
+		return _fail(hall_environment_error)
+
 	var surface_material_error := _validate_room_surface_materials()
 
 	if not surface_material_error.is_empty():
@@ -150,29 +155,6 @@ func _validate_large_rooms() -> String:
 
 
 func _validate_room_surface_materials() -> String:
-	var hall_floor := $Hall/Geometry/Floor as MeshInstance3D
-
-	if (
-		hall_floor == null
-		or hall_floor.mesh == null
-		or hall_floor.mesh.surface_get_material(0)
-		!= EXPECTED_FLOOR_MATERIAL
-	):
-		return "The van hall floor is not using metal.tres."
-
-	for wall_name in [&"SouthWall", &"EastWall", &"WestWall", &"WestWall2"]:
-		var hall_wall := $Hall/Geometry.get_node_or_null(
-			NodePath(wall_name)
-		) as MeshInstance3D
-
-		if (
-			hall_wall == null
-			or hall_wall.mesh == null
-			or hall_wall.mesh.surface_get_material(0)
-			!= EXPECTED_WALL_MATERIAL
-		):
-			return "A van hall wall is not using darkBricks.tres."
-
 	for room in generator.generated_rooms:
 		var floor_mesh := room.get_node_or_null(
 			"Geometry/Floor/FloorMesh"
@@ -202,6 +184,60 @@ func _validate_room_surface_materials() -> String:
 				!= EXPECTED_WALL_MATERIAL
 			):
 				return "A generated room wall is not using darkBricks.tres."
+
+	return ""
+
+
+func _validate_hall_environment() -> String:
+	# The hall is now an imported outdoor environment. Its asset-specific
+	# materials intentionally differ from the procedural room shell materials.
+	var buildings := $Hall.get_node_or_null("Bounds/Buildings") as Node3D
+	var streets := $Hall.get_node_or_null("Bounds/Street") as Node3D
+	var hall_body := $Hall.get_node_or_null("StaticBody3D") as StaticBody3D
+	var hall_collision := $Hall.get_node_or_null(
+		"StaticBody3D/CollisionShape3D"
+	) as CollisionShape3D
+
+	if (
+		buildings == null
+		or buildings.get_child_count() == 0
+		or buildings.find_children(
+			"*",
+			"MeshInstance3D",
+			true,
+			false
+		).is_empty()
+	):
+		return "The current hall has no imported building geometry."
+
+	if (
+		streets == null
+		or streets.get_child_count() == 0
+		or streets.find_children(
+			"*",
+			"MeshInstance3D",
+			true,
+			false
+		).is_empty()
+	):
+		return "The current hall has no imported street geometry."
+
+	var hall_box := (
+		hall_collision.shape as BoxShape3D
+		if hall_collision != null
+		else null
+	)
+
+	if (
+		hall_body == null
+		or (hall_body.collision_layer & 1) == 0
+		or hall_collision == null
+		or hall_collision.disabled
+		or hall_box == null
+		or minf(hall_box.size.x, hall_box.size.z) < 20.0
+		or hall_box.size.y <= 0.0
+	):
+		return "The current hall has no usable walkable world collision."
 
 	return ""
 
@@ -305,9 +341,24 @@ func _validate_player_systems() -> String:
 	player.server_inventory_paths.append(mdma.resource_path)
 	player.select_inventory_item(0)
 
-	if not player.server_receive_item(weed_bag):
+	const LARGE_ITEM_INSTANCE_ID := "generation_smoke_large_item"
+
+	if not player.server_receive_item(weed_bag, LARGE_ITEM_INSTANCE_ID):
 		_cleanup_test_player(player)
 		return "Server rejected a valid large item pickup."
+
+	if (
+		player.get_inventory_instance_ids().size() != player.inventory.size()
+		or player.server_inventory_instance_ids.size()
+		!= player.server_inventory_paths.size()
+		or player.get_inventory_instance_ids()[2] != LARGE_ITEM_INSTANCE_ID
+		or not player.server_has_inventory_item(
+			LARGE_ITEM_INSTANCE_ID,
+			weed_bag.resource_path
+		)
+	):
+		_cleanup_test_player(player)
+		return "Item instance IDs were not synchronized into the inventory."
 
 	if (
 		player.selected_inventory_index != 2
@@ -399,6 +450,17 @@ func _validate_player_systems() -> String:
 
 	player._server_drop_item(2)
 
+	if (
+		LARGE_ITEM_INSTANCE_ID in player.get_inventory_instance_ids()
+		or LARGE_ITEM_INSTANCE_ID in player.server_inventory_instance_ids
+		or player.server_has_inventory_item(
+			LARGE_ITEM_INSTANCE_ID,
+			weed_bag.resource_path
+		)
+	):
+		_cleanup_test_player(player)
+		return "Dropped item instance ID remained in the inventory."
+
 	if player.is_holding_large_item() or player.selected_inventory_index != 1:
 		_cleanup_test_player(player)
 		return "Dropping a large item did not release the inventory lock."
@@ -426,15 +488,15 @@ func _validate_value_tracking() -> String:
 
 	if (
 		minimap_map == null
-		or not minimap_map.has_method("get_scanned_item_count")
-		or minimap_map.get_scanned_item_count()
+		or not minimap_map.has_method("get_total_scanned_item_count")
+		or minimap_map.get_total_scanned_item_count()
 		!= generator.items_root.get_child_count()
 	):
 		return "Generated room items are missing from the room scan."
 
 	if (
-		not minimap_map.has_method("get_scanned_camera_count")
-		or minimap_map.get_scanned_camera_count()
+		not minimap_map.has_method("get_total_scanned_camera_count")
+		or minimap_map.get_total_scanned_camera_count()
 		!= generator.generated_surveillance_cameras.size()
 	):
 		return "Generated surveillance cameras are missing from the room scan."
@@ -481,7 +543,7 @@ func _validate_value_tracking() -> String:
 		return "An item moved into the van remained in the generated room value."
 
 	if (
-		minimap_map.get_scanned_item_count()
+		minimap_map.get_total_scanned_item_count()
 		!= generator.items_root.get_child_count() - 1
 	):
 		_restore_test_cargo_item(first_item, original_transform)
@@ -831,7 +893,8 @@ func _cleanup_test_player(player: FPSController) -> void:
 func server_spawn_dropped_item(
 	_item_path: String,
 	_spawn_position: Vector3,
-	_spawn_rotation: Vector3
+	_spawn_rotation: Vector3,
+	_item_instance_id: String = ""
 ) -> void:
 	pass
 

@@ -10,6 +10,8 @@ const ITEM_PATHS := [
 	"res://resources/items/weed.tres",
 	"res://resources/items/weedBag.tres",
 	"res://resources/items/target_note_age.tres",
+	"res://resources/items/target_drive_hair.tres",
+	"res://resources/items/flashlight.tres",
 ]
 
 

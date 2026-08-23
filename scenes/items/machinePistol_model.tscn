@@ -1,8 +1,85 @@
-[gd_scene load_steps=2 format=3 uid="uid://dkch205bkv81k"]
+[gd_scene load_steps=8 format=3 uid="uid://dkch205bkv81k"]
 
 [ext_resource type="PackedScene" uid="uid://bfmsv6g0x1qui" path="res://models/machinePistol/mp.glb" id="1_p8gba"]
+[ext_resource type="Shader" uid="uid://44k4w7lv4dam" path="res://shaders/ps1.gdshader" id="2_j4t6u"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ofqrg"]
+render_priority = 0
+shader = ExtResource("2_j4t6u")
+shader_parameter/albedo_color = Color(0.270222, 0.270222, 0.270222, 1)
+shader_parameter/jitter = 0.567
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xiuch"]
+render_priority = 0
+shader = ExtResource("2_j4t6u")
+shader_parameter/albedo_color = Color(0.807331, 0.69368, 0.518246, 1)
+shader_parameter/jitter = 0.567
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vcqb7"]
+render_priority = 0
+shader = ExtResource("2_j4t6u")
+shader_parameter/albedo_color = Color(0.226707, 0.226707, 0.226707, 1)
+shader_parameter/jitter = 0.567
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5tmi2"]
+render_priority = 0
+shader = ExtResource("2_j4t6u")
+shader_parameter/albedo_color = Color(0.697331, 0.633895, 0.578676, 1)
+shader_parameter/jitter = 0.567
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fahu5"]
+render_priority = 0
+shader = ExtResource("2_j4t6u")
+shader_parameter/albedo_color = Color(0.190762, 0.190762, 0.190762, 1)
+shader_parameter/jitter = 0.567
+shader_parameter/jitter_z_coordinate = true
+shader_parameter/jitter_depth_independent = true
+shader_parameter/affine_texture_mapping = true
+shader_parameter/alpha_scissor = 0.5
 
 [node name="MachinePistolModel" type="Node3D"]
 
 [node name="mp" parent="." instance=ExtResource("1_p8gba")]
 transform = Transform3D(-3.845, 0, -5.80579e-07, 0, 3.845, 0, 5.80579e-07, 0, -3.845, 0, 0, 0)
+
+[node name="SMG_Barrel_SMG_Metal_0" parent="mp/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/SMG_Body/SMG_Barrel" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_ofqrg")
+
+[node name="SMG_Body_SMG_Metal_0" parent="mp/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/SMG_Body" index="1"]
+surface_material_override/0 = SubResource("ShaderMaterial_xiuch")
+
+[node name="SMG_Magazine_SMG_Metal_0" parent="mp/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/SMG_Body/SMG_Magazine" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_vcqb7")
+
+[node name="SMG_Sight_SMG_Metal2_0" parent="mp/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/SMG_Body/SMG_Sight" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_vcqb7")
+
+[node name="SMG_Stock_SMG_Metal_0" parent="mp/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/SMG_Body/SMG_Stock" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_5tmi2")
+
+[node name="SMG_Suppressor_SMG_Metal2_0" parent="mp/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/SMG_Body/SMG_Suppressor" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_fahu5")
+
+[node name="SMG_Trigger_SMG_Metal_0" parent="mp/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/SMG_Body/SMG_Trigger" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_vcqb7")
+
+[node name="VerticalGrip_SMG_Metal2_0" parent="mp/Sketchfab_model/450f8acd56564e74924f9ad5c8940756_fbx/RootNode/SMG_Body/VerticalGrip" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_vcqb7")
+
+[editable path="mp"]

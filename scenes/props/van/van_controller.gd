@@ -23,6 +23,13 @@ extends CharacterBody3D
 @onready var driver_interaction: Area3D = $DriverInteraction
 @onready var driver_seat: Marker3D = $DriverSeat
 @onready var driver_exit: Marker3D = $DriverExit
+@onready var headlights: Array[SpotLight3D] = [
+	$SpotLight3D,
+	$SpotLight3D2,
+]
+@onready var headlight_glass := get_node_or_null(
+	^"van/Sketchfab_model/41667f2016ad477e8bcc5dadecbea5dd_fbx/RootNode/Shvan92_Headlights_Glass/Object_22/Shvan92_Headlights_Glass_UCB_Lights_and_Glass_Transperent_0"
+) as MeshInstance3D
 
 var _driver_peer_id := 0
 var _driver_throttle := 0.0
@@ -39,6 +46,7 @@ func _ready() -> void:
 	process_physics_priority = -100
 	_target_position = global_position
 	_target_yaw = global_rotation.y
+	_set_headlights_enabled(false)
 
 	if (
 		multiplayer.is_server()
@@ -173,6 +181,7 @@ func _apply_driver_assignment(peer_id: int) -> void:
 	_driver_throttle = 0.0
 	_driver_steering = 0.0
 	_input_age = 0.0
+	_set_headlights_enabled(true)
 
 	var player := _find_player(peer_id)
 
@@ -195,6 +204,7 @@ func _apply_driver_exit(
 	_driver_throttle = 0.0
 	_driver_steering = 0.0
 	_input_age = 0.0
+	_set_headlights_enabled(false)
 
 
 func _release_driver_locally(
@@ -205,6 +215,15 @@ func _release_driver_locally(
 
 	if player != null and player.has_method("exit_vehicle"):
 		player.exit_vehicle(self, exit_transform, get_vehicle_velocity())
+
+
+func _set_headlights_enabled(enabled: bool) -> void:
+	for headlight in headlights:
+		if is_instance_valid(headlight):
+			headlight.visible = enabled
+
+	if is_instance_valid(headlight_glass):
+		headlight_glass.visible = enabled
 
 
 func _process_local_driver_input() -> void:

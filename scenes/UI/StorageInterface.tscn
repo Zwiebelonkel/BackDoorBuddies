@@ -1,0 +1,559 @@
+[gd_scene load_steps=12 format=3 uid="uid://bvpk6hxh7c0ei"]
+
+[ext_resource type="Script" uid="uid://caf4ifgttcwvx" path="res://scenes/UI/StorageInterface.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://qm5t2fg87qi0" path="res://resources/scratches2.png" id="2_jja07"]
+
+[sub_resource type="StyleBoxFlat" id="Style_window"]
+bg_color = Color(0.012, 0.019, 0.014, 0.985)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.78, 0.28, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.72)
+shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="Style_button_hover"]
+bg_color = Color(0.08, 0.24, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.32, 1, 0.46, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="Style_button_pressed"]
+bg_color = Color(0.1, 0.38, 0.17, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.46, 1, 0.57, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="Style_button"]
+bg_color = Color(0.055, 0.12, 0.069, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.62, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0.024, 0.038, 0.028, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.34, 0.18, 0.95)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="Shader" id="Shader_rtw2f"]
+code = "shader_type canvas_item;
+render_mode unshaded;
+
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+
+uniform sampler2D dirt_texture : source_color;
+uniform sampler2D scratches_texture : source_color;
+
+uniform float dirt_strength : hint_range(0.0, 2.0) = 0.55;
+uniform float scratch_strength : hint_range(0.0, 2.0) = 0.75;
+uniform float vignette_strength : hint_range(0.0, 2.0) = 0.65;
+uniform float distortion_strength : hint_range(0.0, 0.05) = 0.006;
+uniform float blur_strength : hint_range(0.0, 5.0) = 0.6;
+
+uniform float scratch_scroll_speed : hint_range(-1.0, 1.0) = 0.015;
+uniform float flicker_strength : hint_range(0.0, 0.5) = 0.035;
+
+uniform vec3 dirt_color : source_color = vec3(0.32, 0.27, 0.20);
+uniform vec3 scratch_color : source_color = vec3(0.85, 0.82, 0.72);
+
+float random(vec2 uv) {
+	return fract(
+		sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453
+	);
+}
+
+void fragment() {
+	vec2 uv = SCREEN_UV;
+
+	// Leichte Linsenwölbung
+	vec2 centered_uv = uv - vec2(0.5);
+	float distance_from_center = length(centered_uv);
+
+	vec2 distorted_uv = uv
+		+ centered_uv
+		* distance_from_center
+		* distortion_strength;
+
+	distorted_uv = clamp(distorted_uv, vec2(0.001), vec2(0.999));
+
+	// Kamerabild
+	vec3 screen_color = textureLod(
+		screen_texture,
+		distorted_uv,
+		blur_strength
+	).rgb;
+
+	// Dirt-Textur bleibt fest auf der Linse
+	vec4 dirt_sample = texture(dirt_texture, UV);
+
+	// Kratzer bewegen sich ganz leicht
+	vec2 scratch_uv = UV;
+	scratch_uv.y += TIME * scratch_scroll_speed;
+
+	vec4 scratch_sample = texture(
+		scratches_texture,
+		scratch_uv
+	);
+
+	float dirt_mask = dirt_sample.r * dirt_sample.a;
+	float scratch_mask = scratch_sample.r * scratch_sample.a;
+
+	// Kleine unregelmäßige Helligkeitsschwankung
+	float noise = random(
+		vec2(
+			floor(TIME * 12.0),
+			UV.y
+		)
+	);
+
+	float flicker = 1.0
+		- flicker_strength
+		* noise;
+
+	screen_color *= flicker;
+
+	// Dunkler Schmutz
+	screen_color = mix(
+		screen_color,
+		screen_color * dirt_color,
+		dirt_mask * dirt_strength
+	);
+
+	// Helle Kratzerspuren
+	screen_color += scratch_color
+		* scratch_mask
+		* scratch_strength;
+
+	// Vignette
+	float vignette = smoothstep(
+		0.35,
+		0.85,
+		distance_from_center
+	);
+
+	screen_color *= 1.0
+		- vignette
+		* vignette_strength;
+
+	COLOR = vec4(screen_color, 1.0);
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xf0bh"]
+shader = SubResource("Shader_rtw2f")
+shader_parameter/dirt_texture = ExtResource("2_jja07")
+shader_parameter/dirt_strength = 2.0
+shader_parameter/scratch_strength = 0.037
+shader_parameter/vignette_strength = 0.65
+shader_parameter/distortion_strength = 0.0
+shader_parameter/blur_strength = 0.436
+shader_parameter/scratch_scroll_speed = -1.0
+shader_parameter/flicker_strength = 0.155
+shader_parameter/dirt_color = Color(0, 0, 0, 1)
+shader_parameter/scratch_color = Color(0.85, 0.82, 0.72, 1)
+
+[sub_resource type="Shader" id="Shader_tbmy8"]
+code = "shader_type canvas_item;
+
+uniform sampler2D screen_tex : hint_screen_texture;
+
+uniform float exposure    : hint_range(0.5, 2.0) = 1.0;
+uniform float contrast    : hint_range(0.5, 2.0) = 1.25;
+uniform float saturation  : hint_range(0.0, 2.0) = 0.9;
+
+uniform bool enable_pixelate = true;
+uniform float pixel_factor    : hint_range(0.5, 6.0) = 2.0;
+
+uniform bool  enable_posterize = true;
+uniform float color_levels     : hint_range(2.0, 16.0) = 12.0;
+uniform float dither_strength  : hint_range(0.0, 1.0) = 0.75;
+
+uniform float chrom_aberration : hint_range(0.0, 2.0) = 4.0;
+uniform float vignette_strength: hint_range(0.0, 2.0) = 1.0;
+uniform float grain_strength   : hint_range(0.0, 1.0) = 0.2;
+
+uniform vec3  tint_color = vec3(0.95, 1.03, 0.9);
+uniform float tint_strength : hint_range(0.0, 1.0) = 0.15;
+
+uniform vec2  viewport_size_override = vec2(0.0);
+
+float bayer4x4(vec2 p){
+    int x = int(mod(p.x, 4.0));
+    int y = int(mod(p.y, 4.0));
+    int m[16] = int[16](
+        0,  8,  2, 10,
+       12,  4, 14,  6,
+        3, 11,  1,  9,
+       15,  7, 13,  5
+    );
+    return (float(m[y*4 + x]) + 0.5) / 16.0;
+}
+
+vec3 to_hsv(vec3 c){
+    float cmax = max(c.r, max(c.g, c.b));
+    float cmin = min(c.r, min(c.g, c.b));
+    float d = cmax - cmin;
+    float h = 0.0;
+    if (d > 1e-5) {
+        if      (cmax == c.r) h = mod((c.g - c.b) / d, 6.0);
+        else if (cmax == c.g) h = (c.b - c.r) / d + 2.0;
+        else                  h = (c.r - c.g) / d + 4.0;
+        h /= 6.0;
+        if (h < 0.0) h += 1.0;
+    }
+    float s = cmax <= 1e-5 ? 0.0 : d / cmax;
+    float v = cmax;
+    return vec3(h, s, v);
+}
+
+vec3 to_rgb(vec3 hsv){
+    float h = hsv.x * 6.0;
+    float s = hsv.y;
+    float v = hsv.z;
+    int i = int(floor(h));
+    float f = h - float(i);
+    float p = v * (1.0 - s);
+    float q = v * (1.0 - s * f);
+    float t = v * (1.0 - s * (1.0 - f));
+    if(i == 0) return vec3(v, t, p);
+    if(i == 1) return vec3(q, v, p);
+    if(i == 2) return vec3(p, v, t);
+    if(i == 3) return vec3(p, q, v);
+    if(i == 4) return vec3(t, p, v);
+    return vec3(v, p, q);
+}
+
+float luma(vec3 c){ return dot(c, vec3(0.2126, 0.7152, 0.0722)); }
+
+vec3 adjust_contrast_saturation(vec3 c, float contrast_, float saturation_){
+    c = (c - 0.5) * contrast_ + 0.5;
+    vec3 hsv = to_hsv(c);
+    hsv.y *= saturation_;
+    return clamp(to_rgb(hsv), 0.0, 1.0);
+}
+
+void fragment(){
+    vec2 uv = SCREEN_UV;
+
+    vec2 px = SCREEN_PIXEL_SIZE;
+    if (viewport_size_override.x > 0.0 && viewport_size_override.y > 0.0){
+        px = 1.0 / viewport_size_override;
+    }
+
+    if (enable_pixelate){
+        vec2 step_uv = px * pixel_factor;
+        uv = floor(uv / step_uv) * step_uv + step_uv * 0.5;
+    }
+
+    vec2 center = vec2(0.5);
+    vec2 dir = uv - center;
+    float dist = length(dir);
+
+	vec2 pixel_size_step = px;
+    if (enable_pixelate) {
+        pixel_size_step = px * pixel_factor;
+    }
+
+	vec2 ca_offset = dir * (chrom_aberration * dist * pixel_size_step);
+
+    vec3 col;
+    col.r = texture(screen_tex, uv + ca_offset).r;
+    col.g = texture(screen_tex, uv).g;
+    col.b = texture(screen_tex, uv - ca_offset).b;
+
+    col *= exposure;
+
+    col = mix(col, col * tint_color, tint_strength);
+
+    if (enable_posterize){
+        // Lock the dither coordinates to the pixelation grid
+        vec2 dither_px = px;
+        if (enable_pixelate) {
+            dither_px = px * pixel_factor;
+        }
+        vec2 frag_xy = floor(uv / dither_px);
+        float b = bayer4x4(frag_xy);
+
+        // Subtract 0.5 from the bayer value so it dithers both up and down,
+        // preventing the overall image from artificially brightening or darkening.
+        vec3 dithered = col + (b - 0.5) * (dither_strength / (color_levels - 1.0));
+        vec3 q = floor(dithered * color_levels);
+        col = q / (color_levels - 1.0);
+    }
+
+    col = adjust_contrast_saturation(col, contrast, saturation);
+
+    float vignette = smoothstep(0.5, 0.9, dist) * vignette_strength;
+    col *= clamp(1.0 - vignette, 0.0, 1.0);
+
+    float n = fract(sin(dot(floor(uv/px), vec2(12.9898, 78.233)) + TIME * 37.0) * 43758.5453);
+    col += (n - 0.5) * (px.x + px.y) * 2.0 * grain_strength;
+
+    COLOR = vec4(clamp(col, 0.0, 1.0), 1.0);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xvhbm"]
+shader = SubResource("Shader_tbmy8")
+shader_parameter/exposure = 2.0
+shader_parameter/contrast = 1.085
+shader_parameter/saturation = 1.193
+shader_parameter/enable_pixelate = true
+shader_parameter/pixel_factor = 1.037
+shader_parameter/enable_posterize = true
+shader_parameter/color_levels = 16.0
+shader_parameter/dither_strength = 0.75
+shader_parameter/chrom_aberration = 0.0
+shader_parameter/vignette_strength = 2.0
+shader_parameter/grain_strength = 0.0
+shader_parameter/tint_color = Vector3(0.95, 1.03, 0.9)
+shader_parameter/tint_strength = 0.345
+shader_parameter/viewport_size_override = Vector2(0, 0)
+
+[node name="StorageInterface" type="CanvasLayer"]
+layer = 85
+script = ExtResource("1_script")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.002, 0.006, 0.003, 0.82)
+
+[node name="Window" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(1160, 690)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -580.0
+offset_top = -345.0
+offset_right = 580.0
+offset_bottom = 345.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Style_window")
+
+[node name="Margin" type="MarginContainer" parent="Root/Window"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 16
+
+[node name="Layout" type="VBoxContainer" parent="Root/Window/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="Root/Window/Margin/Layout"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Window/Margin/Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.38, 1, 0.52, 1)
+theme_override_font_sizes/font_size = 28
+text = "VAN STORAGE // 15 SLOTS"
+
+[node name="CloseButton" type="Button" parent="Root/Window/Margin/Layout/Header"]
+custom_minimum_size = Vector2(120, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 1, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+theme_override_styles/normal = SubResource("Style_button")
+text = "SCHLIESSEN"
+
+[node name="Rule" type="ColorRect" parent="Root/Window/Margin/Layout"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(0.16, 0.78, 0.29, 0.75)
+
+[node name="Content" type="HBoxContainer" parent="Root/Window/Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="InventoryPanel" type="PanelContainer" parent="Root/Window/Margin/Layout/Content"]
+custom_minimum_size = Vector2(294, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="Root/Window/Margin/Layout/Content/InventoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Section" type="VBoxContainer" parent="Root/Window/Margin/Layout/Content/InventoryPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Root/Window/Margin/Layout/Content/InventoryPanel/Margin/Section"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Window/Margin/Layout/Content/InventoryPanel/Margin/Section/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.88, 0.74, 1)
+theme_override_font_sizes/font_size = 17
+text = "DEIN INVENTAR"
+
+[node name="Count" type="Label" parent="Root/Window/Margin/Layout/Content/InventoryPanel/Margin/Section/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 1, 0.52, 1)
+theme_override_font_sizes/font_size = 17
+text = "0 / 4"
+
+[node name="InventoryGrid" type="GridContainer" parent="Root/Window/Margin/Layout/Content/InventoryPanel/Margin/Section"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="Actions" type="VBoxContainer" parent="Root/Window/Margin/Layout/Content"]
+custom_minimum_size = Vector2(168, 0)
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="StoreButton" type="Button" parent="Root/Window/Margin/Layout/Content/Actions"]
+custom_minimum_size = Vector2(168, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 1, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+theme_override_styles/normal = SubResource("Style_button")
+text = "EINLAGERN  >"
+
+[node name="TakeButton" type="Button" parent="Root/Window/Margin/Layout/Content/Actions"]
+custom_minimum_size = Vector2(168, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 1, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+theme_override_styles/normal = SubResource("Style_button")
+text = "<  ENTNEHMEN"
+
+[node name="StoragePanel" type="PanelContainer" parent="Root/Window/Margin/Layout/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="Root/Window/Margin/Layout/Content/StoragePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Section" type="VBoxContainer" parent="Root/Window/Margin/Layout/Content/StoragePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Root/Window/Margin/Layout/Content/StoragePanel/Margin/Section"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Window/Margin/Layout/Content/StoragePanel/Margin/Section/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.88, 0.74, 1)
+theme_override_font_sizes/font_size = 17
+text = "GEMEINSAMES VAN-LAGER"
+
+[node name="Count" type="Label" parent="Root/Window/Margin/Layout/Content/StoragePanel/Margin/Section/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 1, 0.52, 1)
+theme_override_font_sizes/font_size = 17
+text = "0 / 15"
+
+[node name="StorageGrid" type="GridContainer" parent="Root/Window/Margin/Layout/Content/StoragePanel/Margin/Section"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="Status" type="Label" parent="Root/Window/Margin/Layout"]
+visible = false
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.43, 0.82, 0.5, 1)
+theme_override_font_sizes/font_size = 15
+text = "ITEM AUSWÄHLEN UND TRANSFERIEREN"
+horizontal_alignment = 1
+
+[node name="Effects" type="CanvasLayer" parent="."]
+layer = 128
+visible = false
+
+[node name="TextureRect2" type="ColorRect" parent="Effects"]
+material = SubResource("ShaderMaterial_xf0bh")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="Effects2" type="CanvasLayer" parent="."]
+layer = 128
+visible = false
+
+[node name="TextureRect" type="ColorRect" parent="Effects2"]
+material = SubResource("ShaderMaterial_xvhbm")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

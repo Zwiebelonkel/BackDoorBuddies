@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bdq7555e851o2"]
+[gd_scene load_steps=6 format=3 uid="uid://bdq7555e851o2"]
 
 [ext_resource type="Script" uid="uid://b67fku2rpuihv" path="res://scripts/items/SniperHeld.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://0v6ho1wwpcjt" path="res://scenes/items/sniper_model.tscn" id="2_model"]
+[ext_resource type="AudioStream" uid="uid://c0nqtl8xc2sa0" path="res://sounds/sniper.mp3" id="2_rkdbo"]
 [ext_resource type="Shader" path="res://shaders/sniper_scope.gdshader" id="3_scope"]
 
 [sub_resource type="ShaderMaterial" id="Material_scope"]
@@ -17,6 +18,7 @@ script = ExtResource("1_script")
 fire_cooldown = 5.0
 shot_distance = 500.0
 attack_type = &"sniper"
+sniper_shot_sound = ExtResource("2_rkdbo")
 muzzle_flash_duration = 0.065
 muzzle_flash_energy = 28.0
 muzzle_flash_range = 7.0

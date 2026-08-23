@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://bd7ntntbi0ggd"]
+
+[ext_resource type="Script" uid="uid://b4yl8qwqoho84" path="res://scenes/props/van/cabinet.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://bvpk6hxh7c0ei" path="res://scenes/UI/StorageInterface.tscn" id="2_interface"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_q714u"]
+size = Vector3(0.7, 0.7, 0.08)
+
+[sub_resource type="BoxShape3D" id="BoxShape_interaction"]
+size = Vector3(0.78, 0.84, 0.24)
+
+[node name="Cabinet" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.488352, 0)
+mesh = SubResource("BoxMesh_q714u")
+
+[node name="Interaction" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.488352, 0.0710912)
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interaction"]
+shape = SubResource("BoxShape_interaction")
+
+[node name="StorageInterface" parent="." instance=ExtResource("2_interface")]

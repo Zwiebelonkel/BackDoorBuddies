@@ -1,20 +1,22 @@
-[gd_scene load_steps=3 format=3 uid="uid://b07c6s1mrsodf"]
+[gd_scene load_steps=4 format=3 uid="uid://b07c6s1mrsodf"]
 
 [ext_resource type="Script" uid="uid://gmg3qtdt3hc2" path="res://scripts/items/MachinePistolHeld.gd" id="1_hfrgm"]
 [ext_resource type="PackedScene" uid="uid://dkch205bkv81k" path="res://scenes/items/machinePistol_model.tscn" id="2_hfrgm"]
+[ext_resource type="AudioStream" uid="uid://dglh2vnyx7jxv" path="res://sounds/mp.mp3" id="2_lhrvf"]
 
 [node name="MachinePistolHeld" type="Node3D"]
 script = ExtResource("1_hfrgm")
 attack_type = &"mp"
+machine_pistol_shot_sound = ExtResource("2_lhrvf")
 shot_smoke_texture_resolution = 4
 recoil_back_distance = 0.2
 recoil_up_distance = 0.0
 recoil_side_distance = 0.0
-recoil_rotation_degrees = Vector3(0, 8.075, 0)
+recoil_rotation_degrees = Vector3(0, 4.72, 0)
 recoil_duration = 0.07
 return_duration = 0.42
-random_rotation_degrees = 0.55
-random_side_distance = 0.003
+random_rotation_degrees = 4.445
+random_side_distance = 0.028
 
 [node name="MachinePistolModel" parent="." instance=ExtResource("2_hfrgm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.260276, 0)

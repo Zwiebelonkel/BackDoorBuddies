@@ -1,5 +1,7 @@
 extends Node
 
+signal camera_attachment_ready
+
 const RAGDOLL_BONES: Array[StringName] = [
 	&"Hips",
 	&"Chest",
@@ -27,13 +29,27 @@ const RAGDOLL_BONES: Array[StringName] = [
 @export_range(0.1, 30.0, 0.1) var maximum_linear_speed := 6.0
 @export_range(0.1, 50.0, 0.1) var maximum_angular_speed := 10.0
 
+@export_group("Impact Response")
+@export_range(0.0, 1.0, 0.05) var inherited_velocity_factor := 0.65
+@export_range(0.0, 15.0, 0.1) var maximum_inherited_speed := 4.5
+@export_range(0.0, 1.0, 0.05) var impact_bone_impulse_share := 0.52
+@export_range(0.0, 1.0, 0.05) var chest_impulse_share := 0.30
+@export_range(0.0, 1.0, 0.05) var hips_impulse_share := 0.18
+@export_range(0.0, 2.0, 0.05) var tumble_torque_scale := 0.35
+@export_range(0.0, 10.0, 0.1) var maximum_torque_impulse := 2.5
+
 var _player: CharacterBody3D
 var _skeleton: Skeleton3D
 var _simulator: PhysicalBoneSimulator3D
 var _physical_bones: Array[PhysicalBone3D] = []
 var _requested_active := false
 var _requested_impulse := Vector3.ZERO
+var _requested_impact_position := Vector3.ZERO
+var _requested_inherited_velocity := Vector3.ZERO
+var _last_impact_bone_name: StringName = &""
+var _last_applied_impulse := Vector3.ZERO
 var _is_ready := false
+var _camera_attachment_ready := false
 
 
 func _ready() -> void:
@@ -58,15 +74,26 @@ func _physics_process(_delta: float) -> void:
 		)
 
 
-func set_ragdoll_active(active: bool, impulse := Vector3.ZERO) -> void:
+func set_ragdoll_active(
+	active: bool,
+	impulse := Vector3.ZERO,
+	impact_position := Vector3.ZERO,
+	inherited_velocity := Vector3.ZERO
+) -> void:
 	_requested_active = active
 	_requested_impulse = impulse
+	_requested_impact_position = impact_position
+	_requested_inherited_velocity = inherited_velocity
 
 	if not _is_ready:
 		return
 
 	if active:
-		_start_ragdoll(impulse)
+		_start_ragdoll(
+			impulse,
+			impact_position,
+			inherited_velocity
+		)
 	else:
 		_stop_ragdoll()
 
@@ -81,6 +108,21 @@ func get_ragdoll_center_position() -> Vector3:
 			return physical_bone.global_position
 
 	return _player.global_position if _player != null else Vector3.ZERO
+
+
+func get_ragdoll_head_bone() -> PhysicalBone3D:
+	if not _camera_attachment_ready:
+		return null
+
+	return _find_physical_bone(&"Head")
+
+
+func get_last_impact_bone_name() -> StringName:
+	return _last_impact_bone_name
+
+
+func get_last_applied_impulse() -> Vector3:
+	return _last_applied_impulse
 
 
 func _setup_ragdoll() -> void:
@@ -109,7 +151,11 @@ func _setup_ragdoll() -> void:
 	_is_ready = not _physical_bones.is_empty()
 
 	if _requested_active:
-		_start_ragdoll(_requested_impulse)
+		_start_ragdoll(
+			_requested_impulse,
+			_requested_impact_position,
+			_requested_inherited_velocity
+		)
 
 
 func _create_physical_bone(bone_name: StringName) -> void:
@@ -127,10 +173,12 @@ func _create_physical_bone(bone_name: StringName) -> void:
 		else PhysicalBone3D.JOINT_TYPE_CONE
 	)
 	physical_bone.mass = _get_bone_mass(bone_name)
-	physical_bone.friction = 0.8
-	physical_bone.bounce = 0.05
-	physical_bone.linear_damp = 1.25
-	physical_bone.angular_damp = 1.75
+	physical_bone.friction = (
+		1.0 if String(bone_name).contains("Foot") else 0.85
+	)
+	physical_bone.bounce = 0.0
+	physical_bone.linear_damp = 1.1
+	physical_bone.angular_damp = 2.2
 	physical_bone.collision_layer = 0
 	physical_bone.collision_mask = 0
 	_simulator.add_child(physical_bone)
@@ -218,9 +266,18 @@ func _get_bone_mass(bone_name: StringName) -> float:
 	return 1.0
 
 
-func _start_ragdoll(impulse: Vector3) -> void:
+func _start_ragdoll(
+	impulse: Vector3,
+	impact_position: Vector3,
+	inherited_velocity: Vector3
+) -> void:
+	if _simulator == null:
+		return
+
 	if _simulator.is_simulating_physics():
 		return
+
+	_camera_attachment_ready = false
 
 	for physical_bone in _physical_bones:
 		physical_bone.collision_layer = ragdoll_collision_layer
@@ -232,24 +289,136 @@ func _start_ragdoll(impulse: Vector3) -> void:
 	_simulator.influence = 1.0
 	_simulator.physical_bones_start_simulation()
 
-	var safe_impulse := _clamp_velocity(
-		impulse * death_impulse_multiplier,
-		maximum_death_impulse
-	)
+	await get_tree().physics_frame
 
-	if safe_impulse.length_squared() > 0.001:
-		for physical_bone in _physical_bones:
-			var impulse_weight := _get_impulse_weight(
-				physical_bone.bone_name
+	if not _requested_active or not is_ragdoll_active():
+		return
+
+	_camera_attachment_ready = true
+	camera_attachment_ready.emit()
+
+	var inherited_motion := _clamp_velocity(
+		inherited_velocity,
+		maximum_inherited_speed
+	) * inherited_velocity_factor
+
+	for physical_bone in _physical_bones:
+		physical_bone.linear_velocity = inherited_motion
+
+	var final_impulse := impulse * death_impulse_multiplier
+
+	if not final_impulse.is_finite():
+		final_impulse = Vector3.ZERO
+
+	if final_impulse.length() > maximum_death_impulse:
+		final_impulse = (
+			final_impulse.normalized()
+			* maximum_death_impulse
+		)
+
+	_last_applied_impulse = final_impulse
+	_last_impact_bone_name = &""
+
+	if final_impulse.length_squared() < 0.001:
+		return
+
+	var impact_bone := _find_closest_physical_bone(impact_position)
+	var chest := _find_physical_bone(&"Chest")
+	var hips := _find_physical_bone(&"Hips")
+	var impulse_weights: Dictionary = {}
+	_add_impulse_weight(
+		impulse_weights,
+		impact_bone,
+		impact_bone_impulse_share
+	)
+	_add_impulse_weight(impulse_weights, chest, chest_impulse_share)
+	_add_impulse_weight(impulse_weights, hips, hips_impulse_share)
+	var total_weight := 0.0
+
+	for weight_value in impulse_weights.values():
+		total_weight += float(weight_value)
+
+	if total_weight > 0.001:
+		for bone_value in impulse_weights.keys():
+			var weighted_bone := bone_value as PhysicalBone3D
+
+			if weighted_bone == null:
+				continue
+
+			weighted_bone.apply_central_impulse(
+				final_impulse
+				* float(impulse_weights[weighted_bone])
+				/ total_weight
 			)
 
-			if impulse_weight > 0.0:
-				physical_bone.apply_central_impulse(
-					safe_impulse * impulse_weight
-				)
+	if impact_bone != null:
+		_last_impact_bone_name = impact_bone.bone_name
+		var ragdoll_center := (
+			hips.global_position
+			if hips != null
+			else impact_bone.global_position
+		)
+		var lever := impact_position - ragdoll_center
+		var torque_impulse := _clamp_velocity(
+			lever.cross(final_impulse) * tumble_torque_scale,
+			maximum_torque_impulse
+		)
+
+		if torque_impulse.length_squared() > 0.001:
+			impact_bone.angular_velocity = _clamp_velocity(
+				impact_bone.angular_velocity
+				+ torque_impulse / maxf(impact_bone.mass, 0.1),
+				maximum_angular_speed
+			)
+
+
+func _find_physical_bone(
+	bone_name: StringName
+) -> PhysicalBone3D:
+	for physical_bone in _physical_bones:
+		if physical_bone.bone_name == bone_name:
+			return physical_bone
+
+	return null
+
+
+func _find_closest_physical_bone(
+	position: Vector3
+) -> PhysicalBone3D:
+	var closest_bone: PhysicalBone3D = null
+	var closest_distance_squared := INF
+
+	for physical_bone in _physical_bones:
+		var distance_squared := physical_bone.global_position.distance_squared_to(
+			position
+		)
+
+		if distance_squared < closest_distance_squared:
+			closest_distance_squared = distance_squared
+			closest_bone = physical_bone
+
+	return closest_bone
+
+
+func _add_impulse_weight(
+	weights: Dictionary,
+	physical_bone: PhysicalBone3D,
+	weight: float
+) -> void:
+	if physical_bone == null or weight <= 0.0:
+		return
+
+	weights[physical_bone] = (
+		float(weights.get(physical_bone, 0.0)) + weight
+	)
 
 
 func _stop_ragdoll() -> void:
+	if _simulator == null:
+		return
+
+	_camera_attachment_ready = false
+
 	if _simulator.is_simulating_physics():
 		_simulator.physical_bones_stop_simulation()
 
@@ -260,6 +429,8 @@ func _stop_ragdoll() -> void:
 		physical_bone.angular_velocity = Vector3.ZERO
 
 	_skeleton.reset_bone_poses()
+	_last_impact_bone_name = &""
+	_last_applied_impulse = Vector3.ZERO
 
 
 func _create_y_aligned_basis(direction: Vector3) -> Basis:
@@ -268,19 +439,6 @@ func _create_y_aligned_basis(direction: Vector3) -> Basis:
 	var x_axis := reference.cross(y_axis).normalized()
 	var z_axis := x_axis.cross(y_axis).normalized()
 	return Basis(x_axis, y_axis, z_axis).orthonormalized()
-
-
-func _get_impulse_weight(bone_name: StringName) -> float:
-	if bone_name == &"Hips":
-		return 0.5
-
-	if bone_name == &"Chest":
-		return 0.35
-
-	if bone_name == &"Head":
-		return 0.15
-
-	return 0.0
 
 
 func _clamp_velocity(value: Vector3, maximum_speed: float) -> Vector3:

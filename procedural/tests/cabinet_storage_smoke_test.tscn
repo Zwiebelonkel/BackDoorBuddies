@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://procedural/tests/cabinet_storage_smoke_test.gd" id="1_test"]
+[ext_resource type="PackedScene" path="res://scenes/props/van/cabinet.tscn" id="3_cabinet"]
+
+[node name="CabinetStorageSmokeTest" type="Node3D"]
+script = ExtResource("1_test")
+
+[node name="Players" type="Node3D" parent="."]
+
+[node name="Cabinet" parent="." instance=ExtResource("3_cabinet")]

@@ -114,7 +114,7 @@ shader_parameter/tint_color = Vector3(0.95, 1.03, 0.9)
 shader_parameter/tint_strength = 0.345
 shader_parameter/viewport_size_override = Vector2(0, 0)
 
-[node name="PlayerHUD" type="CanvasLayer"]
+[node name="PlayerHUD" type="CanvasLayer" groups=["player_hud"]]
 layer = 128
 script = ExtResource("1_lc2f8")
 
@@ -430,3 +430,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="DamageFlash" type="CanvasLayer" parent="."]
+layer = 127
+
+[node name="Flash" type="ColorRect" parent="DamageFlash"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)

@@ -1,0 +1,273 @@
+[gd_scene load_steps=32 format=3 uid="uid://cali1plm1vay6"]
+
+[ext_resource type="Script" uid="uid://d1vxuex7tta84" path="res://procedural/scripts/procedural_room.gd" id="1_room"]
+[ext_resource type="Script" uid="uid://dug7toxweuxoa" path="res://procedural/scripts/room_socket.gd" id="2_socket"]
+[ext_resource type="PackedScene" uid="uid://baelow8p2kn74" path="res://procedural/caps/wall_cap.tscn" id="3_cap"]
+[ext_resource type="PackedScene" uid="uid://b6lmpi8q5lm3l" path="res://scenes/props/staircase.tscn" id="4_staircase"]
+[ext_resource type="Material" uid="uid://dtdvt6gb8h5dr" path="res://resources/textures/metal.tres" id="5_floor"]
+[ext_resource type="Material" uid="uid://ctpygeog7ypqd" path="res://resources/textures/darkBricks.tres" id="6_wall"]
+
+[sub_resource type="BoxMesh" id="BottomLandingMesh"]
+material = ExtResource("5_floor")
+size = Vector3(4, 0.1, 2)
+
+[sub_resource type="BoxMesh" id="TopLandingMesh"]
+material = ExtResource("5_floor")
+size = Vector3(4, 0.1, 2)
+
+[sub_resource type="BoxMesh" id="LeftWallMesh"]
+material = ExtResource("6_wall")
+size = Vector3(0.15, 6, 10)
+
+[sub_resource type="BoxMesh" id="RightWallLongMesh"]
+material = ExtResource("6_wall")
+size = Vector3(0.15, 6, 8.4)
+
+[sub_resource type="BoxMesh" id="RightWallShortMesh"]
+material = ExtResource("6_wall")
+size = Vector3(0.15, 6, 0.4)
+
+[sub_resource type="BoxMesh" id="BranchDoorBottomMesh"]
+material = ExtResource("6_wall")
+size = Vector3(0.15, 3, 1.2)
+
+[sub_resource type="BoxMesh" id="BranchDoorTopMesh"]
+material = ExtResource("6_wall")
+size = Vector3(0.15, 0.8, 1.2)
+
+[sub_resource type="BoxMesh" id="DoorSideMesh"]
+material = ExtResource("6_wall")
+size = Vector3(1.4, 6, 0.15)
+
+[sub_resource type="BoxMesh" id="LowerDoorTopMesh"]
+material = ExtResource("6_wall")
+size = Vector3(1.2, 3.8, 0.15)
+
+[sub_resource type="BoxMesh" id="UpperDoorBottomMesh"]
+material = ExtResource("6_wall")
+size = Vector3(1.2, 3, 0.15)
+
+[sub_resource type="BoxMesh" id="UpperDoorTopMesh"]
+material = ExtResource("6_wall")
+size = Vector3(1.2, 0.8, 0.15)
+
+[sub_resource type="BoxMesh" id="CeilingMesh"]
+material = ExtResource("5_floor")
+size = Vector3(4, 0.1, 10)
+
+[sub_resource type="BoxShape3D" id="BottomLandingShape"]
+size = Vector3(4, 0.1, 1.75)
+
+[sub_resource type="BoxShape3D" id="TopLandingShape"]
+size = Vector3(4, 0.1, 2)
+
+[sub_resource type="BoxShape3D" id="CeilingShape"]
+size = Vector3(4, 0.1, 10)
+
+[sub_resource type="BoxShape3D" id="LeftWallShape"]
+size = Vector3(0.15, 6, 10)
+
+[sub_resource type="BoxShape3D" id="RightWallLongShape"]
+size = Vector3(0.15, 6, 8.4)
+
+[sub_resource type="BoxShape3D" id="RightWallShortShape"]
+size = Vector3(0.15, 6, 0.4)
+
+[sub_resource type="BoxShape3D" id="BranchDoorBottomShape"]
+size = Vector3(0.15, 3, 1.2)
+
+[sub_resource type="BoxShape3D" id="BranchDoorTopShape"]
+size = Vector3(0.15, 0.8, 1.2)
+
+[sub_resource type="BoxShape3D" id="DoorSideShape"]
+size = Vector3(1.4, 6, 0.15)
+
+[sub_resource type="BoxShape3D" id="LowerDoorTopShape"]
+size = Vector3(1.2, 3.8, 0.15)
+
+[sub_resource type="BoxShape3D" id="UpperDoorBottomShape"]
+size = Vector3(1.2, 3, 0.15)
+
+[sub_resource type="BoxShape3D" id="UpperDoorTopShape"]
+size = Vector3(1.2, 0.8, 0.15)
+
+[sub_resource type="BoxShape3D" id="RoomBoundsShape"]
+size = Vector3(4, 6, 10)
+
+[node name="Stairwell" type="Node3D"]
+script = ExtResource("1_room")
+room_id = &"stairwell"
+room_type = &"stairwell"
+floor_span = 2
+maximum_items = 0
+
+[node name="Geometry" type="Node3D" parent="."]
+
+[node name="Floor" type="Node3D" parent="Geometry"]
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Geometry/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, -4)
+mesh = SubResource("BottomLandingMesh")
+
+[node name="TopLandingMesh" type="MeshInstance3D" parent="Geometry/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.95, 4)
+mesh = SubResource("TopLandingMesh")
+
+[node name="Walls" type="Node3D" parent="Geometry"]
+
+[node name="LeftWall" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3, 0)
+mesh = SubResource("LeftWallMesh")
+
+[node name="RightWallLong" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, -0.8)
+mesh = SubResource("RightWallLongMesh")
+
+[node name="RightWallShort" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 4.8)
+mesh = SubResource("RightWallShortMesh")
+
+[node name="RightBranchDoorBottom" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1.5, 4)
+mesh = SubResource("BranchDoorBottomMesh")
+
+[node name="RightBranchDoorTop" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 5.6, 4)
+mesh = SubResource("BranchDoorTopMesh")
+
+[node name="FrontLeft" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3, 3, -5)
+mesh = SubResource("DoorSideMesh")
+
+[node name="FrontRight" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 3, -5)
+mesh = SubResource("DoorSideMesh")
+
+[node name="FrontDoorTop" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.1, -5)
+mesh = SubResource("LowerDoorTopMesh")
+
+[node name="BackLeft" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3, 3, 5)
+mesh = SubResource("DoorSideMesh")
+
+[node name="BackRight" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 3, 5)
+mesh = SubResource("DoorSideMesh")
+
+[node name="BackDoorBottom" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 5)
+mesh = SubResource("UpperDoorBottomMesh")
+
+[node name="BackDoorTop" type="MeshInstance3D" parent="Geometry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.6, 5)
+mesh = SubResource("UpperDoorTopMesh")
+
+[node name="Ceiling" type="Node3D" parent="Geometry"]
+
+[node name="CeilingMesh" type="MeshInstance3D" parent="Geometry/Ceiling"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.05, 0)
+mesh = SubResource("CeilingMesh")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_mask = 0
+
+[node name="BottomLandingCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, -4.125)
+shape = SubResource("BottomLandingShape")
+
+[node name="TopLandingCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.95, 4)
+shape = SubResource("TopLandingShape")
+
+[node name="CeilingCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.05, 0)
+shape = SubResource("CeilingShape")
+
+[node name="LeftWallCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3, 0)
+shape = SubResource("LeftWallShape")
+
+[node name="RightWallLongCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, -0.8)
+shape = SubResource("RightWallLongShape")
+
+[node name="RightWallShortCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 4.8)
+shape = SubResource("RightWallShortShape")
+
+[node name="RightBranchDoorBottomCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1.5, 4)
+shape = SubResource("BranchDoorBottomShape")
+
+[node name="RightBranchDoorTopCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 5.6, 4)
+shape = SubResource("BranchDoorTopShape")
+
+[node name="FrontLeftCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3, 3, -5)
+shape = SubResource("DoorSideShape")
+
+[node name="FrontRightCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 3, -5)
+shape = SubResource("DoorSideShape")
+
+[node name="FrontDoorTopCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.1, -5)
+shape = SubResource("LowerDoorTopShape")
+
+[node name="BackLeftCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3, 3, 5)
+shape = SubResource("DoorSideShape")
+
+[node name="BackRightCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 3, 5)
+shape = SubResource("DoorSideShape")
+
+[node name="BackDoorBottomCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 5)
+shape = SubResource("UpperDoorBottomShape")
+
+[node name="BackDoorTopCollision" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.6, 5)
+shape = SubResource("UpperDoorTopShape")
+
+[node name="Staircase" parent="." instance=ExtResource("4_staircase")]
+transform = Transform3D(1.25, 0, 0, 0, 1.25, 0, 0, 0, 1.25, 0, 0, 0)
+
+[node name="RoomBounds" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBounds"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+shape = SubResource("RoomBoundsShape")
+
+[node name="DoorSockets" type="Node3D" parent="."]
+
+[node name="SocketBottom" type="Marker3D" parent="DoorSockets"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -5)
+script = ExtResource("2_socket")
+socket_type = &"corridor"
+compatible_types = Array[StringName]([&"corridor"])
+cap_scene = ExtResource("3_cap")
+
+[node name="SocketTop" type="Marker3D" parent="DoorSockets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
+script = ExtResource("2_socket")
+socket_type = &"corridor"
+compatible_types = Array[StringName]([&"corridor"])
+floor_offset = 1
+cap_scene = ExtResource("3_cap")
+
+[node name="SocketUpperBranch" type="Marker3D" parent="DoorSockets"]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 2, 3, 4)
+script = ExtResource("2_socket")
+socket_type = &"corridor"
+compatible_types = Array[StringName]([&"corridor"])
+floor_offset = 1
+cap_scene = ExtResource("3_cap")
+
+[node name="ItemSpawnPoints" type="Node3D" parent="."]

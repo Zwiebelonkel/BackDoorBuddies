@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://dqp01agatjygk"]
+
+[ext_resource type="Script" path="res://scripts/items/FlashlightHeld.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://ctvxta2m6hjbq" path="res://scenes/items/flashlight_model.tscn" id="2_model"]
+
+[node name="FlashlightHeld" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0785372, 0)
+script = ExtResource("1_script")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+
+[node name="RightHandGrip" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0317818, -0.113443)
+
+[node name="Beam" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.31)
+light_color = Color(0.86, 0.91, 1, 1)
+light_energy = 16.0
+light_indirect_energy = 1.4
+light_volumetric_fog_energy = 2.0
+shadow_blur = 2.0
+spot_range = 541.398
+spot_attenuation = 0.66
+spot_angle = 39.38

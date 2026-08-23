@@ -1,0 +1,8 @@
+Model Information:
+* title:	Flashlight Low Poly
+* source:	https://sketchfab.com/3d-models/flashlight-low-poly-b7ba439a57e0420ba34fee2a29a1c71c
+* author:	KTshka (https://sketchfab.com/K0Te)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

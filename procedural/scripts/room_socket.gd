@@ -6,6 +6,11 @@ extends Marker3D
 @export var socket_type: StringName = &"door"
 @export var compatible_types: Array[StringName] = [&"door"]
 
+## Logical floor inside the owning room at which this socket connects.
+## Normal rooms use 0. A stairwell spanning two floors uses 0 downstairs
+## and 1 upstairs. The generator combines this with the room's floor_index.
+@export_range(0, 2, 1) var floor_offset: int = 0
+
 @export_group("Unused Socket")
 @export var cap_scene: PackedScene
 
@@ -26,6 +31,15 @@ func is_compatible_with(other: RoomSocket) -> bool:
 		return false
 
 	return true
+
+
+func get_connection_floor_index() -> int:
+	var room := get_room()
+
+	if room == null:
+		return floor_offset
+
+	return room.floor_index + floor_offset
 
 
 func close_socket() -> void:

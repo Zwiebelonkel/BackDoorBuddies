@@ -56,7 +56,7 @@ shader_parameter/alpha_scissor = 0.5
 [node name="1911Model" type="Node3D"]
 
 [node name="glock" parent="." instance=ExtResource("3_c5erx")]
-transform = Transform3D(-4.6922e-07, -6.215, -5.43333e-07, -6.215, 4.69219e-07, 5.43333e-07, -5.43333e-07, 5.43333e-07, -6.215, 0.379357, 0, 0.362909)
+transform = Transform3D(-4.6922e-07, -6.215, -5.43333e-07, -6.215, 4.69219e-07, 5.43333e-07, -5.43333e-07, 5.43333e-07, -6.215, -0.48848, 0, 0.362909)
 
 [node name="Object_90" parent="glock/Glock Handgun_45/Glock Handgun Body_44/Cube_001_41" index="0"]
 surface_material_override/0 = SubResource("ShaderMaterial_nwk4n")

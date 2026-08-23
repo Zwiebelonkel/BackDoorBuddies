@@ -39,8 +39,8 @@ room_id = &"bedroom"
 room_type = &"bedroom"
 minimum_generation_depth = 2
 maximum_generation_depth = 8
-minimum_items = 2
-maximum_items = 4
+minimum_items = 1
+maximum_items = 2
 
 [node name="Geometry" type="Node3D" parent="."]
 script = ExtResource("2_shell")

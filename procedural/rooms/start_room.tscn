@@ -87,7 +87,7 @@ spawn_table = ExtResource("6_items")
 [node name="PlayerArrival" type="Marker3D" parent="." groups=["procedural_spawn_point"]]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0.05, 0.8)
 
-[node name="ExitDoor" parent="." instance=ExtResource("7_exit")]
+[node name="ExitDoor" parent="." groups=["procedural_scan_entrance"] instance=ExtResource("7_exit")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
 
 [node name="Barrels" parent="." instance=ExtResource("8_qngvn")]

@@ -33,6 +33,11 @@ var minimum_weight_speed_multiplier: float = 0.45
 @export var coyote_time: float        = 0.12
 @export var jump_buffer_time: float   = 0.15
 
+@export_group("Stairs & Slopes")
+@export_range(0.0, 1.0, 0.01) var stair_floor_snap_length := 0.35
+@export_range(1.0, 60.0, 1.0) var maximum_walkable_slope_degrees := 45.0
+@export var keep_speed_on_slopes := true
+
 @export_group("Look")
 @export var mouse_sensitivity: float  = 0.002
 @export var controller_sensitivity: float = 2.5
@@ -51,6 +56,12 @@ var minimum_weight_speed_multiplier: float = 0.45
 @export var bob_frequency_sprint: float = 2.8
 @export var bob_amplitude_y: float    = 0.06
 @export var bob_amplitude_x: float    = 0.03
+
+@export_group("Camera Shoulder Follow")
+@export var camera_shoulder_follow_enabled := true
+@export_range(1.0, 30.0, 0.5) var camera_shoulder_follow_speed := 18.0
+@export_range(0.0, 0.2, 0.01) var camera_shoulder_activation_offset := 0.08
+@export_range(0.0, 0.6, 0.01) var camera_shoulder_max_offset := 0.42
 
 @export_group("Camera Tilt (Strafe)")
 @export var tilt_enabled: bool        = true
@@ -90,6 +101,7 @@ var minimum_weight_speed_multiplier: float = 0.45
 
 @export_group("Combat")
 @export_range(0.0, 1000.0, 1.0) var pistol_damage := 34.0
+@export_range(0.0, 1000.0, 1.0) var mp_damage := 2.0
 @export_range(0.0, 1000.0, 1.0) var sniper_damage := 100.0
 @export_range(0.0, 1000.0, 1.0) var knife_damage := 45.0
 @export_range(0.0, 1000.0, 1.0) var unarmed_damage := 18.0
@@ -125,6 +137,9 @@ signal revived
 @onready var uncroch_raycast: RayCast3D           = $StandingRaycast
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
 @onready var item_holder: Marker3D = $Head/Camera3D/ItemHolder
+@onready var player_skeleton: Skeleton3D = (
+	$playerModell/Armature/Skeleton3D
+)
 @onready var player_animation: Node = $PlayerAnimationController
 @onready var ragdoll_controller: Node = $PlayerRagdollController
 @onready var blood_effects: Node = $PlayerBloodEffects
@@ -142,6 +157,11 @@ var _coyote_timer: float      = 0.0
 var _jump_buffer: float       = 0.0
 var _bob_time: float          = 0.0
 var _bob_offset: Vector3      = Vector3.ZERO
+var _head_base_horizontal_position := Vector2.ZERO
+var _camera_shoulder_offset := 0.0
+var _camera_anchor_bone_index := -1
+var _death_camera_attached := false
+var _death_camera_restore_transform := Transform3D.IDENTITY
 var _was_on_floor: bool       = false
 var _step_distance: float     = 0.0
 var _is_crouching: bool       = false
@@ -149,8 +169,10 @@ var _target_head_y: float     = 0.7
 var _target_col_height: float = 1.8
 var _current_tilt: float      = 0.0
 var inventory: Array[ItemData] = []
+var inventory_instance_ids: Array[String] = []
 var selected_inventory_index: int = -1
 var server_inventory_paths: Array[String] = []
+var server_inventory_instance_ids: Array[String] = []
 var equipped_item_resource_path: String = ""
 var held_item_instance: Node3D = null
 var held_item_rig: Node3D = null
@@ -167,6 +189,7 @@ var _stamina_recovery_delay_remaining := 0.0
 var _base_mouse_sensitivity: float
 var _base_controller_sensitivity: float
 var _weapon_aim_sensitivity_multiplier := 1.0
+var _default_camera_fov := 75.0
 var _look_sway_impulse := Vector2.ZERO
 var _current_look_sway := Vector2.ZERO
 var _current_look_sway_roll := 0.0
@@ -177,6 +200,16 @@ var _camera_monitor_mode_active := false
 var _monitor_camera_local_transform := Transform3D.IDENTITY
 var _monitor_camera_fov := 75.0
 var _monitor_previous_mouse_mode := Input.MOUSE_MODE_CAPTURED
+var _active_darknet_terminal: Node3D = null
+var _darknet_terminal_mode_active := false
+var _terminal_camera_local_transform := Transform3D.IDENTITY
+var _terminal_camera_fov := 75.0
+var _terminal_previous_mouse_mode := Input.MOUSE_MODE_CAPTURED
+var _terminal_hud_was_visible := true
+var _active_cabinet_storage: Node3D = null
+var _cabinet_storage_mode_active := false
+var _cabinet_previous_mouse_mode := Input.MOUSE_MODE_CAPTURED
+var _cabinet_hud_was_visible := true
 var _hovered_pickup: PickupItem = null
 var _last_attack_time_by_type: Dictionary = {}
 var _next_unarmed_attack_time_msec := 0
@@ -195,14 +228,17 @@ var world_held_item_rig: Node3D = null
 const STEP_INTERVAL_WALK   := 0.55
 const STEP_INTERVAL_SPRINT := 0.42
 const PISTOL_ATTACK_RANGE := 105.0
+const MP_ATTACK_RANGE := 105.0
 const SNIPER_ATTACK_RANGE := 500.0
 const KNIFE_ATTACK_RANGE := 2.5
 const UNARMED_ATTACK_RANGE := 1.8
 const PISTOL_SERVER_COOLDOWN_MSEC := 180
+const MP_SERVER_COOLDOWN_MSEC := 100
 const SNIPER_SERVER_COOLDOWN_MSEC := 1200
 const KNIFE_SERVER_COOLDOWN_MSEC := 350
 const UNARMED_SERVER_COOLDOWN_MSEC := 500
 const PISTOL_ITEM_PATH := "res://resources/items/1911.tres"
+const MP_ITEM_PATH := "res://resources/items/machinePistol.tres"
 const SNIPER_ITEM_PATH := "res://resources/items/sniper.tres"
 const KNIFE_ITEM_PATH := "res://resources/items/knife.tres"
 const LOCAL_HEAD_RENDER_LAYER := 20
@@ -226,13 +262,51 @@ const PLAYER_HUD_SCENE := preload(
 
 func _ready() -> void:
 	set_multiplayer_authority(name.to_int())
+	_configure_stair_movement()
+	var own_hitbox_area := $PlayerHitbox as CollisionObject3D
+
+	if interaction_ray != null:
+		# The ray is nested below Head/Camera3D, so its automatic parent
+		# exclusion does not reach this CharacterBody or the sibling hitbox.
+		interaction_ray.add_exception(self)
+
+		if own_hitbox_area != null:
+			interaction_ray.add_exception(own_hitbox_area)
+
 	current_stamina = maximum_stamina
 	current_health = maximum_health
 	_base_mouse_sensitivity = mouse_sensitivity
 	_base_controller_sensitivity = controller_sensitivity
+	_default_camera_fov = camera.fov
+	_apply_spawn_standing_stance()
 
 	_item_holder_start_position = item_holder.position
 	_item_holder_start_rotation = item_holder.rotation
+	_head_base_horizontal_position = Vector2(
+		head.position.x,
+		head.position.z
+	)
+	_camera_anchor_bone_index = player_skeleton.find_bone(&"Head")
+
+	if _camera_anchor_bone_index < 0:
+		push_warning("Kopf-Bone für die Schulterkamera wurde nicht gefunden.")
+
+	var death_camera_callback := Callable(
+		self,
+		"_attach_death_camera_to_ragdoll"
+	)
+
+	if (
+		ragdoll_controller.has_signal("camera_attachment_ready")
+		and not ragdoll_controller.is_connected(
+			"camera_attachment_ready",
+			death_camera_callback
+		)
+	):
+		ragdoll_controller.connect(
+			"camera_attachment_ready",
+			death_camera_callback
+		)
 
 	if is_multiplayer_authority():
 		add_to_group("local_player_controller")
@@ -253,10 +327,35 @@ func _ready() -> void:
 		item_holder.visible = false
 		world_item_holder.visible = true
 
+	_setup_player_name_label()
+
+
+func _configure_stair_movement() -> void:
+	floor_snap_length = maxf(stair_floor_snap_length, 0.0)
+	floor_max_angle = deg_to_rad(clampf(
+		maximum_walkable_slope_degrees,
+		1.0,
+		60.0
+	))
+	floor_constant_speed = keep_speed_on_slopes
+	floor_stop_on_slope = true
+
+
+func _apply_spawn_standing_stance() -> void:
+	_is_crouching = false
+	_target_head_y = stand_head_y
+	_target_col_height = stand_height
+	head.position.y = stand_head_y
+
+	if standing_collision:
+		standing_collision.disabled = false
+		var standing_shape := standing_collision.shape as CapsuleShape3D
+
+		if standing_shape:
+			standing_shape.height = stand_height
+
 	if crouch_collision:
 		crouch_collision.disabled = true
-
-	_setup_player_name_label()
 
 
 func _hide_local_head_from_camera() -> void:
@@ -364,6 +463,8 @@ func is_model_hidden_for_camera_monitor() -> bool:
 
 
 func _process(delta: float) -> void:
+	_update_death_camera_attachment()
+	_update_camera_shoulder_follow(delta)
 	_update_player_name_label_position()
 
 	if player_name_label == null or not player_name_label.visible:
@@ -374,6 +475,62 @@ func _process(delta: float) -> void:
 	if _steam_name_refresh_remaining <= 0.0:
 		_refresh_player_name_label()
 		_steam_name_refresh_remaining = 10.0 if _steam_name_resolved else 1.0
+
+
+func _update_camera_shoulder_follow(delta: float) -> void:
+	if not is_multiplayer_authority():
+		return
+
+	var target_offset := 0.0
+	var can_follow_animated_pose := (
+		camera_shoulder_follow_enabled
+		and _camera_anchor_bone_index >= 0
+		and not is_dead
+		and not is_driving_vehicle()
+		and not is_using_darknet_terminal()
+		and not is_using_camera_monitor()
+	)
+
+	if can_follow_animated_pose:
+		var animated_transform := (
+			player_skeleton.global_transform
+			* player_skeleton.get_bone_global_pose(
+				_camera_anchor_bone_index
+			)
+		)
+		var rest_transform := (
+			player_skeleton.global_transform
+			* player_skeleton.get_bone_global_rest(
+				_camera_anchor_bone_index
+			)
+		)
+		var animated_local_position := to_local(animated_transform.origin)
+		var rest_local_position := to_local(rest_transform.origin)
+		var animated_offset := (
+			animated_local_position.z
+			- rest_local_position.z
+		)
+
+		if absf(animated_offset) >= camera_shoulder_activation_offset:
+			target_offset = clampf(
+				animated_offset,
+				-camera_shoulder_max_offset,
+				camera_shoulder_max_offset
+			)
+
+	var smoothing_weight := 1.0 - exp(
+		-camera_shoulder_follow_speed * maxf(delta, 0.0)
+	)
+	_camera_shoulder_offset = lerpf(
+		_camera_shoulder_offset,
+		target_offset,
+		smoothing_weight
+	)
+	head.position.x = _head_base_horizontal_position.x
+	head.position.z = (
+		_head_base_horizontal_position.y
+		+ _camera_shoulder_offset
+	)
 
 
 func _setup_player_name_label() -> void:
@@ -440,6 +597,38 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not is_multiplayer_authority():
 		return
 
+	if is_using_cabinet_storage():
+		if (
+			event.is_action_pressed("ui_cancel")
+			or event.is_action_pressed("interact")
+		):
+			exit_cabinet_storage()
+			get_viewport().set_input_as_handled()
+
+		return
+
+	if is_using_darknet_terminal():
+		if (
+			event.is_action_pressed("ui_cancel")
+			or event.is_action_pressed("interact")
+		):
+			exit_darknet_terminal()
+			get_viewport().set_input_as_handled()
+			return
+
+		if (
+			is_instance_valid(_active_darknet_terminal)
+			and _active_darknet_terminal.has_method("forward_input")
+			and bool(_active_darknet_terminal.call(
+				"forward_input",
+				event,
+				camera
+			))
+		):
+			get_viewport().set_input_as_handled()
+
+		return
+
 	if is_using_camera_monitor():
 		if event.is_action_pressed("ui_cancel"):
 			exit_camera_monitor()
@@ -490,7 +679,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("wave") and not is_driving_vehicle():
 		player_animation.play_wave()
 		_play_wave_remote.rpc()
-		
+
 	if event.is_action_pressed("primary_use"):
 		_use_held_item()
 
@@ -559,6 +748,14 @@ func _physics_process(delta: float) -> void:
 		if interaction_label != null:
 			interaction_label.visible = false
 
+		return
+
+	if is_using_darknet_terminal():
+		_process_darknet_terminal(delta)
+		return
+
+	if is_using_cabinet_storage():
+		_process_cabinet_storage(delta)
 		return
 
 	if is_using_camera_monitor():
@@ -1020,8 +1217,13 @@ func _server_process_player_attack(
 
 	_last_attack_time_by_type[attack_type] = now
 	var impulse_direction := (
-		target_player.global_position - global_position
+		hit_position - camera.global_position
 	).normalized()
+
+	if impulse_direction.length_squared() < 0.001:
+		impulse_direction = (
+			target_player.global_position - global_position
+		).normalized()
 
 	if impulse_direction.length_squared() < 0.001:
 		impulse_direction = -global_basis.z
@@ -1089,6 +1291,15 @@ func _get_server_attack_data(attack_type: StringName) -> Dictionary:
 			"impulse": 2.4,
 		}
 
+	if attack_type == &"mp":
+		return {
+			"damage": mp_damage,
+			"range": MP_ATTACK_RANGE,
+			"cooldown_msec": MP_SERVER_COOLDOWN_MSEC,
+			"required_item": MP_ITEM_PATH,
+			"impulse": 2.4,
+		}
+
 	if attack_type == &"sniper":
 		return {
 			"damage": sniper_damage,
@@ -1130,7 +1341,10 @@ func server_receive_damage(
 	if not multiplayer.is_server() or is_dead:
 		return
 
+	var inherited_velocity := velocity
+	var previous_health := current_health
 	current_health = maxf(current_health - maxf(damage, 0.0), 0.0)
+	var damage_was_applied := current_health < previous_health
 	var died_from_damage := current_health <= 0.0
 
 	if died_from_damage:
@@ -1142,7 +1356,9 @@ func server_receive_damage(
 		hit_position,
 		hit_normal,
 		death_impulse,
-		attack_type
+		inherited_velocity,
+		attack_type,
+		damage_was_applied
 	)
 
 
@@ -1153,22 +1369,37 @@ func _sync_damage_result(
 	hit_position: Vector3,
 	hit_normal: Vector3,
 	death_impulse: Vector3,
-	attack_type: StringName
+	inherited_velocity: Vector3,
+	attack_type: StringName,
+	damage_was_applied: bool
 ) -> void:
 	if not _is_rpc_from_server():
 		return
 
 	current_health = clampf(health, 0.0, maximum_health)
 	health_changed.emit(current_health, maximum_health)
+
+	if (
+		damage_was_applied
+		and is_multiplayer_authority()
+		and is_instance_valid(player_hud)
+	):
+		player_hud.flash_damage()
+
 	blood_effects.spawn_blood_impact(
 		hit_position,
 		hit_normal,
 		death_impulse.normalized(),
-		attack_type
+		attack_type,
+		died_from_damage
 	)
 
 	if died_from_damage and not is_dead:
-		_enter_dead_state(death_impulse)
+		_enter_dead_state(
+			death_impulse,
+			hit_position,
+			inherited_velocity
+		)
 	elif not is_dead:
 		player_animation.play_action(&"ual/Hit_Chest")
 
@@ -1258,9 +1489,15 @@ func _sync_vital_snapshot(health: float, dead: bool) -> void:
 		_leave_dead_state()
 
 
-func _enter_dead_state(death_impulse: Vector3) -> void:
+func _enter_dead_state(
+	death_impulse: Vector3,
+	impact_position := Vector3.ZERO,
+	inherited_velocity := Vector3.ZERO
+) -> void:
+	exit_darknet_terminal()
 	exit_camera_monitor()
-	_use_held_item_secondary(false)
+	exit_cabinet_storage()
+	_reset_held_item_view_state()
 	is_dead = true
 	velocity = Vector3.ZERO
 	_sprint_active = false
@@ -1270,11 +1507,18 @@ func _enter_dead_state(death_impulse: Vector3) -> void:
 	item_holder.visible = false
 	world_item_holder.visible = false
 	player_animation.set_ragdoll_active(true)
-	ragdoll_controller.set_ragdoll_active(true, death_impulse)
+	ragdoll_controller.set_ragdoll_active(
+		true,
+		death_impulse,
+		impact_position,
+		inherited_velocity
+	)
+	_attach_death_camera_to_ragdoll()
 	died.emit()
 
 
 func _leave_dead_state() -> void:
+	_detach_death_camera_from_ragdoll()
 	is_dead = false
 	_is_crouching = false
 	_target_head_y = stand_head_y
@@ -1287,6 +1531,51 @@ func _leave_dead_state() -> void:
 	item_holder.visible = is_multiplayer_authority()
 	world_item_holder.visible = not is_multiplayer_authority()
 	revived.emit()
+
+
+func _update_death_camera_attachment() -> void:
+	if (
+		is_dead
+		and is_multiplayer_authority()
+		and not _death_camera_attached
+	):
+		_attach_death_camera_to_ragdoll()
+
+
+func _attach_death_camera_to_ragdoll() -> void:
+	if (
+		_death_camera_attached
+		or not is_dead
+		or not is_multiplayer_authority()
+		or not is_instance_valid(camera)
+		or not ragdoll_controller.has_method("get_ragdoll_head_bone")
+	):
+		return
+
+	var ragdoll_head := (
+		ragdoll_controller.get_ragdoll_head_bone()
+		as PhysicalBone3D
+	)
+
+	if ragdoll_head == null:
+		return
+
+	_death_camera_restore_transform = camera.transform
+	camera.reparent(ragdoll_head, true)
+	_death_camera_attached = true
+
+
+func _detach_death_camera_from_ragdoll() -> void:
+	if not _death_camera_attached:
+		return
+
+	_death_camera_attached = false
+
+	if not is_instance_valid(camera) or not is_instance_valid(head):
+		return
+
+	camera.reparent(head, false)
+	camera.transform = _death_camera_restore_transform
 
 
 func _find_player_from_node(value: Object) -> FPSController:
@@ -1319,6 +1608,236 @@ func horizontal_speed() -> float:
 	return Vector2(velocity.x, velocity.z).length()
 
 
+func is_using_darknet_terminal(terminal: Node3D = null) -> bool:
+	if not _darknet_terminal_mode_active:
+		return false
+
+	if terminal == null:
+		return true
+
+	return (
+		is_instance_valid(_active_darknet_terminal)
+		and _active_darknet_terminal == terminal
+	)
+
+
+func is_using_cabinet_storage(cabinet: Node3D = null) -> bool:
+	if not _cabinet_storage_mode_active:
+		return false
+
+	if cabinet == null:
+		return true
+
+	return (
+		is_instance_valid(_active_cabinet_storage)
+		and _active_cabinet_storage == cabinet
+	)
+
+
+func enter_cabinet_storage(cabinet: Node3D) -> bool:
+	if (
+		cabinet == null
+		or not is_multiplayer_authority()
+		or is_dead
+		or is_driving_vehicle()
+		or not cabinet.has_method("begin_use")
+	):
+		return false
+
+	if is_using_cabinet_storage(cabinet):
+		return true
+
+	if is_using_darknet_terminal():
+		exit_darknet_terminal()
+
+	if is_using_camera_monitor():
+		exit_camera_monitor()
+
+	if is_using_cabinet_storage():
+		exit_cabinet_storage()
+
+	_reset_held_item_view_state()
+	_active_cabinet_storage = cabinet
+	_cabinet_storage_mode_active = true
+	_cabinet_previous_mouse_mode = Input.mouse_mode
+	_cabinet_hud_was_visible = (
+		player_hud.visible if is_instance_valid(player_hud) else false
+	)
+
+	if not bool(cabinet.call("begin_use", self)):
+		_cabinet_storage_mode_active = false
+		_active_cabinet_storage = null
+		return false
+
+	if is_instance_valid(player_hud):
+		player_hud.visible = false
+
+	velocity = Vector3.ZERO
+	item_holder.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	return true
+
+
+func exit_cabinet_storage() -> void:
+	if not is_using_cabinet_storage():
+		return
+
+	var cabinet := _active_cabinet_storage
+	_cabinet_storage_mode_active = false
+	_active_cabinet_storage = null
+	item_holder.visible = is_multiplayer_authority()
+	Input.mouse_mode = _cabinet_previous_mouse_mode
+
+	if is_instance_valid(player_hud):
+		player_hud.visible = _cabinet_hud_was_visible
+
+	if is_instance_valid(cabinet) and cabinet.has_method("end_use"):
+		cabinet.call("end_use", self)
+
+	if interaction_label != null:
+		interaction_label.visible = false
+
+
+func _process_cabinet_storage(delta: float) -> void:
+	if not is_using_cabinet_storage():
+		return
+
+	if (
+		not is_instance_valid(_active_cabinet_storage)
+		or global_position.distance_to(
+			_active_cabinet_storage.global_position
+		) > 3.0
+	):
+		exit_cabinet_storage()
+		return
+
+	velocity.x = 0.0
+	velocity.z = 0.0
+	_apply_gravity(delta)
+	move_and_slide()
+
+	if interaction_label != null:
+		interaction_label.visible = false
+
+	_broadcast_local_state(delta)
+
+
+func enter_darknet_terminal(terminal: Node3D) -> bool:
+	if (
+		terminal == null
+		or not is_multiplayer_authority()
+		or is_dead
+		or is_driving_vehicle()
+	):
+		return false
+
+	if is_using_darknet_terminal(terminal):
+		return true
+
+	if is_using_darknet_terminal():
+		exit_darknet_terminal()
+
+	if is_using_camera_monitor():
+		exit_camera_monitor()
+
+	if is_using_cabinet_storage():
+		exit_cabinet_storage()
+
+	_reset_held_item_view_state()
+	_active_darknet_terminal = terminal
+	_darknet_terminal_mode_active = true
+	_terminal_camera_local_transform = camera.transform
+	_terminal_camera_fov = camera.fov
+	_terminal_previous_mouse_mode = Input.mouse_mode
+	_terminal_hud_was_visible = (
+		player_hud.visible if is_instance_valid(player_hud) else false
+	)
+
+	if is_instance_valid(player_hud):
+		player_hud.visible = false
+
+	velocity = Vector3.ZERO
+	item_holder.visible = false
+	set_camera_monitor_model_hidden(true)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_update_darknet_terminal_view()
+	return true
+
+
+func exit_darknet_terminal() -> void:
+	if not is_using_darknet_terminal():
+		return
+
+	var terminal := _active_darknet_terminal
+	_darknet_terminal_mode_active = false
+	_active_darknet_terminal = null
+	camera.transform = _terminal_camera_local_transform
+	camera.fov = _terminal_camera_fov
+	item_holder.visible = is_multiplayer_authority()
+	set_camera_monitor_model_hidden(false)
+	Input.mouse_mode = _terminal_previous_mouse_mode
+
+	if is_instance_valid(player_hud):
+		player_hud.visible = _terminal_hud_was_visible
+
+	if is_instance_valid(terminal) and terminal.has_method("end_use"):
+		terminal.call("end_use", self)
+
+	if interaction_label != null:
+		interaction_label.visible = false
+
+
+func _process_darknet_terminal(delta: float) -> void:
+	if not is_using_darknet_terminal():
+		return
+
+	if not is_instance_valid(_active_darknet_terminal):
+		exit_darknet_terminal()
+		return
+
+	# Der Van-Controller trägt Passagiere innerhalb seiner CargoArea mit.
+	# Falls der Körper diese Zone dennoch verlässt, darf die Kamera nicht am
+	# wegfahrenden Terminal hängen bleiben.
+	if global_position.distance_to(
+		_active_darknet_terminal.global_position
+	) > 3.0:
+		exit_darknet_terminal()
+		return
+
+	velocity.x = 0.0
+	velocity.z = 0.0
+	_apply_gravity(delta)
+	move_and_slide()
+	_update_darknet_terminal_view()
+
+	if interaction_label != null:
+		interaction_label.visible = false
+
+	_broadcast_local_state(delta)
+
+
+func _update_darknet_terminal_view() -> void:
+	if not is_using_darknet_terminal():
+		return
+
+	if (
+		not is_instance_valid(_active_darknet_terminal)
+		or not _active_darknet_terminal.has_method("get_view_transform")
+		or not _active_darknet_terminal.has_method("get_viewing_fov")
+	):
+		exit_darknet_terminal()
+		return
+
+	var target_transform: Transform3D = _active_darknet_terminal.call(
+		"get_view_transform",
+		global_position
+	)
+	camera.global_transform = target_transform
+	camera.fov = float(
+		_active_darknet_terminal.call("get_viewing_fov")
+	)
+
+
 func is_using_camera_monitor(monitor: Node3D = null) -> bool:
 	if not _camera_monitor_mode_active:
 		return false
@@ -1344,10 +1863,16 @@ func enter_camera_monitor(monitor: Node3D) -> bool:
 	if is_using_camera_monitor(monitor):
 		return true
 
+	if is_using_darknet_terminal():
+		exit_darknet_terminal()
+
 	if is_using_camera_monitor():
 		exit_camera_monitor()
 
-	_use_held_item_secondary(false)
+	if is_using_cabinet_storage():
+		exit_cabinet_storage()
+
+	_reset_held_item_view_state()
 
 	_active_camera_monitor = monitor
 	_camera_monitor_mode_active = true
@@ -1445,7 +1970,10 @@ func enter_vehicle(
 	if vehicle == null:
 		return
 
+	exit_darknet_terminal()
 	exit_camera_monitor()
+	exit_cabinet_storage()
+	_reset_held_item_view_state()
 
 	if _driven_vehicle == vehicle:
 		return
@@ -1531,6 +2059,175 @@ func _load_item_data(item_resource_path: String) -> ItemData:
 
 	return null
 
+
+func get_inventory_instance_ids() -> Array[String]:
+	return inventory_instance_ids.duplicate()
+
+
+func server_has_inventory_item(
+	instance_id: String,
+	item_resource_path: String
+) -> bool:
+	if not multiplayer.is_server():
+		return false
+
+	var normalized_instance_id := instance_id.strip_edges()
+	var normalized_item_path := item_resource_path.strip_edges()
+
+	if normalized_instance_id.is_empty() or normalized_item_path.is_empty():
+		return false
+
+	var comparable_count := mini(
+		server_inventory_paths.size(),
+		server_inventory_instance_ids.size()
+	)
+
+	for item_index in range(comparable_count):
+		if (
+			server_inventory_instance_ids[item_index]
+			== normalized_instance_id
+			and server_inventory_paths[item_index] == normalized_item_path
+		):
+			return true
+
+	return false
+
+
+func server_extract_inventory_item_for_storage(
+	item_instance_id: String,
+	item_resource_path: String
+) -> bool:
+	if not multiplayer.is_server():
+		return false
+
+	_ensure_server_inventory_instance_ids()
+	var normalized_instance_id := item_instance_id.strip_edges()
+	var normalized_item_path := item_resource_path.strip_edges()
+	var item_index := -1
+
+	for inventory_index in range(mini(
+		server_inventory_paths.size(),
+		server_inventory_instance_ids.size()
+	)):
+		if (
+			server_inventory_instance_ids[inventory_index]
+			== normalized_instance_id
+			and server_inventory_paths[inventory_index]
+			== normalized_item_path
+		):
+			item_index = inventory_index
+			break
+
+	if item_index < 0:
+		return false
+
+	server_inventory_paths.remove_at(item_index)
+	server_inventory_instance_ids.remove_at(item_index)
+
+	if equipped_item_resource_path not in server_inventory_paths:
+		equipped_item_resource_path = (
+			server_inventory_paths[mini(
+				item_index,
+				server_inventory_paths.size() - 1
+			)]
+			if not server_inventory_paths.is_empty()
+			else ""
+		)
+
+	var owner_peer_id := get_multiplayer_authority()
+
+	if owner_peer_id == multiplayer.get_unique_id():
+		_remove_inventory_item_for_storage_local(normalized_instance_id)
+	else:
+		_confirm_cabinet_deposit.rpc_id(
+			owner_peer_id,
+			normalized_instance_id
+		)
+
+	return true
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _confirm_cabinet_deposit(item_instance_id: String) -> void:
+	if not _is_rpc_from_server() or not is_multiplayer_authority():
+		return
+
+	_remove_inventory_item_for_storage_local(item_instance_id)
+
+
+func _remove_inventory_item_for_storage_local(
+	item_instance_id: String
+) -> void:
+	_ensure_local_inventory_instance_ids()
+	var item_index := inventory_instance_ids.find(item_instance_id)
+
+	if item_index < 0 or item_index >= inventory.size():
+		return
+
+	var removed_selected_item := item_index == selected_inventory_index
+	inventory.remove_at(item_index)
+	inventory_instance_ids.remove_at(item_index)
+
+	if inventory.is_empty():
+		selected_inventory_index = -1
+		equipped_item_resource_path = ""
+		_clear_held_item()
+		_sync_equipped_item.rpc("")
+	elif removed_selected_item:
+		selected_inventory_index = mini(item_index, inventory.size() - 1)
+		var replacement_item := inventory[selected_inventory_index]
+		equipped_item_resource_path = replacement_item.resource_path
+		_equip_item(replacement_item)
+		_sync_equipped_item.rpc(equipped_item_resource_path)
+	else:
+		if item_index < selected_inventory_index:
+			selected_inventory_index -= 1
+
+	_emit_inventory_changed()
+
+
+func _ensure_server_inventory_instance_ids() -> void:
+	if server_inventory_instance_ids.size() > server_inventory_paths.size():
+		server_inventory_instance_ids.resize(server_inventory_paths.size())
+
+	while server_inventory_instance_ids.size() < server_inventory_paths.size():
+		server_inventory_instance_ids.append(
+			PickupItem.create_item_instance_id()
+		)
+
+	for item_index in range(server_inventory_instance_ids.size()):
+		if server_inventory_instance_ids[item_index].strip_edges().is_empty():
+			server_inventory_instance_ids[item_index] = (
+				PickupItem.create_item_instance_id()
+			)
+
+
+func _ensure_local_inventory_instance_ids() -> void:
+	if inventory_instance_ids.size() > inventory.size():
+		inventory_instance_ids.resize(inventory.size())
+
+	while inventory_instance_ids.size() < inventory.size():
+		var item_index := inventory_instance_ids.size()
+		var instance_id := ""
+
+		if (
+			multiplayer.is_server()
+			and item_index < server_inventory_instance_ids.size()
+		):
+			instance_id = server_inventory_instance_ids[item_index]
+
+		if instance_id.is_empty():
+			instance_id = PickupItem.create_item_instance_id()
+
+		inventory_instance_ids.append(instance_id)
+
+	for item_index in range(inventory_instance_ids.size()):
+		if inventory_instance_ids[item_index].strip_edges().is_empty():
+			inventory_instance_ids[item_index] = (
+				PickupItem.create_item_instance_id()
+			)
+
+
 func _try_interact() -> void:
 	if not is_multiplayer_authority() or is_dead:
 		print("Keine Authority")
@@ -1579,7 +2276,10 @@ func _try_interact() -> void:
 		print("Getroffenes Objekt besitzt keine Interaktionsmethode")
 
 
-func server_receive_item(data: ItemData) -> bool:
+func server_receive_item(
+	data: ItemData,
+	item_instance_id: String = ""
+) -> bool:
 	if not multiplayer.is_server():
 		return false
 
@@ -1588,6 +2288,19 @@ func server_receive_item(data: ItemData) -> bool:
 
 	if data.resource_path.is_empty():
 		push_error("ItemData muss als .tres-Datei gespeichert sein.")
+		return false
+
+	_ensure_server_inventory_instance_ids()
+	var resolved_instance_id := item_instance_id.strip_edges()
+
+	if resolved_instance_id.is_empty():
+		resolved_instance_id = PickupItem.create_item_instance_id()
+
+	if resolved_instance_id in server_inventory_instance_ids:
+		push_warning(
+			"Item-Instanz ist bereits im Server-Inventar: %s"
+			% resolved_instance_id
+		)
 		return false
 
 	if is_holding_large_item():
@@ -1605,6 +2318,7 @@ func server_receive_item(data: ItemData) -> bool:
 		return false
 
 	server_inventory_paths.append(data.resource_path)
+	server_inventory_instance_ids.append(resolved_instance_id)
 
 	if server_inventory_paths.size() == 1 or data.is_large_item:
 		equipped_item_resource_path = data.resource_path
@@ -1612,9 +2326,13 @@ func server_receive_item(data: ItemData) -> bool:
 	var player_peer_id := get_multiplayer_authority()
 
 	if player_peer_id == multiplayer.get_unique_id():
-		_receive_item_local(data.resource_path)
+		_receive_item_local(data.resource_path, resolved_instance_id)
 	else:
-		_receive_item.rpc_id(player_peer_id, data.resource_path)
+		_receive_item.rpc_id(
+			player_peer_id,
+			data.resource_path,
+			resolved_instance_id
+		)
 
 	return true
 
@@ -1659,9 +2377,16 @@ func _server_drop_item(slot_index: int) -> void:
 	if slot_index < 0 or slot_index >= server_inventory_paths.size():
 		return
 
-	var item_path := server_inventory_paths[slot_index]
+	_ensure_server_inventory_instance_ids()
+	var owner_peer_id := get_multiplayer_authority()
 
-	if item_path.is_empty():
+	if owner_peer_id == multiplayer.get_unique_id():
+		_ensure_local_inventory_instance_ids()
+
+	var item_path := server_inventory_paths[slot_index]
+	var item_instance_id := server_inventory_instance_ids[slot_index]
+
+	if item_path.is_empty() or item_instance_id.is_empty():
 		return
 
 	var drop_global_position := _find_drop_position()
@@ -1681,10 +2406,12 @@ func _server_drop_item(slot_index: int) -> void:
 	main.server_spawn_dropped_item(
 		item_path,
 		drop_global_position,
-		drop_global_rotation
+		drop_global_rotation,
+		item_instance_id
 	)
 
 	server_inventory_paths.remove_at(slot_index)
+	server_inventory_instance_ids.remove_at(slot_index)
 
 	if server_inventory_paths.is_empty():
 		equipped_item_resource_path = ""
@@ -1694,8 +2421,6 @@ func _server_drop_item(slot_index: int) -> void:
 			server_inventory_paths.size() - 1
 		)
 		equipped_item_resource_path = server_inventory_paths[replacement_index]
-
-	var owner_peer_id := get_multiplayer_authority()
 
 	if owner_peer_id == multiplayer.get_unique_id():
 		_remove_dropped_item_local(slot_index)
@@ -1713,7 +2438,13 @@ func _server_drop_all_items_on_death() -> void:
 		push_error("Todesinventar konnte nicht gespawnt werden: Main fehlt.")
 		return
 
+	_ensure_server_inventory_instance_ids()
+
+	if get_multiplayer_authority() == multiplayer.get_unique_id():
+		_ensure_local_inventory_instance_ids()
+
 	var dropped_paths := server_inventory_paths.duplicate()
+	var dropped_instance_ids := server_inventory_instance_ids.duplicate()
 	var base_rotation_y := global_rotation.y
 
 	for item_index in range(dropped_paths.size()):
@@ -1730,10 +2461,12 @@ func _server_drop_all_items_on_death() -> void:
 		main.server_spawn_dropped_item(
 			item_path,
 			_find_drop_position(radial_offset),
-			Vector3(0.0, base_rotation_y + angle, 0.0)
+			Vector3(0.0, base_rotation_y + angle, 0.0),
+			dropped_instance_ids[item_index]
 		)
 
 	server_inventory_paths.clear()
+	server_inventory_instance_ids.clear()
 	equipped_item_resource_path = ""
 	_sync_death_inventory_cleared.rpc()
 
@@ -1750,6 +2483,7 @@ func _sync_death_inventory_cleared() -> void:
 		return
 
 	inventory.clear()
+	inventory_instance_ids.clear()
 	selected_inventory_index = -1
 	_clear_held_item()
 	_emit_inventory_changed()
@@ -1809,7 +2543,9 @@ func _remove_dropped_item_local(slot_index: int) -> void:
 	if slot_index < 0 or slot_index >= inventory.size():
 		return
 
+	_ensure_local_inventory_instance_ids()
 	inventory.remove_at(slot_index)
+	inventory_instance_ids.remove_at(slot_index)
 	_clear_held_item()
 
 	if inventory.is_empty():
@@ -1833,7 +2569,10 @@ func _remove_dropped_item_local(slot_index: int) -> void:
 	)
 
 @rpc("any_peer", "call_remote", "reliable")
-func _receive_item(item_resource_path: String) -> void:
+func _receive_item(
+	item_resource_path: String,
+	item_instance_id: String = ""
+) -> void:
 	# Das serverseitige Player-Node gehört dem Client. Deshalb darf der Server
 	# diese Bestätigung senden, obwohl er nicht die Multiplayer-Authority ist.
 	if multiplayer.get_remote_sender_id() != 1:
@@ -1842,10 +2581,15 @@ func _receive_item(item_resource_path: String) -> void:
 	if not is_multiplayer_authority():
 		return
 
-	_receive_item_local(item_resource_path)
+	_receive_item_local(item_resource_path, item_instance_id)
 
 
-func _receive_item_local(item_resource_path: String) -> void:
+func _receive_item_local(
+	item_resource_path: String,
+	item_instance_id: String = ""
+) -> void:
+	_ensure_local_inventory_instance_ids()
+
 	if inventory.size() >= MAX_INVENTORY_SIZE:
 		push_warning("Lokales Inventar ist bereits voll.")
 		return
@@ -1859,8 +2603,30 @@ func _receive_item_local(item_resource_path: String) -> void:
 		)
 		return
 
+	var resolved_instance_id := item_instance_id.strip_edges()
+
+	if resolved_instance_id.is_empty():
+		var item_index := inventory.size()
+
+		if (
+			multiplayer.is_server()
+			and item_index < server_inventory_instance_ids.size()
+		):
+			resolved_instance_id = server_inventory_instance_ids[item_index]
+
+	if resolved_instance_id.is_empty():
+		resolved_instance_id = PickupItem.create_item_instance_id()
+
+	if resolved_instance_id in inventory_instance_ids:
+		push_warning(
+			"Item-Instanz ist bereits im lokalen Inventar: %s"
+			% resolved_instance_id
+		)
+		return
+
 	var data := loaded_resource as ItemData
 	inventory.append(data)
+	inventory_instance_ids.append(resolved_instance_id)
 
 	print(
 		"Aufgenommen: ",
@@ -1879,6 +2645,7 @@ func _receive_item_local(item_resource_path: String) -> void:
 		_emit_inventory_changed()
 	
 func _emit_inventory_changed() -> void:
+	_ensure_local_inventory_instance_ids()
 	inventory_changed.emit(inventory, selected_inventory_index)
 	
 func select_inventory_item(index: int) -> void:
@@ -2044,14 +2811,10 @@ func unequip_current_item() -> void:
 
 
 func _clear_held_item() -> void:
+	_reset_held_item_view_state()
+
 	if held_item_instance == null and held_item_rig == null:
 		return
-
-	if (
-		is_instance_valid(held_item_instance)
-		and held_item_instance.has_method("use_secondary")
-	):
-		held_item_instance.use_secondary(false)
 
 	if is_instance_valid(held_item_rig):
 		held_item_rig.queue_free()
@@ -2188,9 +2951,11 @@ func _set_hovered_pickup(pickup: PickupItem) -> void:
 
 func clear_inventory() -> void:
 	inventory.clear()
+	inventory_instance_ids.clear()
 
 	if multiplayer.is_server():
 		server_inventory_paths.clear()
+		server_inventory_instance_ids.clear()
 
 	selected_inventory_index = -1
 	equipped_item_resource_path = ""
@@ -2201,10 +2966,15 @@ func clear_inventory() -> void:
 	print("Inventar wurde geleert.")
 	
 func _exit_tree() -> void:
+	exit_darknet_terminal()
 	exit_camera_monitor()
+	exit_cabinet_storage()
 	_set_hovered_pickup(null)
 	_clear_held_item()
 	inventory.clear()
+	inventory_instance_ids.clear()
+	server_inventory_paths.clear()
+	server_inventory_instance_ids.clear()
 
 	if is_instance_valid(player_hud):
 		player_hud.queue_free()
@@ -2288,6 +3058,24 @@ func _use_held_item_secondary(is_pressed: bool) -> void:
 		held_item_instance.use_secondary(is_pressed)
 
 
+func _reset_held_item_view_state() -> void:
+	if is_instance_valid(held_item_instance):
+		if held_item_instance.has_method("reset_scope_immediate"):
+			held_item_instance.call("reset_scope_immediate")
+		elif held_item_instance.has_method("use_secondary"):
+			held_item_instance.call("use_secondary", false)
+
+	set_weapon_aim_sensitivity_multiplier(1.0)
+
+	if (
+		is_multiplayer_authority()
+		and is_instance_valid(camera)
+		and not is_using_darknet_terminal()
+		and not is_using_camera_monitor()
+	):
+		camera.fov = _default_camera_fov
+
+
 func _adjust_held_item_scope_zoom(zoom_steps: float) -> bool:
 	if held_item_instance == null:
 		return false
@@ -2298,7 +3086,7 @@ func _adjust_held_item_scope_zoom(zoom_steps: float) -> bool:
 	return bool(held_item_instance.call("adjust_scope_zoom", zoom_steps))
 	
 	
-@rpc("authority", "call_remote", "unreliable")
+@rpc("authority", "call_remote", "reliable")
 func _play_world_item_use() -> void:
 	if world_held_item_instance == null:
 		return

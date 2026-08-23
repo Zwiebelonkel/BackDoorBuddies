@@ -1,0 +1,56 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://procedural/tests/network_generation_settings_smoke_test.gd" id="1_test"]
+[ext_resource type="Script" path="res://procedural/scripts/procedural_level_generator.gd" id="2_generator"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/start_room.tscn" id="3_start"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/hallway_straight.tscn" id="4_straight"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/hallway_corner.tscn" id="5_corner"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/kitchen.tscn" id="6_kitchen"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/bathroom.tscn" id="7_bathroom"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/bedroom.tscn" id="8_bedroom"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/large_room.tscn" id="9_large"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/warehouse.tscn" id="10_rare"]
+[ext_resource type="PackedScene" path="res://procedural/rooms/stairwell.tscn" id="11_stair"]
+
+[node name="NetworkGenerationSettingsSmokeTest" type="Node"]
+script = ExtResource("1_test")
+
+[node name="HostGenerator" type="Node3D" parent="."]
+script = ExtResource("2_generator")
+start_room_scene = ExtResource("3_start")
+room_scenes = Array[PackedScene]([ExtResource("4_straight"), ExtResource("5_corner"), ExtResource("6_kitchen"), ExtResource("7_bathroom"), ExtResource("8_bedroom"), ExtResource("9_large")])
+large_room_scene = ExtResource("9_large")
+minimum_large_rooms = 1
+rare_room_scene = ExtResource("10_rare")
+rare_room_chance = 1.0
+maximum_rare_rooms = 1
+ceiling_neon_enabled = false
+maximum_neon_bulbs_per_room = 5
+maximum_rooms = 42
+bounds_shrink = 0.041
+stair_room_scene = ExtResource("11_stair")
+minimum_floors = 3
+maximum_floors = 3
+floor_height = 3.0
+surveillance_camera_room_chance = 0.42
+minimum_surveillance_cameras = 2
+maximum_surveillance_cameras = 7
+
+[node name="GeneratedRooms" type="Node3D" parent="HostGenerator"]
+
+[node name="SpawnedItems" type="Node3D" parent="HostGenerator"]
+
+[node name="ClientGenerator" type="Node3D" parent="."]
+script = ExtResource("2_generator")
+start_room_scene = ExtResource("3_start")
+room_scenes = Array[PackedScene]([ExtResource("4_straight")])
+maximum_rooms = 12
+minimum_floors = 1
+maximum_floors = 1
+surveillance_camera_room_chance = 0.0
+minimum_surveillance_cameras = 0
+maximum_surveillance_cameras = 0
+
+[node name="GeneratedRooms" type="Node3D" parent="ClientGenerator"]
+
+[node name="SpawnedItems" type="Node3D" parent="ClientGenerator"]

@@ -1,0 +1,79 @@
+[gd_scene load_steps=3 format=3 uid="uid://bq0ftdsy3nn3d"]
+
+[ext_resource type="PackedScene" uid="uid://b02eoeo1e2rrd" path="res://models/street/scene.gltf" id="1_mi8j3"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ncaw3"]
+size = Vector3(160.713, 1, 158.851)
+
+[node name="Curve" type="Node3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_mi8j3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00671387, 0, 0.0428467)
+
+[node name="streetlight1_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetlight1" index="0"]
+visible = false
+
+[node name="streetlight1_1_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetlight1_1" index="0"]
+visible = false
+
+[node name="pilar_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/pilar" index="0"]
+visible = false
+
+[node name="streetlight1_2_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetlight1_2" index="0"]
+visible = false
+
+[node name="pilar_1_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/pilar_1" index="0"]
+visible = false
+
+[node name="manhole_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/manhole" index="0"]
+visible = false
+
+[node name="streetplane_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetplane" index="0"]
+visible = false
+
+[node name="streetplane_1_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetplane_1" index="0"]
+visible = false
+
+[node name="streetcornerOUt_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetcornerOUt" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -124.067, -2.66066e-14, -119.825)
+
+[node name="streetcornerIN_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetcornerIN" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -124.067, -2.66066e-14, -119.825)
+
+[node name="streetstraight_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetstraight" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.0537, -2.6842e-14, -120.886)
+visible = false
+
+[node name="streetstraight_3_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetstraight_3" index="0"]
+transform = Transform3D(1, 1.2195e-32, 0, 1.2195e-32, 1, 0, 0, 0, 1, -36.0536, -1.64531e-14, 120.886)
+visible = false
+
+[node name="streetstraight_6_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetstraight_6" index="0"]
+visible = false
+
+[node name="streetstraight_7" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street" index="13"]
+visible = false
+
+[node name="streetstraight_4_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetstraight_4" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.0536, -2.6842e-14, -120.886)
+visible = false
+
+[node name="streetstraight_5_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetstraight_5" index="0"]
+transform = Transform3D(1, 1.2195e-32, 0, 1.2195e-32, 1, 0, 0, 0, 1, -36.0536, -1.64531e-14, 120.886)
+visible = false
+
+[node name="streetstraight_1_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetstraight_1" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -124.067, -2.66066e-14, -119.825)
+
+[node name="streetstraight_2_streets_0" parent="Sketchfab_Scene/Sketchfab_model/f3ab1454f8c4466f8a11d5ee0b4d54d2_fbx/RootNode/street/streetstraight_2" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -119.825, -2.66066e-14, 124.067)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_layer = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.339417, 0, -0.0820618)
+shape = SubResource("BoxShape3D_ncaw3")
+
+[editable path="Sketchfab_Scene"]

@@ -1,114 +1,103 @@
-[gd_scene load_steps=15 format=3 uid="uid://dyi2y17vhtx0r"]
+[gd_scene load_steps=11 format=3 uid="uid://dyi2y17vhtx0r"]
 
 [ext_resource type="PackedScene" uid="uid://bgc882x0y1xgx" path="res://procedural/doors/exit_door.tscn" id="1_door"]
 [ext_resource type="PackedScene" uid="uid://byeosjjl5c1lv" path="res://scenes/props/van/Van.tscn" id="2_van"]
 [ext_resource type="PackedScene" path="res://procedural/items/pistol_pickup.tscn" id="3_jugxf"]
 [ext_resource type="PackedScene" uid="uid://dkjq0wp4kvbi2" path="res://models/buildings/1/1.tscn" id="4_8eiui"]
-[ext_resource type="PackedScene" uid="uid://b02eoeo1e2rrd" path="res://models/street/scene.gltf" id="5_getr1"]
-[ext_resource type="Material" uid="uid://dtdvt6gb8h5dr" path="res://resources/textures/metal.tres" id="6_metal"]
-[ext_resource type="Material" uid="uid://ctpygeog7ypqd" path="res://resources/textures/darkBricks.tres" id="7_bricks"]
+[ext_resource type="PackedScene" uid="uid://61tpup0uf2lp" path="res://scenes/props/streets/straight.tscn" id="6_wu3ey"]
+[ext_resource type="PackedScene" uid="uid://bq0ftdsy3nn3d" path="res://scenes/props/streets/curve.tscn" id="7_43sax"]
 [ext_resource type="PackedScene" uid="uid://bmijtjdkv4tlf" path="res://scenes/props/fence.tscn" id="8_43sax"]
+[ext_resource type="PackedScene" uid="uid://nymrt42gryby" path="res://scenes/props/extinguisher.tscn" id="8_gluq5"]
+[ext_resource type="PackedScene" uid="uid://bbueg0ypcaaux" path="res://scenes/props/crate.tscn" id="9_hkkai"]
 
-[sub_resource type="BoxMesh" id="FloorMesh"]
-material = ExtResource("6_metal")
-size = Vector3(39.585, 0.1, 24.325)
-
-[sub_resource type="BoxMesh" id="NorthSouthWallMesh"]
-material = ExtResource("7_bricks")
-size = Vector3(35.3, 5, 0.2)
-
-[sub_resource type="BoxMesh" id="EastWestWallMesh"]
-material = ExtResource("7_bricks")
-size = Vector3(0.2, 5, 16)
-
-[sub_resource type="BoxShape3D" id="FloorShape"]
-size = Vector3(57.6393, 0.1, 20.1494)
-
-[sub_resource type="BoxShape3D" id="NorthSouthWallShape"]
-size = Vector3(31.2114, 5, 0.2)
-
-[sub_resource type="BoxShape3D" id="EastWestWallShape"]
-size = Vector3(0.2, 5, 16)
+[sub_resource type="BoxShape3D" id="BoxShape3D_wu3ey"]
+size = Vector3(94.0641, 1, 135.85)
 
 [node name="Hall" type="Node3D"]
 
-[node name="Geometry" type="Node3D" parent="."]
-
-[node name="Floor" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
-mesh = SubResource("FloorMesh")
-
-[node name="SouthWall" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 7.9)
-mesh = SubResource("NorthSouthWallMesh")
-
-[node name="EastWall" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.9, 2.5, 0)
-mesh = SubResource("EastWestWallMesh")
-
-[node name="WestWall" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.3797, 2.5, 10.227)
-mesh = SubResource("EastWestWallMesh")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
-collision_mask = 0
-
-[node name="FloorCollision" type="CollisionShape3D" parent="StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.8196, -0.05, -2.07471)
-shape = SubResource("FloorShape")
-
-[node name="SouthWallCollision" type="CollisionShape3D" parent="StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.89429, 2.5, 7.9)
-shape = SubResource("NorthSouthWallShape")
-
-[node name="EastWallCollision" type="CollisionShape3D" parent="StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.9, 2.5, 0)
-shape = SubResource("EastWestWallShape")
-
-[node name="WestWallCollision" type="CollisionShape3D" parent="StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.3512, 2.5, 10.19)
-shape = SubResource("EastWestWallShape")
-
 [node name="HallSpawnPoint" type="Marker3D" parent="." groups=["hall_spawn_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -5.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.28574, 1.08037, -5.2)
 
 [node name="BuildingEntrance" parent="." instance=ExtResource("1_door")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0.211718, -11.6476)
+transform = Transform3D(-1.31, 0, -1.97804e-07, 0, 1.31, 0, 1.97804e-07, 0, -1.31, 0, 0.211718, -11.6476)
 interaction_text = "Gebäude betreten"
 destination_group = &"procedural_spawn_point"
 
 [node name="Van" parent="." instance=ExtResource("2_van")]
 transform = Transform3D(1.14636, 0, -0.871468, 0, 1.44, 0, 0.871468, 0, 1.14636, -13.5786, -0.0499995, -6.85676)
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.95787, 7.92452)
-current = true
-fov = 93.8
-near = 1.193
-far = 19.91
-
 [node name="PistolPickup" parent="." instance=ExtResource("3_jugxf")]
-
-[node name="Garage" parent="." instance=ExtResource("4_8eiui")]
-transform = Transform3D(-2.8019e-07, 0, 6.41, 0, 12.775, 0, -6.41, 0, -2.8019e-07, 3.27504, -4.43463e-07, -27.654)
-
-[node name="Garage4" parent="." instance=ExtResource("4_8eiui")]
-transform = Transform3D(-6.39004, 0, -0.505488, 0, 12.775, 0, 0.505488, 0, -6.39004, -19.8763, -4.43463e-07, -24.0122)
-
-[node name="Garage2" parent="." instance=ExtResource("4_8eiui")]
-transform = Transform3D(-2.8019e-07, 0, 6.41, 0, 12.775, 0, -6.41, 0, -2.8019e-07, 21.3445, -99.9323, -4.88737)
-
-[node name="Garage3" parent="." instance=ExtResource("4_8eiui")]
-transform = Transform3D(0.162426, 0, 6.40794, 0, 12.775, 0, -6.40794, 0, 0.162426, -2.43653, -28.2466, 28.2452)
-
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("5_getr1")]
-transform = Transform3D(0.09, 0, 0, 0, 0.09, 0, 0, 0, 0.09, -8.99561, 0.150074, -15.8039)
-
-[node name="Sketchfab_Scene2" parent="." instance=ExtResource("5_getr1")]
-transform = Transform3D(-0.09, 0, -7.86805e-09, 0, 0.09, 0, 7.86805e-09, 0, -0.09, -29.5356, 0.150074, 5.71148)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.10575, 0, 0)
 
 [node name="fence" parent="." instance=ExtResource("8_43sax")]
 transform = Transform3D(-3.40949e-08, 0, 0.78, 0, 0.78, 0, -0.78, 0, -3.40949e-08, -2.19068, 0.0187733, -8.1673)
 
 [node name="fence2" parent="." instance=ExtResource("8_43sax")]
 transform = Transform3D(-3.40949e-08, 0, -0.78, 0, 0.78, 0, 0.78, 0, -3.40949e-08, 1.61929, 0.0187733, -8.1673)
+
+[node name="Bounds" type="Node3D" parent="."]
+
+[node name="Buildings" type="Node3D" parent="Bounds"]
+
+[node name="Garage" parent="Bounds/Buildings" instance=ExtResource("4_8eiui")]
+transform = Transform3D(-2.8019e-07, 0, 6.41, 0, 12.775, 0, -6.41, 0, -2.8019e-07, 3.27504, -4.43463e-07, -27.654)
+
+[node name="Garage4" parent="Bounds/Buildings" instance=ExtResource("4_8eiui")]
+transform = Transform3D(-6.39004, 0, -0.505488, 0, 12.775, 0, 0.505488, 0, -6.39004, -19.8763, -4.43463e-07, -24.0122)
+
+[node name="Garage5" parent="Bounds/Buildings" instance=ExtResource("4_8eiui")]
+transform = Transform3D(-6.15239, 0, 1.79897, 0, 12.775, 0, -1.79897, 0, -6.15239, -49.4367, -94.0543, -30.6238)
+
+[node name="Garage2" parent="Bounds/Buildings" instance=ExtResource("4_8eiui")]
+transform = Transform3D(-2.8019e-07, 0, 6.41, 0, 12.775, 0, -6.41, 0, -2.8019e-07, 21.3445, -99.9323, -4.88737)
+
+[node name="Garage3" parent="Bounds/Buildings" instance=ExtResource("4_8eiui")]
+transform = Transform3D(0.162426, 0, 6.40794, 0, 12.775, 0, -6.40794, 0, 0.162426, -3.91216, -28.2466, 20.4981)
+
+[node name="Garage6" parent="Bounds/Buildings" instance=ExtResource("4_8eiui")]
+transform = Transform3D(0.162426, 0, 6.40794, 0, 12.775, 0, -6.40794, 0, 0.162426, -28.6291, -68.9377, 20.4981)
+
+[node name="Garage7" parent="Bounds/Buildings" instance=ExtResource("4_8eiui")]
+transform = Transform3D(0.162426, 0, 6.40794, 0, 12.775, 0, -6.40794, 0, 0.162426, -44.6439, -68.9377, 19.9829)
+
+[node name="Street" type="Node3D" parent="Bounds"]
+
+[node name="Straight" parent="Bounds/Street" instance=ExtResource("6_wu3ey")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, -4.06702)
+
+[node name="Straight2" parent="Bounds/Street" instance=ExtResource("6_wu3ey")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -16, 0, -4.06702)
+
+[node name="Straight3" parent="Bounds/Street" instance=ExtResource("6_wu3ey")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -32, 0, -4.06702)
+
+[node name="Straight4" parent="Bounds/Street" instance=ExtResource("6_wu3ey")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -48, 0, -4.06702)
+
+[node name="Straight5" parent="Bounds/Street" instance=ExtResource("6_wu3ey")]
+transform = Transform3D(-4.37114e-09, 0, -0.1, 0, 0.1, 0, 0.1, 0, -4.37114e-09, -64.0143, 0, 11.5789)
+
+[node name="Curve" parent="Bounds/Street" instance=ExtResource("7_43sax")]
+transform = Transform3D(-4.37114e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.37114e-09, -64, 0, -4.14544)
+
+[node name="Extinguisher" parent="Bounds/Street" instance=ExtResource("8_gluq5")]
+transform = Transform3D(0.665, 0, 0, 0, 0.665, 0, 0, 0, 0.665, 3.6005, 0.203148, -9.51745)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+visible = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.0635, 0, -4.31348)
+shape = SubResource("BoxShape3D_wu3ey")
+
+[node name="Crate" parent="." instance=ExtResource("9_hkkai")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 2.86572, 0.207099, -9.74938)
+
+[node name="Crate4" parent="." instance=ExtResource("9_hkkai")]
+transform = Transform3D(0.480942, 0, 0.136728, 0, 0.5, 0, -0.136728, 0, 0.480942, 3.19024, 1.03577, -10.285)
+
+[node name="Crate2" parent="." instance=ExtResource("9_hkkai")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 3.88444, 0.207099, -10.5494)
+
+[node name="Crate3" parent="." instance=ExtResource("9_hkkai")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 2.82745, 0.207098, -10.7656)

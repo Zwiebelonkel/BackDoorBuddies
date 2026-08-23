@@ -1,0 +1,224 @@
+[gd_scene load_steps=10 format=3 uid="uid://b6lmpi8q5lm3l"]
+
+[sub_resource type="ConvexPolygonShape3D" id="RampShape"]
+points = PackedVector3Array(-1.2, 0, -2.6, 1.2, 0, -2.6, -1.2, 0, 2.4, 1.2, 0, 2.4, -1.2, 2.4, 2.2, 1.2, 2.4, 2.2, -1.2, 2.4, 2.4, 1.2, 2.4, 2.4)
+
+[sub_resource type="StandardMaterial3D" id="StepMaterial"]
+albedo_color = Color(0.115, 0.135, 0.145, 1)
+metallic = 0.78
+roughness = 0.34
+
+[sub_resource type="BoxMesh" id="StepMesh"]
+material = SubResource("StepMaterial")
+size = Vector3(2.4, 0.2, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="NosingMaterial"]
+albedo_color = Color(0.23, 0.23, 0.23, 1)
+metallic = 0.4
+roughness = 0.3
+emission = Color(0.015, 0.75, 0.12, 1)
+emission_energy_multiplier = 2.4
+
+[sub_resource type="BoxMesh" id="NosingMesh"]
+material = SubResource("NosingMaterial")
+size = Vector3(2.46, 0.045, 0.065)
+
+[sub_resource type="StandardMaterial3D" id="RailMaterial"]
+albedo_color = Color(0.055, 0.07, 0.075, 1)
+metallic = 0.88
+roughness = 0.28
+
+[sub_resource type="BoxMesh" id="RailMesh"]
+material = SubResource("RailMaterial")
+size = Vector3(0.12, 0.12, 5.36656)
+
+[sub_resource type="BoxShape3D" id="RailShape"]
+size = Vector3(0.18, 0.18, 5.36656)
+
+[sub_resource type="BoxMesh" id="PostMesh"]
+material = SubResource("RailMaterial")
+size = Vector3(0.12, 1.1, 0.12)
+
+[node name="Staircase" type="StaticBody3D"]
+collision_mask = 0
+metadata/step_count = 12
+metadata/step_height = 0.2
+metadata/step_depth = 0.4
+metadata/stair_width = 2.4
+
+[node name="RampCollision" type="CollisionShape3D" parent="."]
+shape = SubResource("RampShape")
+
+[node name="Step01" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -2.2)
+mesh = SubResource("StepMesh")
+
+[node name="Step02" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, -1.8)
+mesh = SubResource("StepMesh")
+
+[node name="Step03" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -1.4)
+mesh = SubResource("StepMesh")
+
+[node name="Step04" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, -1)
+mesh = SubResource("StepMesh")
+
+[node name="Step05" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -0.6)
+mesh = SubResource("StepMesh")
+
+[node name="Step06" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, -0.2)
+mesh = SubResource("StepMesh")
+
+[node name="Step07" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0.2)
+mesh = SubResource("StepMesh")
+
+[node name="Step08" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0.6)
+mesh = SubResource("StepMesh")
+
+[node name="Step09" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 1)
+mesh = SubResource("StepMesh")
+
+[node name="Step10" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 1.4)
+mesh = SubResource("StepMesh")
+
+[node name="Step11" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 1.8)
+mesh = SubResource("StepMesh")
+
+[node name="Step12" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 2.2)
+mesh = SubResource("StepMesh")
+
+[node name="Nosing01" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.225, -2.37)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing02" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.425, -1.97)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing03" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.625, -1.57)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing04" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.825, -1.17)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing05" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.025, -0.77)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing06" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.225, -0.37)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing07" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.425, 0.03)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing08" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.625, 0.43)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing09" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.825, 0.83)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing10" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.025, 1.23)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing11" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.225, 1.63)
+mesh = SubResource("NosingMesh")
+
+[node name="Nosing12" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.425, 2.03)
+mesh = SubResource("NosingMesh")
+
+[node name="LeftLowerRail" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.894427, 0.447214, 0, -0.447214, 0.894427, -1.23, 1.72, 0)
+mesh = SubResource("RailMesh")
+
+[node name="LeftUpperRail" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.894427, 0.447214, 0, -0.447214, 0.894427, -1.23, 2.22, 0)
+mesh = SubResource("RailMesh")
+
+[node name="RightLowerRail" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.894427, 0.447214, 0, -0.447214, 0.894427, 1.23, 1.72, 0)
+mesh = SubResource("RailMesh")
+
+[node name="RightUpperRail" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.894427, 0.447214, 0, -0.447214, 0.894427, 1.23, 2.22, 0)
+mesh = SubResource("RailMesh")
+
+[node name="LeftLowerRailCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.894427, 0.447214, 0, -0.447214, 0.894427, -1.23, 1.72, 0)
+shape = SubResource("RailShape")
+
+[node name="LeftUpperRailCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.894427, 0.447214, 0, -0.447214, 0.894427, -1.23, 2.22, 0)
+shape = SubResource("RailShape")
+
+[node name="RightLowerRailCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.894427, 0.447214, 0, -0.447214, 0.894427, 1.23, 1.72, 0)
+shape = SubResource("RailShape")
+
+[node name="RightUpperRailCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.894427, 0.447214, 0, -0.447214, 0.894427, 1.23, 2.22, 0)
+shape = SubResource("RailShape")
+
+[node name="LeftPost01" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.23, 0.61, -2.28)
+mesh = SubResource("PostMesh")
+
+[node name="LeftPost02" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.23, 1.15, -1.2)
+mesh = SubResource("PostMesh")
+
+[node name="LeftPost03" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.23, 1.75, 0)
+mesh = SubResource("PostMesh")
+
+[node name="LeftPost04" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.23, 2.35, 1.2)
+mesh = SubResource("PostMesh")
+
+[node name="LeftPost05" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.23, 2.89, 2.28)
+mesh = SubResource("PostMesh")
+
+[node name="RightPost01" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.23, 0.61, -2.28)
+mesh = SubResource("PostMesh")
+
+[node name="RightPost02" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.23, 1.15, -1.2)
+mesh = SubResource("PostMesh")
+
+[node name="RightPost03" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.23, 1.75, 0)
+mesh = SubResource("PostMesh")
+
+[node name="RightPost04" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.23, 2.35, 1.2)
+mesh = SubResource("PostMesh")
+
+[node name="RightPost05" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.23, 2.89, 2.28)
+mesh = SubResource("PostMesh")
+
+[node name="Bottom" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -2.75)
+
+[node name="Top" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 2.75)

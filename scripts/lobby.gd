@@ -6,6 +6,13 @@ const PISTOL_PICKUP := preload("res://procedural/items/pistol_pickup.tscn")
 const SNIPER_PICKUP := preload("res://procedural/items/sniper_pickup.tscn")
 const MP_PICKUP := preload("res://procedural/items/machinePistol_pickup.tscn")
 const KNIFE_PICKUP := preload("res://procedural/items/knife_pickup.tscn")
+const FLASHLIGHT_PICKUP := preload("res://procedural/items/flashlight_pickup.tscn")
+const TARGET_CLUE_NOTE_PICKUP := preload(
+	"res://procedural/items/lobby_target_clue_note_pickup.tscn"
+)
+const TARGET_CLUE_DRIVE_PICKUP := preload(
+	"res://procedural/items/lobby_target_clue_drive_pickup.tscn"
+)
 const PICKUP_ITEM_SCENE: PackedScene = preload(
 	"res://scenes/items/PickupItem.tscn"
 )
@@ -89,12 +96,35 @@ func _spawn_lobby_weapons() -> void:
 		
 	if not weapons_root.has_node("MachinePistolPickup"):
 		var mp := MP_PICKUP.instantiate() as PickupItem
-		mp.name = "SniperPickup"
-		mp.position = Vector3(0.0, 1.08, -2.3)
+		mp.name = "MachinePistolPickup"
+		mp.position = Vector3(-5.8, 1.08, -2.3)
 		mp.rotation = Vector3(0.0, 0.15, 0.0)
 		mp.rotate_model = true
 		mp.floating_enabled = true
 		weapons_root.add_child(mp, true)
+
+	if not weapons_root.has_node("FlashlightPickup"):
+		var flashlight := FLASHLIGHT_PICKUP.instantiate() as PickupItem
+		flashlight.name = "FlashlightPickup"
+		flashlight.position = Vector3(-6.85, 1.08, -2.3)
+		flashlight.rotation = Vector3(0.0, -0.25, 0.0)
+		flashlight.rotate_model = true
+		flashlight.floating_enabled = true
+		weapons_root.add_child(flashlight, true)
+
+	if not weapons_root.has_node("TargetClueNotePickup"):
+		var note := TARGET_CLUE_NOTE_PICKUP.instantiate() as PickupItem
+		note.name = "TargetClueNotePickup"
+		note.position = Vector3(-4.0, 1.08, -2.58)
+		note.rotation = Vector3(0.0, -0.12, 0.0)
+		weapons_root.add_child(note, true)
+
+	if not weapons_root.has_node("TargetClueDrivePickup"):
+		var drive := TARGET_CLUE_DRIVE_PICKUP.instantiate() as PickupItem
+		drive.name = "TargetClueDrivePickup"
+		drive.position = Vector3(-4.0, 1.08, -2.02)
+		drive.rotation = Vector3(0.0, 0.25, 0.0)
+		weapons_root.add_child(drive, true)
 
 
 func _on_peer_connected(peer_id: int) -> void:
@@ -178,13 +208,20 @@ func _on_peer_disconnected(peer_id: int) -> void:
 func server_spawn_dropped_item(
 	item_path: String,
 	spawn_position: Vector3,
-	spawn_rotation: Vector3
+	spawn_rotation: Vector3,
+	item_instance_id: String = ""
 ) -> void:
 	if not multiplayer.is_server() or item_path.is_empty():
 		return
 
+	var resolved_instance_id := item_instance_id.strip_edges()
+
+	if resolved_instance_id.is_empty():
+		resolved_instance_id = PickupItem.create_item_instance_id()
+
 	item_spawner.spawn({
 		"item_path": item_path,
+		"item_instance_id": resolved_instance_id,
 		"position": spawn_position,
 		"rotation": spawn_rotation,
 	})
@@ -195,6 +232,7 @@ func _spawn_dropped_item(data: Variant) -> Node:
 		return null
 
 	var item_path := str(data.get("item_path", ""))
+	var item_instance_id := str(data.get("item_instance_id", ""))
 	var loaded_data := load(item_path)
 
 	if not loaded_data is ItemData:
@@ -206,6 +244,7 @@ func _spawn_dropped_item(data: Variant) -> Node:
 		return null
 
 	pickup.item_data = loaded_data as ItemData
+	pickup.item_instance_id = item_instance_id
 	pickup.position = data.get("position", Vector3.ZERO) as Vector3
 	pickup.rotation = data.get("rotation", Vector3.ZERO) as Vector3
 	pickup.use_initial_pickup_delay = true

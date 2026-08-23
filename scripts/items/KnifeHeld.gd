@@ -25,7 +25,6 @@ func use_primary() -> void:
 		return
 
 	_can_attack = false
-	_play_owner_animation(&"ual/Sword_Attack")
 	_perform_stab_hit()
 
 	await _play_stab_animation()
@@ -34,18 +33,6 @@ func use_primary() -> void:
 	).timeout
 
 	_can_attack = true
-
-
-func _play_owner_animation(animation_name: StringName) -> void:
-	var shooter := _find_shooter()
-
-	if (
-		shooter != null
-		and shooter.is_multiplayer_authority()
-		and shooter.has_method("play_player_action")
-	):
-		shooter.play_player_action(animation_name)
-
 
 func _perform_stab_hit() -> void:
 	var shooter := _find_shooter()

@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/lobby.tscn" id="1_lobby"]
+[ext_resource type="Script" path="res://procedural/tests/staircase_smoke_test.gd" id="2_test"]
+
+[node name="StaircaseSmokeTest" instance=ExtResource("1_lobby")]
+script = ExtResource("2_test")

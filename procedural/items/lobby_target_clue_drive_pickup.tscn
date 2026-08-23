@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://procedural/items/target_clue_drive_pickup.tscn" id="1_pickup"]
+[ext_resource type="Resource" path="res://resources/items/target_drive_hair.tres" id="2_item"]
+
+[node name="LobbyTargetClueDrivePickup" instance=ExtResource("1_pickup")]
+item_data = ExtResource("2_item")

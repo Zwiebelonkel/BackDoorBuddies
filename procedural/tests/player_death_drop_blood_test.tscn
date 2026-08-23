@@ -14,7 +14,7 @@ script = ExtResource("1_test")
 [node name="Floor" type="StaticBody3D" parent="."]
 position = Vector3(0, -0.1, 0)
 collision_layer = 1
-collision_mask = 1
+collision_mask = 4
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
 shape = SubResource("BoxShape_floor")

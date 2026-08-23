@@ -2,6 +2,9 @@ class_name PlayerHUD
 extends CanvasLayer
 
 const PERFORMANCE_UPDATE_INTERVAL := 0.25
+const OPTIONS_CONFIG_PATH := "user://options.cfg"
+const DAMAGE_FLASH_COLOR := Color(0.82, 0.015, 0.01, 0.48)
+const DAMAGE_FLASH_DURATION := 0.24
 
 @onready var slots: Array[PanelContainer] = [
 	$Root/InventoryBar/Slot1,
@@ -18,14 +21,66 @@ const PERFORMANCE_UPDATE_INTERVAL := 0.25
 @onready var stamina_bar: ProgressBar = $Root/StatusPanel/StatusContent/StaminaBar
 @onready var fps_label: Label = $Root/PerformancePanel/PerformanceContent/FPSLabel
 @onready var ping_label: Label = $Root/PerformancePanel/PerformanceContent/PingLabel
+@onready var damage_flash_rect: ColorRect = $DamageFlash/Flash
+@onready var filter_canvas_layers: Array[CanvasLayer] = [
+	$Effects,
+	$Effects2,
+]
 
 var _performance_update_remaining := 0.0
+var _damage_flash_tween: Tween
 
 
 func _ready() -> void:
+	_load_hud_canvas_filter_option()
+	damage_flash_rect.color = Color.TRANSPARENT
+	damage_flash_rect.visible = false
 	clear_inventory_display()
 	interaction_label.visible = false
 	_update_performance_display()
+
+
+func flash_damage() -> void:
+	if _damage_flash_tween != null and _damage_flash_tween.is_valid():
+		_damage_flash_tween.kill()
+
+	damage_flash_rect.visible = true
+	damage_flash_rect.color = DAMAGE_FLASH_COLOR
+	_damage_flash_tween = create_tween()
+	_damage_flash_tween.tween_property(
+		damage_flash_rect,
+		"color",
+		Color.TRANSPARENT,
+		DAMAGE_FLASH_DURATION
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_damage_flash_tween.finished.connect(_on_damage_flash_finished)
+
+
+func _on_damage_flash_finished() -> void:
+	damage_flash_rect.color = Color.TRANSPARENT
+	damage_flash_rect.visible = false
+	_damage_flash_tween = null
+
+
+func set_hud_canvas_filters_enabled(enabled: bool) -> void:
+	for canvas_layer in filter_canvas_layers:
+		canvas_layer.visible = enabled
+
+
+func are_hud_canvas_filters_enabled() -> bool:
+	for canvas_layer in filter_canvas_layers:
+		if not canvas_layer.visible:
+			return false
+
+	return true
+
+
+func _load_hud_canvas_filter_option() -> void:
+	var config := ConfigFile.new()
+	config.load(OPTIONS_CONFIG_PATH)
+	set_hud_canvas_filters_enabled(
+		bool(config.get_value("graphics", "hud_canvas_filters", true))
+	)
 
 
 func _process(delta: float) -> void:

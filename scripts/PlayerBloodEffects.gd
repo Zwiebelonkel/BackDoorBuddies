@@ -4,6 +4,14 @@ extends Node
 @export_range(0.0, 600.0, 1.0) var blood_decal_lifetime := 90.0
 @export_range(1, 100, 1) var particle_amount := 28
 
+@export_group("Final Hit")
+@export var final_hit_particle_scene: PackedScene = preload(
+	"res://scenes/particles/bloodsplatter.tscn"
+)
+@export_range(0.0, 0.5, 0.01) var final_hit_exit_padding := 0.08
+@export_range(0.2, 2.0, 0.05) var final_hit_fallback_depth := 0.8
+@export_range(0.2, 3.0, 0.05) var final_hit_maximum_depth := 2.2
+
 @export_group("Wall Blood Splatter")
 @export_range(0.5, 20.0, 0.5) var wall_splatter_distance := 8.0
 @export_range(0.2, 3.0, 0.05) var gun_hit_splatter_size := 0.95
@@ -34,7 +42,8 @@ func spawn_blood_impact(
 	hit_position: Vector3,
 	hit_normal: Vector3,
 	projectile_direction := Vector3.ZERO,
-	weapon_hit_type: StringName = &""
+	weapon_hit_type: StringName = &"",
+	is_final_hit := false
 ) -> void:
 	var safe_normal := hit_normal.normalized()
 
@@ -42,7 +51,15 @@ func spawn_blood_impact(
 		safe_normal = Vector3.UP
 
 	_spawn_player_blood_decal(hit_position, safe_normal)
-	_spawn_blood_particles(hit_position, safe_normal)
+
+	if is_final_hit:
+		_spawn_final_hit_particles(
+			hit_position,
+			safe_normal,
+			projectile_direction
+		)
+	else:
+		_spawn_blood_particles(hit_position, safe_normal)
 
 	if weapon_hit_type == &"pistol" or weapon_hit_type == &"sniper":
 		_spawn_wall_blood_decal(
@@ -290,6 +307,135 @@ func _spawn_blood_particles(hit_position: Vector3, hit_normal: Vector3) -> void:
 	cleanup_timer.start()
 
 
+func _spawn_final_hit_particles(
+	hit_position: Vector3,
+	hit_normal: Vector3,
+	projectile_direction: Vector3
+) -> void:
+	if final_hit_particle_scene == null:
+		return
+
+	var current_scene := get_tree().current_scene
+
+	if current_scene == null:
+		return
+
+	var direction := projectile_direction.normalized()
+
+	if direction.length_squared() < 0.5:
+		direction = -hit_normal.normalized()
+
+	if direction.length_squared() < 0.5:
+		direction = Vector3.FORWARD
+
+	var particles := (
+		final_hit_particle_scene.instantiate() as GPUParticles3D
+	)
+
+	if particles == null:
+		push_warning(
+			"Final-Hit-Blutpartikel benötigen einen GPUParticles3D-Root."
+		)
+		return
+
+	particles.name = "FinalHitBloodParticles"
+	particles.add_to_group(&"final_hit_blood_particles")
+	current_scene.add_child(particles)
+	particles.global_transform = Transform3D(
+		_create_direction_basis(direction),
+		_get_final_hit_exit_position(hit_position, direction)
+	)
+
+	var process_material := (
+		particles.process_material as ParticleProcessMaterial
+	)
+
+	if process_material != null:
+		process_material = process_material.duplicate(true)
+		process_material.direction = Vector3.FORWARD
+		particles.process_material = process_material
+		var visibility_extent := clampf(
+			process_material.initial_velocity_max
+			* minf(particles.lifetime, 1.0)
+			+ 2.0,
+			6.0,
+			40.0
+		)
+		particles.visibility_aabb = AABB(
+			Vector3.ONE * -visibility_extent,
+			Vector3.ONE * visibility_extent * 2.0
+		)
+
+	particles.finished.connect(particles.queue_free, CONNECT_ONE_SHOT)
+	particles.emitting = true
+	particles.restart()
+
+	# Falls ein Renderer das finished-Signal nicht liefert, räumt der Timer die
+	# einmalige Szene trotzdem zuverlässig auf.
+	var cleanup_timer := Timer.new()
+	cleanup_timer.one_shot = true
+	cleanup_timer.wait_time = maxf(particles.lifetime, 0.1) + 1.0
+	cleanup_timer.timeout.connect(particles.queue_free)
+	particles.add_child(cleanup_timer)
+	cleanup_timer.start()
+
+
+func _get_final_hit_exit_position(
+	hit_position: Vector3,
+	direction: Vector3
+) -> Vector3:
+	var safe_direction := direction.normalized()
+
+	if safe_direction.length_squared() < 0.5:
+		return hit_position
+
+	var player := get_parent() as Node3D
+	var collision := (
+		player.get_node_or_null("PlayerHitbox/CollisionShape3D")
+		as CollisionShape3D
+		if player != null
+		else null
+	)
+	var capsule := (
+		collision.shape as CapsuleShape3D
+		if collision != null
+		else null
+	)
+	var travel_distance := final_hit_fallback_depth
+
+	if capsule != null:
+		var shape_basis := collision.global_basis
+		var capsule_axis := shape_basis.y.normalized()
+		var radial_scale := maxf(
+			shape_basis.x.length(),
+			shape_basis.z.length()
+		)
+		var vertical_scale := shape_basis.y.length()
+		var radius := capsule.radius * radial_scale
+		var half_segment := maxf(
+			capsule.height * vertical_scale * 0.5 - radius,
+			0.0
+		)
+		var directional_support := (
+			radius
+			+ half_segment * absf(safe_direction.dot(capsule_axis))
+		)
+		var hit_projection := (
+			hit_position - collision.global_position
+		).dot(safe_direction)
+		travel_distance = directional_support - hit_projection
+
+	travel_distance = clampf(
+		travel_distance,
+		final_hit_exit_padding,
+		final_hit_maximum_depth
+	)
+	return (
+		hit_position
+		+ safe_direction * (travel_distance + final_hit_exit_padding)
+	)
+
+
 func _get_blood_texture() -> ImageTexture:
 	if _blood_texture != null:
 		return _blood_texture
@@ -321,3 +467,13 @@ func _create_surface_basis(normal: Vector3) -> Basis:
 	var x_axis := reference.cross(y_axis).normalized()
 	var z_axis := x_axis.cross(y_axis).normalized()
 	return Basis(x_axis, y_axis, z_axis).orthonormalized()
+
+
+func _create_direction_basis(direction: Vector3) -> Basis:
+	var forward := direction.normalized()
+	var up := Vector3.UP
+
+	if absf(forward.dot(up)) > 0.98:
+		up = Vector3.RIGHT
+
+	return Basis.looking_at(forward, up).orthonormalized()

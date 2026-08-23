@@ -33,6 +33,16 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	var shooter := _find_shooter()
+
+	if (
+		automatic
+		and Input.is_action_pressed("primary_use")
+		and shooter != null
+		and shooter.is_multiplayer_authority()
+	):
+		use_primary()
+
 	_recoil_build_up = move_toward(
 		_recoil_build_up,
 		0.0,
@@ -44,6 +54,24 @@ func _process(delta: float) -> void:
 		base_spread,
 		recoil_recovery_speed * delta
 	)
+
+
+func use_primary() -> void:
+	if not _can_fire:
+		return
+
+	_can_fire = false
+	fired.emit()
+	_play_mechanical_animation()
+	_play_owner_animation(&"ual/Pistol_Shoot")
+	_fire_hitscan()
+
+	# Der visuelle Rueckstoss darf die hohe Feuerrate nicht blockieren. Ein
+	# neuer Schuss unterbricht den laufenden Tween und startet ihn erneut.
+	_play_recoil_animation()
+
+	await get_tree().create_timer(machine_fire_cooldown).timeout
+	_can_fire = true
 
 
 func _on_machine_pistol_fired() -> void:

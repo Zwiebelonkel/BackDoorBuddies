@@ -11,6 +11,22 @@ signal bullet_hit(collider: Object, position: Vector3, normal: Vector3)
 @export_flags_3d_physics var hit_collision_mask: int = 0xFFFFFFFF
 @export var attack_type: StringName = &"pistol"
 
+@export_group("Weapon Sounds")
+
+@export var pistol_shot_sound: AudioStream
+@export var machine_pistol_shot_sound: AudioStream
+@export var sniper_shot_sound: AudioStream
+@export var shotgun_shot_sound: AudioStream
+
+@export_range(-40.0, 10.0, 0.5)
+var shot_sound_volume_db := 0.0
+
+@export_range(1.0, 100.0, 1.0)
+var shot_sound_max_distance := 40.0
+
+@export_range(0.0, 0.2, 0.005)
+var shot_pitch_variation := 0.025
+
 @export_group("Muzzle Flash")
 @export_range(0.01, 0.2, 0.005) var muzzle_flash_duration: float = 0.045
 @export_range(0.0, 32.0, 0.1) var muzzle_flash_energy: float = 8.0
@@ -57,6 +73,7 @@ signal bullet_hit(collider: Object, position: Vector3, normal: Vector3)
 
 @export_group("Pistol Mechanical Animation")
 @export var slide_back_distance: float = 0.22
+@export var slide_back_direction := Vector3(0.0, 0.0, -1.0)
 @export var slide_back_duration: float = 0.025
 @export var slide_return_duration: float = 0.055
 
@@ -88,33 +105,38 @@ func _ready() -> void:
 	_muzzle_marker = find_child("Muzzle", true, false) as Marker3D
 	_shot_smoke_mesh = _create_shot_smoke_mesh()
 
-	var pistol_model := get_node_or_null("1911Model")
+	var pistol_model := get_node_or_null("1911Model") as Node3D
 
 	if pistol_model == null:
-		push_error("1911Model wurde nicht gefunden!")
 		return
 
-	_slide = pistol_model.find_child(
-		"PistolBarrel_Pistol_Metal_0",
-		true,
-		false
-	) as Node3D
+	# Das sichtbare Modell nutzt kurze Bauteilnamen. Die alten Namen bleiben
+	# als Fallback erhalten, damit beide Modellvarianten animiert werden.
+	_slide = pistol_model.find_child("slider", true, false) as Node3D
 
-	_trigger = pistol_model.find_child(
-		"PistolTrigger_Pistol_Metal_0",
-		true,
-		false
-	) as Node3D
+	if _slide == null:
+		_slide = pistol_model.find_child(
+			"PistolBarrel_Pistol_Metal_0",
+			true,
+			false
+		) as Node3D
+
+	_trigger = pistol_model.find_child("trigger", true, false) as Node3D
+
+	if _trigger == null:
+		_trigger = pistol_model.find_child(
+			"PistolTrigger_Pistol_Metal_0",
+			true,
+			false
+		) as Node3D
 
 	if _slide != null:
 		_slide_rest_position = _slide.position
-		print("SLIDE GEFUNDEN: ", _slide.get_path())
 	else:
 		push_error("Slide im sichtbaren 1911Model NICHT gefunden!")
 
 	if _trigger != null:
 		_trigger_rest_rotation = _trigger.rotation_degrees
-		print("TRIGGER GEFUNDEN: ", _trigger.get_path())
 	else:
 		push_error("Trigger im sichtbaren 1911Model NICHT gefunden!")
 
@@ -130,7 +152,7 @@ func use_primary() -> void:
 	_play_owner_animation(&"ual/Pistol_Shoot")
 	_fire_hitscan()
 
-	await _play_recoil_animation()
+	await _play_recoil_animation().finished
 
 	var remaining_cooldown := maxf(
 		fire_cooldown - recoil_duration - return_duration,
@@ -168,6 +190,7 @@ func _fire_hitscan() -> void:
 
 	_spawn_muzzle_flash(ray_direction)
 	_spawn_shot_smoke(ray_direction)
+	_play_sound(attack_type)
 
 	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
 	query.collision_mask = hit_collision_mask
@@ -237,8 +260,8 @@ func _spawn_muzzle_flash(fallback_direction: Vector3) -> void:
 
 	var flash_mesh := MeshInstance3D.new()
 	var sphere := SphereMesh.new()
-	sphere.radius = 0.3
-	sphere.height = 0.3
+	sphere.radius = 0.1
+	sphere.height = 0.1
 	sphere.radial_segments = 8
 	sphere.rings = 4
 	flash_mesh.mesh = sphere
@@ -501,7 +524,7 @@ func _find_player_from_collider(collider: Object) -> Node:
 	return null
 
 
-func _play_recoil_animation() -> void:
+func _play_recoil_animation() -> Tween:
 	if _active_tween != null and _active_tween.is_valid():
 		_active_tween.kill()
 
@@ -589,7 +612,7 @@ func _play_recoil_animation() -> void:
 		return_duration
 	)
 
-	await _active_tween.finished
+	return _active_tween
 	
 func _play_mechanical_animation() -> void:
 	if _mechanical_tween != null and _mechanical_tween.is_valid():
@@ -619,7 +642,7 @@ func _play_mechanical_animation() -> void:
 		# Z ist hier zunächst die Bewegungsachse des Schlittens.
 		var slide_back_position := (
 			_slide_rest_position
-			+ Vector3(0.0, 0.0, slide_back_distance)
+			+ slide_back_direction.normalized() * slide_back_distance
 		)
 
 		_mechanical_tween.tween_property(
@@ -672,3 +695,63 @@ func _play_mechanical_animation() -> void:
 			_trigger_rest_rotation,
 			trigger_return_duration
 		)
+		
+func _play_sound(type: StringName) -> void:
+	var sound: AudioStream = null
+
+	match type:
+		&"pistol":
+			sound = pistol_shot_sound
+
+		&"mp":
+			sound = machine_pistol_shot_sound
+
+		&"sniper":
+			sound = sniper_shot_sound
+
+		&"shotgun":
+			sound = shotgun_shot_sound
+
+		_:
+			push_warning(
+				"Kein Waffen-Sound für attack_type '%s' definiert."
+				% String(type)
+			)
+			return
+
+	if sound == null:
+		push_warning(
+			"AudioStream für attack_type '%s' ist leer."
+			% String(type)
+		)
+		return
+
+	var sound_player := AudioStreamPlayer3D.new()
+
+	sound_player.name = "WeaponShotSound"
+	sound_player.stream = sound
+	sound_player.volume_db = shot_sound_volume_db
+	sound_player.max_distance = shot_sound_max_distance
+
+	sound_player.pitch_scale = randf_range(
+		1.0 - shot_pitch_variation,
+		1.0 + shot_pitch_variation
+	)
+
+	var current_scene := get_tree().current_scene
+
+	if current_scene == null:
+		return
+
+	current_scene.add_child(sound_player)
+
+	if is_instance_valid(_muzzle_marker):
+		sound_player.global_position = _muzzle_marker.global_position
+	else:
+		sound_player.global_position = global_position
+
+	sound_player.finished.connect(
+		sound_player.queue_free
+	)
+
+	sound_player.play()

@@ -1,0 +1,60 @@
+[gd_scene load_steps=7 format=3 uid="uid://dcwc1ebgrxy2n"]
+
+[ext_resource type="Script" uid="uid://x6gh4rwa5vrk" path="res://scenes/props/lights/neon_bulb.gd" id="1_script"]
+
+[sub_resource type="StandardMaterial3D" id="HousingMaterial"]
+albedo_color = Color(0.075, 0.085, 0.09, 1)
+metallic = 0.7
+roughness = 0.38
+
+[sub_resource type="BoxMesh" id="FixtureMesh"]
+material = SubResource("HousingMaterial")
+size = Vector3(1.72, 0.08, 0.3)
+
+[sub_resource type="BoxMesh" id="EndCapMesh"]
+material = SubResource("HousingMaterial")
+size = Vector3(0.13, 0.1, 0.25)
+
+[sub_resource type="StandardMaterial3D" id="TubeMaterial"]
+albedo_color = Color(0.72, 0.94, 0.88, 1)
+emission_enabled = true
+emission = Color(0.48, 1, 0.83, 1)
+emission_energy_multiplier = 4.2
+
+[sub_resource type="BoxMesh" id="TubeMesh"]
+material = SubResource("TubeMaterial")
+size = Vector3(1.38, 0.045, 0.055)
+
+[node name="NeonBulb" type="Node3D" groups=["procedural_neon_bulb"]]
+script = ExtResource("1_script")
+
+[node name="Fixture" type="MeshInstance3D" parent="."]
+mesh = SubResource("FixtureMesh")
+
+[node name="EndCapLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.73, -0.065, 0)
+mesh = SubResource("EndCapMesh")
+
+[node name="EndCapRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.73, -0.065, 0)
+mesh = SubResource("EndCapMesh")
+
+[node name="TubeLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, -0.07)
+mesh = SubResource("TubeMesh")
+
+[node name="TubeRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0.07)
+mesh = SubResource("TubeMesh")
+
+[node name="Light" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -3.61999e-06, 1, 0, -1, -3.61999e-06, 0, -0.16, 0)
+light_color = Color(0.55, 0.92, 0.82, 1)
+light_energy = 2.4
+light_indirect_energy = 0.65
+spot_range = 5.5
+spot_attenuation = 1.15
+spot_angle = 68.0
+
+[node name="FlickerTimer" type="Timer" parent="."]
+one_shot = true

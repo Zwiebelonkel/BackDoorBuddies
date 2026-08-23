@@ -331,6 +331,21 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("2_ijpji")
 text = "Enabled"
 
+[node name="HudCanvasFiltersRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
+layout_mode = 2
+
+[node name="HudCanvasFiltersLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/HudCanvasFiltersRow"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "HUD Canvas Filters"
+
+[node name="HudCanvasFiltersCheckBox" type="CheckBox" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/HudCanvasFiltersRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ijpji")
+text = "Enabled"
+
 [node name="GraphicsHint" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.7, 0.68, 1)
@@ -368,5 +383,6 @@ text = "EXIT TO MAIN MENU"
 [connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/FogRow/FogCheckBox" to="." method="_on_world_graphics_toggled"]
 [connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/GlowRow/GlowCheckBox" to="." method="_on_world_graphics_toggled"]
 [connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/SdfgiRow/SdfgiCheckBox" to="." method="_on_world_graphics_toggled"]
+[connection signal="toggled" from="PanelContainer/MarginContainer/VBoxContainer/Tabs/Graphics/GraphicsScroll/GraphicsMargin/GraphicsOptions/HudCanvasFiltersRow/HudCanvasFiltersCheckBox" to="." method="_on_hud_canvas_filters_check_box_toggled"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Footer/CloseButton" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Footer/ExitToMainMenuButton" to="." method="_on_exit_to_main_menu_button_pressed"]

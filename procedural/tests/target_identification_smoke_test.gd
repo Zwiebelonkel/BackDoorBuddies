@@ -39,7 +39,17 @@ func _run_test() -> int:
 	var hair_clue := _find_clue(clues, &"hair")
 
 	if age_clue == null or hair_clue == null:
-		return _fail("The prototype age or hair note is missing.")
+		return _fail("The prototype note or USB clue is missing.")
+
+	if (
+		age_clue.scene_file_path
+		!= "res://procedural/items/target_clue_note_pickup.tscn"
+		or hair_clue.scene_file_path
+		!= "res://procedural/items/target_clue_drive_pickup.tscn"
+		or hair_clue.item_data.world_model.resource_path
+		!= "res://scenes/items/target_clue_drive_model.tscn"
+	):
+		return _fail("The second target clue does not use the USB model.")
 
 	var target_display := $Hall/Van/TargetDisplay
 	var target_viewport := target_display.get_node("SubViewport") as SubViewport

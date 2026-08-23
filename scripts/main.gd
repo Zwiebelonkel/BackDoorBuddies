@@ -128,6 +128,7 @@ func _spawn_dropped_item(data: Variant) -> Node:
 		return null
 
 	var item_path := str(data.get("item_path", ""))
+	var item_instance_id := str(data.get("item_instance_id", ""))
 	var spawn_position := data.get("position", Vector3.ZERO) as Vector3
 	var spawn_rotation := data.get("rotation", Vector3.ZERO) as Vector3
 
@@ -148,6 +149,7 @@ func _spawn_dropped_item(data: Variant) -> Node:
 		return null
 
 	pickup.item_data = loaded_data as ItemData
+	pickup.item_instance_id = item_instance_id
 	pickup.position = spawn_position
 	pickup.rotation = spawn_rotation
 	pickup.use_initial_pickup_delay = true
@@ -158,7 +160,8 @@ func _spawn_dropped_item(data: Variant) -> Node:
 func server_spawn_dropped_item(
 	item_path: String,
 	spawn_position: Vector3,
-	spawn_rotation: Vector3
+	spawn_rotation: Vector3,
+	item_instance_id: String = ""
 ) -> void:
 	if not multiplayer.is_server():
 		return
@@ -166,8 +169,14 @@ func server_spawn_dropped_item(
 	if item_path.is_empty():
 		return
 
+	var resolved_instance_id := item_instance_id.strip_edges()
+
+	if resolved_instance_id.is_empty():
+		resolved_instance_id = PickupItem.create_item_instance_id()
+
 	var spawn_data := {
 		"item_path": item_path,
+		"item_instance_id": resolved_instance_id,
 		"position": spawn_position,
 		"rotation": spawn_rotation
 	}

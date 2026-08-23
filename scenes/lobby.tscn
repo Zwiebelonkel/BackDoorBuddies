@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://cqapsd0jo17ov"]
+[gd_scene load_steps=45 format=3 uid="uid://cqapsd0jo17ov"]
 
 [ext_resource type="Script" uid="uid://d175dwblcl8rp" path="res://scripts/lobby.gd" id="1_lobby"]
 [ext_resource type="Material" uid="uid://ctpygeog7ypqd" path="res://resources/textures/darkBricks.tres" id="2_apkv3"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://dsrnp00r8a1vk" path="res://scripts/lobby_multiplayer_button.gd" id="6_multiplayer"]
 [ext_resource type="PackedScene" uid="uid://d2ei5j2nrftl3" path="res://scenes/options_menu.tscn" id="6_options"]
 [ext_resource type="FontFile" uid="uid://c05326lw2oif3" path="res://fonts/VCR_OSD_MONO_1.001.ttf" id="7_font"]
+[ext_resource type="PackedScene" uid="uid://b6lmpi8q5lm3l" path="res://scenes/props/staircase.tscn" id="8_staircase"]
 
 [sub_resource type="Environment" id="Environment_lobby"]
 background_mode = 1
@@ -31,7 +32,7 @@ roughness = 0.78
 
 [sub_resource type="BoxMesh" id="FloorMesh"]
 material = SubResource("FloorMaterial")
-size = Vector3(14, 0.2, 10)
+size = Vector3(14, 0.2, 18)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_07nfq"]
 render_priority = 0
@@ -47,7 +48,7 @@ shader_parameter/bump_strength = 0.25
 
 [sub_resource type="BoxMesh" id="CeilingMesh"]
 material = SubResource("ShaderMaterial_07nfq")
-size = Vector3(14, 0.2, 10)
+size = Vector3(14, 0.2, 18)
 
 [sub_resource type="StandardMaterial3D" id="WallMaterial"]
 albedo_color = Color(0.18, 0.2, 0.22, 1)
@@ -55,11 +56,11 @@ roughness = 0.9
 
 [sub_resource type="BoxMesh" id="NorthSouthWallMesh"]
 material = SubResource("WallMaterial")
-size = Vector3(14, 4, 0.2)
+size = Vector3(14, 6, 0.2)
 
 [sub_resource type="BoxMesh" id="EastWestWallMesh"]
 material = SubResource("WallMaterial")
-size = Vector3(0.2, 4, 10)
+size = Vector3(0.2, 6, 18)
 
 [sub_resource type="StandardMaterial3D" id="AccentMaterial"]
 albedo_color = Color(0.045, 0.16, 0.09, 1)
@@ -78,16 +79,57 @@ material = SubResource("ButtonMaterial")
 size = Vector3(0.48, 0.14, 0.48)
 
 [sub_resource type="BoxShape3D" id="FloorShape"]
-size = Vector3(14, 0.2, 10)
+size = Vector3(14, 0.2, 18)
 
 [sub_resource type="BoxShape3D" id="CeilingShape"]
-size = Vector3(14, 0.2, 10)
+size = Vector3(14, 0.2, 18)
 
 [sub_resource type="BoxShape3D" id="NorthSouthWallShape"]
-size = Vector3(14, 4, 0.2)
+size = Vector3(14, 6, 0.2)
 
 [sub_resource type="BoxShape3D" id="EastWestWallShape"]
-size = Vector3(0.2, 4, 10)
+size = Vector3(0.2, 6, 18)
+
+[sub_resource type="BoxMesh" id="PlatformMesh"]
+material = SubResource("FloorMaterial")
+size = Vector3(4.2, 0.2, 3)
+
+[sub_resource type="StandardMaterial3D" id="ButtonHousingMaterial"]
+albedo_color = Color(0.055, 0.065, 0.07, 1)
+metallic = 0.75
+roughness = 0.32
+
+[sub_resource type="BoxMesh" id="GuardSideMesh"]
+material = SubResource("ButtonHousingMaterial")
+size = Vector3(0.16, 1.15, 3)
+
+[sub_resource type="BoxMesh" id="GuardEndMesh"]
+material = SubResource("ButtonHousingMaterial")
+size = Vector3(4.2, 1.15, 0.16)
+
+[sub_resource type="BoxMesh" id="GuardCapSideMesh"]
+material = SubResource("AccentMaterial")
+size = Vector3(0.22, 0.08, 3.04)
+
+[sub_resource type="BoxMesh" id="GuardCapEndMesh"]
+material = SubResource("AccentMaterial")
+size = Vector3(4.24, 0.08, 0.22)
+
+[sub_resource type="BoxMesh" id="SupportMesh"]
+material = SubResource("ButtonHousingMaterial")
+size = Vector3(0.18, 2.2, 0.18)
+
+[sub_resource type="BoxShape3D" id="PlatformShape"]
+size = Vector3(4.2, 0.2, 3)
+
+[sub_resource type="BoxShape3D" id="GuardSideShape"]
+size = Vector3(0.16, 1.15, 3)
+
+[sub_resource type="BoxShape3D" id="GuardEndShape"]
+size = Vector3(4.2, 1.15, 0.16)
+
+[sub_resource type="BoxShape3D" id="SupportShape"]
+size = Vector3(0.18, 2.2, 0.18)
 
 [sub_resource type="StandardMaterial3D" id="TableMaterial"]
 albedo_color = Color(0.16, 0.105, 0.065, 1)
@@ -112,11 +154,6 @@ shader_parameter/bump_strength = 1.262
 [sub_resource type="BoxShape3D" id="TableShape"]
 size = Vector3(6.04641, 0.18, 1.1)
 
-[sub_resource type="StandardMaterial3D" id="ButtonHousingMaterial"]
-albedo_color = Color(0.055, 0.065, 0.07, 1)
-metallic = 0.75
-roughness = 0.32
-
 [sub_resource type="BoxMesh" id="PedestalMesh"]
 material = SubResource("ButtonHousingMaterial")
 size = Vector3(1.15, 0.9, 1.15)
@@ -140,36 +177,60 @@ environment = SubResource("Environment_lobby")
 [node name="Room" type="Node3D" parent="."]
 
 [node name="Floor" type="MeshInstance3D" parent="Room"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 4)
 material_override = ExtResource("2_omrgh")
 mesh = SubResource("FloorMesh")
 surface_material_override/0 = ExtResource("2_omrgh")
 
+[node name="CollisionShape3D" type="GPUParticlesCollisionBox3D" parent="Room/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00946045, -0.446167, -0.020813)
+size = Vector3(13.8365, 1.10767, 17.7601)
+
 [node name="Ceiling" type="MeshInstance3D" parent="Room"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.1, 4)
 material_override = ExtResource("2_omrgh")
 mesh = SubResource("CeilingMesh")
 
+[node name="CollisionShape3D" type="GPUParticlesCollisionBox3D" parent="Room/Ceiling"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0350647, 0.439697, 0.140198)
+size = Vector3(14.711, 1.12061, 18.8595)
+
 [node name="NorthWall" type="MeshInstance3D" parent="Room"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -5)
 mesh = SubResource("NorthSouthWallMesh")
 surface_material_override/0 = ExtResource("2_apkv3")
 
+[node name="CollisionShape3D" type="GPUParticlesCollisionBox3D" parent="Room/NorthWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00151825, 0.0119629, -0.451721)
+size = Vector3(13.8884, 6.09326, 1.09656)
+
 [node name="SouthWall" type="MeshInstance3D" parent="Room"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 13)
 material_override = ExtResource("2_apkv3")
 mesh = SubResource("NorthSouthWallMesh")
 surface_material_override/0 = ExtResource("2_apkv3")
 
+[node name="CollisionShape3D" type="GPUParticlesCollisionBox3D" parent="Room/SouthWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0058136, -0.00512695, 0.411743)
+size = Vector3(13.75, 6.01416, 1.17651)
+
 [node name="EastWall" type="MeshInstance3D" parent="Room"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 3, 4)
 mesh = SubResource("EastWestWallMesh")
 surface_material_override/0 = ExtResource("2_apkv3")
 
+[node name="CollisionShape3D" type="GPUParticlesCollisionBox3D" parent="Room/EastWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44751, 0.0570068, -0.0108337)
+size = Vector3(1.10498, 6.22632, 17.8808)
+
 [node name="WestWall" type="MeshInstance3D" parent="Room"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 3, 4)
 mesh = SubResource("EastWestWallMesh")
 surface_material_override/0 = ExtResource("2_apkv3")
+
+[node name="CollisionShape3D" type="GPUParticlesCollisionBox3D" parent="Room/WestWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.470947, 0.0375366, -0.0388794)
+size = Vector3(1.05811, 6.08582, 17.8265)
 
 [node name="NorthAccent" type="MeshInstance3D" parent="Room"]
 transform = Transform3D(8, 0, 0, 0, 0.12, 0, 0, 0, 0.08, 0, 3.6, -4.88)
@@ -180,28 +241,134 @@ mesh = SubResource("ButtonMesh")
 collision_mask = 0
 
 [node name="Floor" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 4)
 shape = SubResource("FloorShape")
 
 [node name="Ceiling" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.1, 4)
 shape = SubResource("CeilingShape")
 
 [node name="NorthWall" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -5)
 shape = SubResource("NorthSouthWallShape")
 
 [node name="SouthWall" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 13)
 shape = SubResource("NorthSouthWallShape")
 
 [node name="EastWall" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 3, 4)
 shape = SubResource("EastWestWallShape")
 
 [node name="WestWall" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 3, 4)
 shape = SubResource("EastWestWallShape")
+
+[node name="TestStaircase" parent="." instance=ExtResource("8_staircase")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8, 0, 7.3)
+
+[node name="Mezzanine" type="Node3D" parent="."]
+
+[node name="Platform" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 2.3, 11.2)
+material_override = ExtResource("2_omrgh")
+mesh = SubResource("PlatformMesh")
+
+[node name="WestGuard" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 2.975, 11.2)
+mesh = SubResource("GuardSideMesh")
+
+[node name="EastGuard" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7, 2.975, 11.2)
+mesh = SubResource("GuardSideMesh")
+
+[node name="SouthGuard" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 2.975, 12.7)
+mesh = SubResource("GuardEndMesh")
+
+[node name="NorthGuard" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(0.4, 0, 0, 0, 1, 0, 0, 0, 1, 5.86, 2.975, 9.7)
+mesh = SubResource("GuardEndMesh")
+
+[node name="WestGuardCap" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 3.59, 11.2)
+mesh = SubResource("GuardCapSideMesh")
+
+[node name="EastGuardCap" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7, 3.59, 11.2)
+mesh = SubResource("GuardCapSideMesh")
+
+[node name="SouthGuardCap" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 3.59, 12.7)
+mesh = SubResource("GuardCapEndMesh")
+
+[node name="NorthGuardCap" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(0.4, 0, 0, 0, 1, 0, 0, 0, 1, 5.86, 3.59, 9.7)
+mesh = SubResource("GuardCapEndMesh")
+
+[node name="SupportNW" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 1.1, 9.8)
+mesh = SubResource("SupportMesh")
+
+[node name="SupportNE" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6, 1.1, 9.8)
+mesh = SubResource("SupportMesh")
+
+[node name="SupportSW" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 1.1, 12.6)
+mesh = SubResource("SupportMesh")
+
+[node name="SupportSE" type="MeshInstance3D" parent="Mezzanine"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6, 1.1, 12.6)
+mesh = SubResource("SupportMesh")
+
+[node name="Collision" type="StaticBody3D" parent="Mezzanine"]
+collision_mask = 0
+
+[node name="Platform" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 2.3, 11.2)
+shape = SubResource("PlatformShape")
+
+[node name="WestGuard" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 2.975, 11.2)
+shape = SubResource("GuardSideShape")
+
+[node name="EastGuard" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7, 2.975, 11.2)
+shape = SubResource("GuardSideShape")
+
+[node name="SouthGuard" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 2.975, 12.7)
+shape = SubResource("GuardEndShape")
+
+[node name="NorthGuard" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(0.4, 0, 0, 0, 1, 0, 0, 0, 1, 5.86, 2.975, 9.7)
+shape = SubResource("GuardEndShape")
+
+[node name="SupportNW" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 1.1, 9.8)
+shape = SubResource("SupportShape")
+
+[node name="SupportNE" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6, 1.1, 9.8)
+shape = SubResource("SupportShape")
+
+[node name="SupportSW" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 1.1, 12.6)
+shape = SubResource("SupportShape")
+
+[node name="SupportSE" type="CollisionShape3D" parent="Mezzanine/Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6, 1.1, 12.6)
+shape = SubResource("SupportShape")
+
+[node name="StaircaseSign" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8, 1.35, 4.45)
+billboard = 1
+text = "TREPPEN-TEST
+HOCH / RUNTER"
+font = ExtResource("7_font")
+font_size = 34
+outline_size = 8
 
 [node name="WeaponTable" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.15713, 0.92, -2.3)
@@ -218,7 +385,7 @@ shape = SubResource("TableShape")
 [node name="WeaponPickups" type="Node3D" parent="."]
 
 [node name="WeaponSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://procedural/items/pistol_pickup.tscn", "res://procedural/items/knife_pickup.tscn", "uid://eabswffi3p10")
+_spawnable_scenes = PackedStringArray("res://procedural/items/pistol_pickup.tscn", "res://procedural/items/knife_pickup.tscn", "uid://eabswffi3p10", "uid://cmwtxebxuli2o", "res://procedural/items/flashlight_pickup.tscn", "res://procedural/items/lobby_target_clue_note_pickup.tscn", "res://procedural/items/lobby_target_clue_drive_pickup.tscn")
 spawn_path = NodePath("../WeaponPickups")
 
 [node name="StartPedestal" type="MeshInstance3D" parent="."]
@@ -350,6 +517,20 @@ light_color = Color(0, 1, 0.0833333, 1)
 light_energy = 4.0
 shadow_enabled = true
 omni_range = 9.0
+
+[node name="OmniLight03" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8, 5.15, 8.1)
+light_color = Color(0.12, 1, 0.32, 1)
+light_energy = 3.2
+shadow_enabled = true
+omni_range = 8.5
+
+[node name="OmniLight04" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8, 4.6, 8)
+light_color = Color(0.2, 0.48, 0.36, 1)
+light_energy = 2.2
+shadow_enabled = true
+omni_range = 7.5
 
 [node name="FallbackCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.992809, 0.119712, 0, -0.119712, 0.992809, 0, 2.5, 7.5)

@@ -20,6 +20,9 @@ var _unscoped_fov := 75.0
 var _scope_tween: Tween
 var _scope_recoil_tween: Tween
 var _current_scoped_fov := 18.0
+var _has_captured_unscoped_fov := false
+var _scoped_shooter: CollisionObject3D = null
+var _scoped_camera: Camera3D = null
 
 
 func _ready() -> void:
@@ -94,6 +97,47 @@ func get_current_scope_fov() -> float:
 	return _current_scoped_fov
 
 
+func reset_scope_immediate() -> void:
+	if _scope_tween != null and _scope_tween.is_valid():
+		_scope_tween.kill()
+
+	if _scope_recoil_tween != null and _scope_recoil_tween.is_valid():
+		_scope_recoil_tween.kill()
+
+	_scope_tween = null
+	_scope_recoil_tween = null
+	var shooter := (
+		_scoped_shooter
+		if is_instance_valid(_scoped_shooter)
+		else _find_shooter()
+	)
+	var aim_camera := (
+		_scoped_camera
+		if is_instance_valid(_scoped_camera)
+		else _find_aim_camera(shooter)
+	)
+
+	if _has_captured_unscoped_fov and aim_camera != null:
+		aim_camera.fov = _unscoped_fov
+
+	_is_scoped = false
+	_has_captured_unscoped_fov = false
+	_scoped_shooter = null
+	_scoped_camera = null
+
+	if is_instance_valid(model_root):
+		model_root.visible = true
+
+	if is_instance_valid(scope_overlay):
+		scope_overlay.visible = false
+		scope_overlay.modulate.a = 0.0
+
+	if shooter != null and shooter.has_method(
+		"set_weapon_aim_sensitivity_multiplier"
+	):
+		shooter.set_weapon_aim_sensitivity_multiplier(1.0)
+
+
 func _set_scoped(enabled: bool, shooter: CollisionObject3D) -> void:
 	if _is_scoped == enabled:
 		return
@@ -104,6 +148,8 @@ func _set_scoped(enabled: bool, shooter: CollisionObject3D) -> void:
 		return
 
 	_is_scoped = enabled
+	_scoped_shooter = shooter
+	_scoped_camera = aim_camera
 
 	if _scope_tween != null and _scope_tween.is_valid():
 		_scope_tween.kill()
@@ -116,7 +162,10 @@ func _set_scoped(enabled: bool, shooter: CollisionObject3D) -> void:
 	_scope_tween.set_ease(Tween.EASE_IN_OUT)
 
 	if enabled:
-		_unscoped_fov = aim_camera.fov
+		if not _has_captured_unscoped_fov:
+			_unscoped_fov = aim_camera.fov
+			_has_captured_unscoped_fov = true
+
 		_current_scoped_fov = clampf(
 			_current_scoped_fov,
 			minimum_scoped_fov,
@@ -155,6 +204,9 @@ func _set_scoped(enabled: bool, shooter: CollisionObject3D) -> void:
 			func() -> void:
 				if not _is_scoped:
 					scope_overlay.visible = false
+					_has_captured_unscoped_fov = false
+					_scoped_shooter = null
+					_scoped_camera = null
 		)
 
 	if shooter.has_method("set_weapon_aim_sensitivity_multiplier"):
@@ -201,16 +253,4 @@ func _update_zoom_label() -> void:
 
 
 func _exit_tree() -> void:
-	if not _is_scoped:
-		return
-
-	var shooter := _find_shooter()
-	var aim_camera := _find_aim_camera(shooter)
-
-	if aim_camera != null:
-		aim_camera.fov = _unscoped_fov
-
-	if shooter != null and shooter.has_method(
-		"set_weapon_aim_sensitivity_multiplier"
-	):
-		shooter.set_weapon_aim_sensitivity_multiplier(1.0)
+	reset_scope_immediate()

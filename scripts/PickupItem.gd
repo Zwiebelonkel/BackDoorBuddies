@@ -10,6 +10,7 @@ const OUTLINE_SHADER := preload("res://shaders/outline.gdshader")
 
 		if is_node_ready():
 			_apply_item_data()
+@export var item_instance_id: String = ""
 
 @export_group("Pickup")
 @export var pickup_distance: float = 3.5
@@ -40,7 +41,25 @@ var _outline_material: ShaderMaterial
 var _previous_material_overlays: Dictionary = {}
 
 
+static func create_item_instance_id() -> String:
+	var random_bytes := Crypto.new().generate_random_bytes(16)
+
+	if not random_bytes.is_empty():
+		return random_bytes.hex_encode()
+
+	return "%s_%s_%s" % [
+		Time.get_unix_time_from_system(),
+		Time.get_ticks_usec(),
+		randi(),
+	]
+
+
+func _enter_tree() -> void:
+	_ensure_item_instance_id()
+
+
 func _ready() -> void:
+	_ensure_item_instance_id()
 	_apply_item_data()
 
 	if model_container:
@@ -49,6 +68,13 @@ func _ready() -> void:
 	if use_initial_pickup_delay and initial_pickup_delay > 0.0:
 		can_be_picked_up = false
 		_unlock_pickup_after_delay()
+
+
+func _ensure_item_instance_id() -> void:
+	item_instance_id = item_instance_id.strip_edges()
+
+	if multiplayer.is_server() and item_instance_id.is_empty():
+		item_instance_id = create_item_instance_id()
 
 
 func _unlock_pickup_after_delay() -> void:
@@ -190,6 +216,27 @@ func detach_from_van() -> void:
 func apply_van_transform(van_transform: Transform3D) -> void:
 	if van_attached:
 		global_transform = van_transform * van_local_transform
+
+
+func server_claim_for_sale() -> bool:
+	if (
+		not multiplayer.is_server()
+		or _was_picked_up
+		or is_queued_for_deletion()
+		or not can_be_picked_up
+	):
+		return false
+
+	_was_picked_up = true
+	can_be_picked_up = false
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
+
+	for child in get_children():
+		if child is CollisionShape3D:
+			child.set_deferred("disabled", true)
+
+	return true
 	
 func request_pickup() -> void:
 	if not can_be_picked_up:
@@ -256,7 +303,11 @@ func _server_try_pickup(peer_id: int) -> void:
 	_was_picked_up = true
 
 	# Zunächst Inventar serverseitig ändern.
-	var accepted: bool = player.server_receive_item(item_data)
+	_ensure_item_instance_id()
+	var accepted: bool = player.server_receive_item(
+		item_data,
+		item_instance_id
+	)
 
 	if not accepted:
 		_was_picked_up = false

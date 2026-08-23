@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ItemSpawnTable" load_steps=13 format=3 uid="uid://demkla716n2os"]
+[gd_resource type="Resource" script_class="ItemSpawnTable" load_steps=15 format=3 uid="uid://demkla716n2os"]
 
 [ext_resource type="Script" uid="uid://bwiedn753xghq" path="res://procedural/scripts/item_spawn_table.gd" id="1_table"]
 [ext_resource type="Script" uid="uid://d1dwepdsdct1k" path="res://procedural/scripts/item_spawn_entry.gd" id="2_entry"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://procedural/items/mdma_pickup.tscn" id="5_mdma"]
 [ext_resource type="PackedScene" uid="uid://cas2l4b18llcf" path="res://procedural/items/cocaine_pickup.tscn" id="6_cocaine"]
 [ext_resource type="PackedScene" path="res://procedural/items/knife_pickup.tscn" id="7_knife"]
+[ext_resource type="PackedScene" path="res://procedural/items/flashlight_pickup.tscn" id="8_flashlight"]
 
 [sub_resource type="Resource" id="Weed"]
 script = ExtResource("2_entry")
@@ -43,6 +44,13 @@ item_scene = ExtResource("7_knife")
 weight = 8.0
 vertical_offset = 0.035
 
+[sub_resource type="Resource" id="Flashlight"]
+script = ExtResource("2_entry")
+item_id = &"flashlight"
+item_scene = ExtResource("8_flashlight")
+weight = 10.0
+vertical_offset = 0.08
+
 [resource]
 script = ExtResource("1_table")
-entries = Array[ExtResource("2_entry")]([SubResource("Weed"), SubResource("WeedBag"), SubResource("Mdma"), SubResource("Cocaine"), SubResource("Knife")])
+entries = Array[ExtResource("2_entry")]([SubResource("Weed"), SubResource("WeedBag"), SubResource("Mdma"), SubResource("Cocaine"), SubResource("Knife"), SubResource("Flashlight")])
